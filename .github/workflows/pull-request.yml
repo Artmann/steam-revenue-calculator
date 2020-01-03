@@ -1,0 +1,14 @@
+name: Pull Request
+on: [ push ]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Dependecies
+      run: yarn
+    - name: Test Suite
+      run: yarn test
+    - name: Build
+      run: yarn build
