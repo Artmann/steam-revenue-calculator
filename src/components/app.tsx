@@ -75,7 +75,7 @@ export default function App() {
           <Column style={{ paddingRight: '6rem' }}>
             <Header>Calculate Revenue from Steam Games</Header>
             <Blurb>
-              Using the <a href="http://greyaliengames.com/blog/how-to-estimate-how-many-sales-a-steam-game-has-made">Boxleiter method</a>
+              Using the <a href="http://greyaliengames.com/blog/how-to-estimate-how-many-sales-a-steam-game-has-made">Boxleiter method </a>
               we can use the number of review a game has on Steam to estimate the number of owners. From this, we can
               calculate the gross revenue and by adjusting for discounts, regional pricing, etc. we can get a rough
               idea of the net revune.
