@@ -9,6 +9,6 @@ jobs:
     - name: Dependecies
       run: yarn
     - name: Test Suite
-      run: yarn test
+      run: CI=true yarn test
     - name: Build
-      run: yarn build
+      run: CI=true yarn build
