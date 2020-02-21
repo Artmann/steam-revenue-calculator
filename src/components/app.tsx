@@ -31,7 +31,7 @@ const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   height: 100vh;
-  justify-content: space-between;
+  justify-content: center;
   margin: 0 auto;
   max-width: 62rem;
   padding: 2rem;
