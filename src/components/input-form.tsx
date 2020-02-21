@@ -44,14 +44,26 @@ const Input = styled.input`
   }
 `;
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.max(Math.min(value, max), min);
+}
+
 export default function InputForm({ numberOfReviews, price, onNumberOfReviewsChanged, onPriceChanged }: InputFormProps) {
   const reviewChangeHandler = (event: FormEvent<HTMLInputElement>) => {
-    const value = parseInt(event.currentTarget.value, 10);
+    const value = clamp(
+      parseInt(event.currentTarget.value, 10),
+      0,
+      9999999
+    );
 
     onNumberOfReviewsChanged(value);
   };
   const priceChangeHandler = (event: FormEvent<HTMLInputElement>) => {
-    const value = parseInt(event.currentTarget.value, 10);
+    const value = clamp(
+      parseInt(event.currentTarget.value, 10),
+      0.99,
+      999.99
+    );
 
     onPriceChanged(value);
   };
@@ -65,9 +77,10 @@ export default function InputForm({ numberOfReviews, price, onNumberOfReviewsCha
         <Input
           type="number"
           data-testid="review-input"
-          defaultValue={ numberOfReviews }
           id="numberOfReviews"
-          onChange={ reviewChangeHandler } />
+          onChange={ reviewChangeHandler }
+          value={ numberOfReviews }
+          />
       </FormGroup>
       <FormGroup>
         <Label htmlFor="price">
@@ -76,11 +89,9 @@ export default function InputForm({ numberOfReviews, price, onNumberOfReviewsCha
         <Input
           type="number"
           data-testid="price-input"
-          defaultValue={ price }
           id="price"
           onChange={ priceChangeHandler }
-          min="0.99"
-          max="999"
+          value={ price }
           />
       </FormGroup>
     </Form>
