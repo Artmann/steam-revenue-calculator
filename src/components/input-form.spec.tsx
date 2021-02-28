@@ -87,6 +87,38 @@ describe('Breakdown', () => {
     expect(priceHandler).toHaveBeenCalledWith(8.89);
   });
 
+  it('does not update values on invalid input', () => {
+    const reviewHandler = jest.fn();
+    const priceHandler = jest.fn();
+
+    render(
+      <InputForm
+        numberOfReviews={ 10 }
+        price={ 14.99 }
+        onNumberOfReviewsChanged={ reviewHandler }
+        onPriceChanged={ priceHandler }
+      />
+    );
+
+    const reviewInput = screen.getByTestId('review-input');
+    const priceInput = screen.getByTestId('price-input');
+
+    fireEvent.change(reviewInput, {
+      target: {
+        value: 'hello'
+      }
+    });
+
+    fireEvent.change(priceInput, {
+      target: {
+        value: 'world'
+      }
+    });
+
+    expect(reviewHandler).toHaveBeenCalledWith(10);
+    expect(priceHandler).toHaveBeenCalledWith(14.99);
+  });
+
   it('clamps values that are to big', async () => {
     const reviewHandler = jest.fn();
     const priceHandler = jest.fn();
