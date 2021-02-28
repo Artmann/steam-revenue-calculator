@@ -8,8 +8,8 @@ describe('Breakdown', () => {
   it('displays the total revenue', async () => {
     const { getByTestId } = render(<App />);
 
-    fireEvent.change(getByTestId('review-input'), { currentTarget: { value: '789' } })
-    fireEvent.change(getByTestId('price-input'), { currentTarget: { value: '7.99' } })
+    fireEvent.change(getByTestId('review-input'), { currentTarget: { value: '789' } });
+    fireEvent.change(getByTestId('price-input'), { currentTarget: { value: '7.99' } });
 
     expect(getByTestId('total-revenue')).toHaveTextContent('$295,880.85');
     expect(getByTestId('gross-revenue')).toHaveTextContent('$295,881.00');

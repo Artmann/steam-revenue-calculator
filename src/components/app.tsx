@@ -20,35 +20,6 @@ const Background = styled.div`
   height: 100%;
   width: 100%;
 `;
-
-const Overlay = styled.div`
-  background: rgba(38, 31, 68, 0.85);
-  height: 100%;
-  width: 100%;
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  height: 100vh;
-  justify-content: center;
-  margin: 0 auto;
-  max-width: 62rem;
-  padding: 2rem;
-  padding-top: 8rem;
-`;
-
-const Column = styled.div`
-  padding: 1rem;
-`;
-
-const Header = styled.h1`
-  color: #fff;
-  max-width: 24rem;
-  margin: 0;
-  margin-bottom: 1rem;
-`;
-
 const Blurb = styled.p`
   color: #fff;
   line-height: 1.625;
@@ -60,12 +31,36 @@ const Blurb = styled.p`
     text-decoration: underline;
   }
 `;
+const Column = styled.div`
+  padding: 1rem;
+`;
+const Container = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  height: 100vh;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 62rem;
+  padding: 2rem;
+  padding-top: 8rem;
+`;
+const Header = styled.h1`
+  color: #fff;
+  max-width: 24rem;
+  margin: 0;
+  margin-bottom: 1rem;
+`;
+const Overlay = styled.div`
+  background: rgba(38, 31, 68, 0.85);
+  height: 100%;
+  width: 100%;
+`;
 
 export default function App() {
   const [ numberOfReviews, setNumberOfReviews ] = useState(387);
   const [ price, setPrice ] = useState(16.99);
 
-  const numberOfOwners = numberOfReviews * 45;
+  const numberOfOwners = numberOfReviews * 45.0;
   const totalRevenue = numberOfOwners * price;
 
   return (

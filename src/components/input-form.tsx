@@ -12,11 +12,9 @@ const Form = styled.form`
   display: flex;
   flex-wrap: wrap;
 `;
-
 const FormGroup = styled.div`
   margin: 0 2rem 2rem 0;
 `;
-
 const Label = styled.label`
   color: #ddd;
   display: block;
@@ -25,7 +23,6 @@ const Label = styled.label`
   margin-bottom: 0.75rem;
   text-transform: uppercase;
 `;
-
 const Input = styled.input`
   appearance: none;
   background: transparent;
@@ -48,7 +45,12 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(Math.min(value, max), min);
 }
 
-export default function InputForm({ numberOfReviews, price, onNumberOfReviewsChanged, onPriceChanged }: InputFormProps) {
+export default function InputForm({
+  numberOfReviews,
+  price,
+  onNumberOfReviewsChanged,
+  onPriceChanged
+}: InputFormProps) {
   const reviewChangeHandler = (event: FormEvent<HTMLInputElement>) => {
     const value = clamp(
       parseInt(event.currentTarget.value, 10),
@@ -60,7 +62,7 @@ export default function InputForm({ numberOfReviews, price, onNumberOfReviewsCha
   };
   const priceChangeHandler = (event: FormEvent<HTMLInputElement>) => {
     const value = clamp(
-      parseInt(event.currentTarget.value, 10),
+      parseFloat(event.currentTarget.value),
       0.99,
       999.99
     );
