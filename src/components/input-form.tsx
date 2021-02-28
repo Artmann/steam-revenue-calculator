@@ -53,16 +53,17 @@ export default function InputForm({
 }: InputFormProps) {
   const reviewChangeHandler = (event: FormEvent<HTMLInputElement>) => {
     const value = clamp(
-      parseInt(event.currentTarget.value, 10),
+      parseInt(event.currentTarget.value, 10) || numberOfReviews,
       0,
       9999999
     );
 
     onNumberOfReviewsChanged(value);
   };
+
   const priceChangeHandler = (event: FormEvent<HTMLInputElement>) => {
     const value = clamp(
-      parseFloat(event.currentTarget.value),
+      parseFloat(event.currentTarget.value) || price,
       0.99,
       999.99
     );
