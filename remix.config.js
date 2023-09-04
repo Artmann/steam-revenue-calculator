@@ -9,6 +9,7 @@ module.exports = {
   // appDirectory: "app",
   // assetsBuildDirectory: "public/build",
   // publicPath: "/build/",
+  tailwind: true,
   serverModuleFormat: "cjs",
   future: {
     v2_dev: true,

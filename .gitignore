@@ -1,5 +1,7 @@
 node_modules
 
+data/games.json
+
 /.cache
 /.output
 /.vercel
