@@ -1,7 +1,7 @@
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import fs from 'fs'
-import { useRef, type ReactElement, useEffect } from 'react'
+import { useRef, type ReactElement, useEffect, useState } from 'react'
 import slugify from 'slugify'
 
 import type { GameDetails } from '~/games'
@@ -96,7 +96,7 @@ export default function GamesRoute(): ReactElement {
             max={100_000}
           />
           <GameSection
-            title="Over $1000"
+            title="Over $1,000"
             games={filteredGames}
             min={1_000}
             max={50_000}
@@ -118,6 +118,8 @@ function GameSection({
   min: number
   max: number
 }): ReactElement | null {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+
   const filteredGames = games
     .filter((game) => game.grossRevenue >= min && game.grossRevenue < max)
     .sort((a, b) => (a.grossRevenue > b.grossRevenue ? -1 : 1))
@@ -128,20 +130,60 @@ function GameSection({
 
   return (
     <div className="w-full">
-      <h2
-        className="text-3xl mb-8"
-        id={slugify(title, { lower: true })}
+      <div
+        className="flex pointer-cursor items-center gap-4 mb-8"
+        onClick={() => setIsCollapsed(!isCollapsed)}
       >
-        {title}
-      </h2>
-      <div className="flex flex-wrap gap-8">
-        {filteredGames.map((game) => (
-          <GameCard
-            key={game.id}
-            game={game}
-          />
-        ))}
+        <div>
+          <h2
+            className="text-3xl pointer-cursor block"
+            id={slugify(title, { lower: true })}
+          >
+            {title}
+          </h2>
+        </div>
+
+        <div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="stroke-white h-4 w-4"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            {isCollapsed ? (
+              <>
+                <path
+                  stroke="none"
+                  d="M0 0h24v24H0z"
+                  fill="none"
+                ></path>
+                <path d="M6 15l6 -6l6 6"></path>
+              </>
+            ) : (
+              <>
+                <path
+                  stroke="none"
+                  d="M0 0h24v24H0z"
+                  fill="none"
+                ></path>
+                <path d="M6 9l6 6l6 -6"></path>
+              </>
+            )}
+          </svg>
+        </div>
       </div>
+      {!isCollapsed && (
+        <div className="flex flex-wrap gap-8">
+          {filteredGames.map((game) => (
+            <GameCard
+              key={game.id}
+              game={game}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
