@@ -15,7 +15,18 @@ export const loader: LoaderFunction = async (): Promise<LoaderData> => {
   const raw = await fs.promises.readFile('./data/games-filtered.json', 'utf-8')
   const games = JSON.parse(raw) as GameDetails[]
 
-  return { games }
+  const seenNames = new Set()
+  const uniqueGames = games.filter((game) => {
+    if (!seenNames.has(game.name)) {
+      seenNames.add(game.name)
+
+      return true
+    }
+
+    return false
+  })
+
+  return { games: uniqueGames }
 }
 
 interface GameWithRevenue extends GameDetails {
