@@ -50,7 +50,15 @@ export default function GamesRoute(): ReactElement {
       <div className="w-full max-w-5xl mx-auto flex flex-col gap-8">
         <h1 className="text-4xl">Games</h1>
 
-        <div className=""></div>
+        <div className="w-full">
+          Here, we've compiled a list of games along with their estimated
+          revenue figures. Our estimations are based on various metrics like
+          sales volume, current market trends, and user reviews. While we strive
+          to be as accurate as possible, it's important to note that these
+          figures are approximations and might not represent the exact revenue
+          earned by the developers or publishers. Dive in and explore how your
+          favorite games might be performing on Steam!
+        </div>
 
         <div className="flex flex-col gap-8">
           <GameSection
