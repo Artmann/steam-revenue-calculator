@@ -11,3 +11,5 @@ data/games.json
 /build
 /public/build
 .env
+
+.DS_Store
