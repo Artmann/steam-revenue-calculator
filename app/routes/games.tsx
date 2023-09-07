@@ -11,9 +11,24 @@ interface LoaderData {
   games: GameDetails[]
 }
 
+let games: GameDetails[] | undefined
+
+async function fetchGames(): Promise<GameDetails[]> {
+  if (games) {
+    return games
+  }
+
+  const response = await fetch(
+    'https://steam-revenue-calculator.s3.amazonaws.com/games-filtered.json'
+  )
+
+  games = (await response.json()) as GameDetails[]
+
+  return games
+}
+
 export const loader: LoaderFunction = async (): Promise<LoaderData> => {
-  const raw = await fs.promises.readFile('./data/games-filtered.json', 'utf-8')
-  const games = JSON.parse(raw) as GameDetails[]
+  const games = await fetchGames()
 
   const seenNames = new Set()
   const uniqueGames = games.filter((game) => {
