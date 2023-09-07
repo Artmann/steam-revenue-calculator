@@ -41,7 +41,7 @@ export default function HomePageRoute() {
                   Reviews
                 </label>
                 <input
-                  className="border border-gray-300 rounded-md p-2 bg-transparent max-w-[8rem]"
+                  className="border border-gray-300 rounded-md p-2 bg-transparent w-32"
                   id="number-of-reviews"
                   min="1"
                   type="number"
@@ -57,7 +57,7 @@ export default function HomePageRoute() {
                   Price
                 </label>
                 <input
-                  className="border border-gray-300 rounded-md p-2 bg-transparent max-w-[7rem]"
+                  className="border border-gray-300 rounded-md p-2 bg-transparent w-32"
                   id="price"
                   min="0"
                   type="number"
