@@ -38,10 +38,10 @@ export default function HomePageRoute() {
                   className="block uppercase tracking-wide font-semibold text-sm mb-2"
                   htmlFor="number-of-reviews"
                 >
-                  Number of Reviews
+                  Reviews
                 </label>
                 <input
-                  className="border border-gray-300 rounded-md p-2 bg-transparent"
+                  className="border border-gray-300 rounded-md p-2 bg-transparent max-w-[8rem]"
                   id="number-of-reviews"
                   min="1"
                   type="number"
@@ -57,7 +57,7 @@ export default function HomePageRoute() {
                   Price
                 </label>
                 <input
-                  className="border border-gray-300 rounded-md p-2 bg-transparent"
+                  className="border border-gray-300 rounded-md p-2 bg-transparent max-w-[7rem]"
                   id="price"
                   min="0"
                   type="number"

@@ -14,8 +14,8 @@ describe('HomePageRoute', () => {
 
     expect(screen.getByTestId('gross-revenue')).toHaveTextContent('$1,038,807')
 
-    await userEvent.clear(screen.getByLabelText('Number of Reviews'))
-    await userEvent.type(screen.getByLabelText('Number of Reviews'), '2300')
+    await userEvent.clear(screen.getByLabelText('Reviews'))
+    await userEvent.type(screen.getByLabelText('Reviews'), '2300')
 
     await userEvent.clear(screen.getByLabelText('Price'))
     await userEvent.type(screen.getByLabelText('Price'), '6.99')
