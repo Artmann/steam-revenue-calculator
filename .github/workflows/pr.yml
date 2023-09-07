@@ -1,0 +1,45 @@
+name: CI
+
+on: [push]
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: yarn
+    - run: yarn build
+  
+  Test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: yarn
+    - run: yarn build
+    - run: yarn test
+      env:
+        CI: true
+#  Lint:
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 5
+#    strategy:
+#      matrix:
+#        node-version: [ 16.x ]
+#    steps:
+#    - uses: actions/checkout@v2
+#   - name: Use Node.js ${{ matrix.node-version }}
+#     uses: actions/setup-node@v1
+#     with:
+#       node-version: ${{ matrix.node-version }}
+#   - run: yarn
+#   - run: yarn lint
