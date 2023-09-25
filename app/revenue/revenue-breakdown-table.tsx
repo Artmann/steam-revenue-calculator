@@ -1,17 +1,11 @@
 import type { ReactElement } from 'react'
+
 import type { RevenueBreakdown } from './calculate-revenue'
+import { formatCurrency } from '~/games'
 
 interface RevenueBreakdownTableProps {
   breakdown: RevenueBreakdown
 }
-
-const formatCurrency = (amount: number, rounded: boolean = false) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: rounded ? 0 : 2,
-    maximumFractionDigits: 2
-  }).format(rounded ? Math.round(amount) : amount)
 
 export function RevenueBreakdownTable({
   breakdown
@@ -28,33 +22,33 @@ export function RevenueBreakdownTable({
         <div className="uppercase text-sm">Gross Revenue</div>
       </div>
       <div className="w-full">
-        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2 w-full">
+        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
           <div className="uppercase flex-1">Adj. Regional Pricing</div>
           <div data-testid="adjusted-regional-pricing">
             {formatCurrency(breakdown.adjustedRegionalPricing)}
           </div>
         </div>
-        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2 w-full">
+        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
           <div className="uppercase flex-1">Discounts</div>
           <div data-testid="discounts">
             {formatCurrency(breakdown.discounts)}
           </div>
         </div>
-        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2 w-full">
+        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
           <div className="uppercase flex-1">Refunds</div>
           <div data-testid="refunds">{formatCurrency(breakdown.refunds)}</div>
         </div>
-        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2 w-full">
+        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
           <div className="uppercase flex-1">Steam Cut</div>
           <div data-testid="steam-fee">
             {formatCurrency(breakdown.steamFee)}
           </div>
         </div>
-        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2 w-full">
+        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
           <div className="uppercase flex-1">VAT / Sales Tax</div>
           <div data-testid="vat">{formatCurrency(breakdown.vat)}</div>
         </div>
-        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 py-2 w-full font-bold">
+        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 py-2 font-bold">
           <div className="uppercase flex-1">Net Revenue</div>
           <div data-testid="net-revenue">
             {formatCurrency(breakdown.netRevenue)}

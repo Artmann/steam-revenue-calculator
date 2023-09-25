@@ -1,30 +1,13 @@
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import fs from 'fs'
 import { useRef, type ReactElement, useEffect, useState } from 'react'
 import slugify from 'slugify'
 
-import type { GameDetails } from '~/games'
+import { fetchGames, type GameDetails } from '~/games'
 import { calculateRevenue } from '~/revenue'
 
 interface LoaderData {
   games: GameDetails[]
-}
-
-let games: GameDetails[] | undefined
-
-async function fetchGames(): Promise<GameDetails[]> {
-  if (games) {
-    return games
-  }
-
-  const response = await fetch(
-    'https://steam-revenue-calculator.s3.amazonaws.com/games-filtered.json'
-  )
-
-  games = (await response.json()) as GameDetails[]
-
-  return games
 }
 
 export const loader: LoaderFunction = async (): Promise<LoaderData> => {
