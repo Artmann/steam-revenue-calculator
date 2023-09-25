@@ -1,6 +1,7 @@
-import { LoaderFunction } from '@remix-run/node'
+import { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { ReactElement } from 'react'
+import slugify from 'slugify'
 import { Page } from '~/components/page'
 
 import { GameDetails, fetchGames, formatCurrency } from '~/games'
@@ -27,6 +28,34 @@ export const loader: LoaderFunction = async ({ params }) => {
   return {
     game
   }
+}
+
+export const meta: V2_MetaFunction = ({ data }) => {
+  return [
+    {
+      title: data.game.name
+    },
+    {
+      property: 'og:title',
+      content: data.game.name
+    },
+    {
+      name: 'description',
+      content: data.game.description
+    },
+    {
+      name: 'og:image',
+      content: data.game.screenshots[0]
+    },
+    {
+      name: 'og:url',
+      content: `https://steam-revenue-calculator.com/app/${
+        data.game.id
+      }/${slugify(data.game.name, {
+        lower: true
+      })}`
+    }
+  ]
 }
 
 export default function AppRoute(): ReactElement {
