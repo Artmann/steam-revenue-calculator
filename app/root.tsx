@@ -43,6 +43,20 @@ export default function App() {
   return (
     <html lang="en">
       <head>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZRVV1BYVCR"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-6XN7FH6J2P');
+            `
+          }}
+        />
         <meta charSet="utf-8" />
         <meta
           name="viewport"
