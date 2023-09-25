@@ -13,10 +13,16 @@ interface LoaderData {
 
 export const loader: LoaderFunction = async (): Promise<LoaderData> => {
   try {
+    console.time('fetch games')
     const games = await fetchGames()
+    console.timeEnd('fetch games')
+
+    const filteredGames = games
+      .filter((game) => game.price >= 100)
+      .filter((game) => game.numberOfReviews >= 250)
 
     const seenNames = new Set()
-    const uniqueGames = games.filter((game) => {
+    const uniqueGames = filteredGames.filter((game) => {
       if (!seenNames.has(game.name)) {
         seenNames.add(game.name)
 
