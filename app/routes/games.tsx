@@ -2,6 +2,7 @@ import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useRef, type ReactElement, useEffect, useState } from 'react'
 import slugify from 'slugify'
+import { Page } from '~/components/page'
 
 import { fetchGames, type GameDetails } from '~/games'
 import { calculateRevenue } from '~/revenue'
@@ -11,20 +12,26 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async (): Promise<LoaderData> => {
-  const games = await fetchGames()
+  try {
+    const games = await fetchGames()
 
-  const seenNames = new Set()
-  const uniqueGames = games.filter((game) => {
-    if (!seenNames.has(game.name)) {
-      seenNames.add(game.name)
+    const seenNames = new Set()
+    const uniqueGames = games.filter((game) => {
+      if (!seenNames.has(game.name)) {
+        seenNames.add(game.name)
 
-      return true
-    }
+        return true
+      }
 
-    return false
-  })
+      return false
+    })
 
-  return { games: uniqueGames }
+    return { games: uniqueGames }
+  } catch (error) {
+    console.error(error)
+
+    return { games: [] }
+  }
 }
 
 interface GameWithRevenue extends GameDetails {
@@ -44,8 +51,8 @@ export default function GamesRoute(): ReactElement {
   //  const genres = [...new Set(filteredGames.flatMap((g) => g.genres))]
 
   return (
-    <div className="p-8">
-      <div className="w-full max-w-5xl mx-auto flex flex-col gap-8">
+    <Page>
+      <div className="flex flex-col gap-8">
         <h1 className="text-4xl">Games</h1>
 
         <div className="w-full">
@@ -109,7 +116,7 @@ export default function GamesRoute(): ReactElement {
           />
         </div>
       </div>
-    </div>
+    </Page>
   )
 }
 

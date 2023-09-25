@@ -1,6 +1,7 @@
 import { LoaderFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import { ReactElement } from 'react'
+import { Page } from '~/components/page'
 
 import { GameDetails, fetchGames, formatCurrency } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
@@ -35,8 +36,8 @@ export default function AppRoute(): ReactElement {
   const breakdown = revenueBreakdown(grossRevenue)
 
   return (
-    <div className="p-8">
-      <div className="w-full max-w-5xl mx-auto flex flex-col gap-8">
+    <Page>
+      <div className=" flex flex-col gap-8">
         <div>
           <h1
             className="text-4xl"
@@ -108,6 +109,6 @@ export default function AppRoute(): ReactElement {
           </div>
         </div>
       </div>
-    </div>
+    </Page>
   )
 }
