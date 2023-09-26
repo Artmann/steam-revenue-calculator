@@ -4,10 +4,11 @@ describe('Calculate Revenue', () => {
   describe('calculateRevenue', () => {
 
     it('calculates the gross revenue.', () => {
-      expect(calculateRevenue(100, 10)).toEqual(45000)
-      expect(calculateRevenue(1000, 15)).toEqual(675000)
-      expect(calculateRevenue(10000, 4.99)).toEqual(2245500)
-      expect(calculateRevenue(50030, 59.99)).toEqual(135058486.5)
+      expect(calculateRevenue(100, 10)).toEqual(20_000)
+      expect(calculateRevenue(1_000, 10)).toEqual(360_000)
+      expect(calculateRevenue(25_000, 10)).toEqual(12_250_000)
+      expect(calculateRevenue(50_000, 10)).toEqual(29_500_000)
+      expect(calculateRevenue(500_000, 10)).toEqual(240_000_000)
     })
 
   })

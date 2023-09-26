@@ -4,6 +4,7 @@
 
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 
 import GameRoute from '~/routes/app.$id.$slug'
 
@@ -33,7 +34,11 @@ describe('GameRoute', () => {
       }
     }))
 
-    render(<GameRoute />)
+    render(
+      <MemoryRouter>
+        <GameRoute />
+      </MemoryRouter>
+    )
 
     expect(screen.getByTestId('title')).toHaveTextContent('Rust')
     expect(screen.getByTestId('description')).toHaveTextContent(

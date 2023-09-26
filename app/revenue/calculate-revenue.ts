@@ -9,7 +9,28 @@ export interface RevenueBreakdown {
 }
 
 export function calculateRevenue(numberOfReviews: number, price: number): number {
-  const numberOfCopiesSold = numberOfReviews * 45.0
+  // Source: https://newsletter.gamediscover.co/p/steam-sales-estimates-why-game-popularity
+  const K = () => {
+    if (numberOfReviews < 999) {
+      return 20
+    }
+
+    if (numberOfReviews < 9999) {
+      return 36
+    }
+
+    if (numberOfReviews < 49999) {
+      return 49
+    }
+
+    if (numberOfReviews < 99999) {
+      return 59
+    }
+
+    return 48
+  }
+
+  const numberOfCopiesSold = numberOfReviews * K()
   const grossRevenue = numberOfCopiesSold * price
 
   return grossRevenue
