@@ -101,24 +101,28 @@ export default function GamesRoute(): ReactElement {
             games={filteredGames}
             min={500_000}
             max={1_000_000}
+            collapsedByDefault={true}
           />
           <GameSection
             title="Over $100,000"
             games={filteredGames}
             min={100_000}
             max={500_000}
+            collapsedByDefault={true}
           />
           <GameSection
             title="Over $50,000"
             games={filteredGames}
             min={50_000}
             max={100_000}
+            collapsedByDefault={true}
           />
           <GameSection
             title="Over $1,000"
             games={filteredGames}
             min={1_000}
             max={50_000}
+            collapsedByDefault={true}
           />
         </div>
       </div>
@@ -130,14 +134,16 @@ function GameSection({
   title,
   games,
   min,
-  max
+  max,
+  collapsedByDefault = false
 }: {
   title: string
   games: GameWithRevenue[]
   min: number
-  max: number
+  max: number,
+  collapsedByDefault?: boolean
 }): ReactElement | null {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(collapsedByDefault)
 
   const filteredGames = games
     .filter((game) => game.grossRevenue >= min && game.grossRevenue < max)
