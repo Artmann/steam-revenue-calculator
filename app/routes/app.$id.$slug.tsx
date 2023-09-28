@@ -1,10 +1,11 @@
-import { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
+import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
-import { ReactElement } from 'react'
+import type { ReactElement } from 'react'
 import slugify from 'slugify'
 import { Page } from '~/components/page'
 
-import { GameDetails, fetchGames, formatCurrency } from '~/games'
+import type { GameDetails } from '~/games'
+import { fetchGames, formatCurrency } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 
@@ -121,7 +122,7 @@ export default function AppRoute(): ReactElement {
                     <div className="font-bold text-lg">
                       <a
                         href={game.metacritic.url}
-                        rel="noopener"
+                        rel="noopener noreferrer"
                         target="_blank"
                       >
                         {game.metacritic.score}
@@ -129,6 +130,20 @@ export default function AppRoute(): ReactElement {
                     </div>
                   </div>
                 )}
+              </div>
+
+              <div className="mt-4">
+                <h2 className="mb-2 text-xl">
+                  How much money did {game.name} make?
+                </h2>
+                <div>
+                  We estimate that {game.name} made{' '}
+                  {formatCurrency(grossRevenue)}
+                  in gross revenue since its release. Out of this, the developer
+                  had an estimated net revenue of{' '}
+                  {formatCurrency(breakdown.netRevenue)}. Refer to the revenue
+                  table for a full breakdown of these numbers.
+                </div>
               </div>
             </div>
           </div>

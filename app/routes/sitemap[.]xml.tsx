@@ -8,7 +8,7 @@ export const loader = async () => {
   const urlBlock = (path: string): string => `
 <url>
   <loc>https://steam-revenue-calculator.com${path}</loc>
-  <lastmod>2023-09-25T23:59:59+02:00</lastmod>
+  <lastmod>2023-09-28T09:59:59+02:00</lastmod>
   <priority>1.0</priority>
 </url>
   `

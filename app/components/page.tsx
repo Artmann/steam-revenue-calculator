@@ -1,5 +1,5 @@
 import { Link } from '@remix-run/react'
-import { ReactElement } from 'react'
+import type { ReactElement } from 'react'
 
 type PageProps = {
   children: ReactElement | ReactElement[] | string
@@ -7,7 +7,7 @@ type PageProps = {
 
 export function Page({ children }: PageProps): ReactElement {
   return (
-    <div className="w-full">
+    <div className="w-full pb-32">
       <div className="w-full max-w-5xl mx-auto px-8 py-4 box-border flex">
         <div className="flex-1">
           <Link
