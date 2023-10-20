@@ -61,6 +61,7 @@ gtag('config', 'G-6XN7FH6J2P');
             `
           }}
         />
+        <script src="https://alwingulla.com/88/tag.min.js" data-zone="16881" async data-cfasync="false"/>
         <meta charSet="utf-8" />
         <meta
           name="viewport"
