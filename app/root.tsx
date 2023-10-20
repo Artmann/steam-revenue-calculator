@@ -61,8 +61,6 @@ gtag('config', 'G-6XN7FH6J2P');
             `
           }}
         />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7586045516328295"
-     crossorigin="anonymous" />
         <meta charSet="utf-8" />
         <meta
           name="viewport"
