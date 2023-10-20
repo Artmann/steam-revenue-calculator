@@ -34,7 +34,11 @@ export const meta: V2_MetaFunction = () => {
     { title: 'Steam Revenue Calculator' },
     {
       name: 'description',
-      content: 'Discover how much revenue video games makes on Steam.'
+      content: 'Discover how much revenue video games make on Steam.'
+    },
+    {
+      name: 'monetag',
+      content: '9cfd2cfd27c03ef46026b219cba3b0dd'
     }
   ]
 }
