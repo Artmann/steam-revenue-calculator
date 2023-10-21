@@ -35,10 +35,6 @@ export const meta: V2_MetaFunction = () => {
     {
       name: 'description',
       content: 'Discover how much revenue video games make on Steam.'
-    },
-    {
-      name: 'monetag',
-      content: '9cfd2cfd27c03ef46026b219cba3b0dd'
     }
   ]
 }
@@ -61,9 +57,6 @@ gtag('config', 'G-6XN7FH6J2P');
             `
           }}
         />
-        <script dangerouslySetInnerHTML={{
-            __html: `(function(d,z,s){s.src='https://'+d+'/401/'+z;try{(document.body||document.documentElement).appendChild(s)}catch(e){}})('glizauvo.net',6491752,document.createElement('script'))`
-          }}/>
         <meta charSet="utf-8" />
         <meta
           name="viewport"
