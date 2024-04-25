@@ -19,7 +19,7 @@ export const loader: LoaderFunction = async (): Promise<LoaderData> => {
 
     const filteredGames = games
       .filter((game) => game.price >= 100)
-      .filter((game) => game.numberOfReviews >= 250)
+      .filter((game) => game.numberOfReviews >= 3050)
 
     const seenNames = new Set()
     const uniqueGames = filteredGames.filter((game) => {
@@ -140,7 +140,7 @@ function GameSection({
   title: string
   games: GameWithRevenue[]
   min: number
-  max: number,
+  max: number
   collapsedByDefault?: boolean
 }): ReactElement | null {
   const [isCollapsed, setIsCollapsed] = useState(collapsedByDefault)
