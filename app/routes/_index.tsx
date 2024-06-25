@@ -1,10 +1,35 @@
+import { LoaderFunction } from '@remix-run/node'
+import { Link, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
+import slugify from 'slugify'
 
 import { Page } from '~/components/page'
+import { GameDetails, fetchGames } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 
+interface LoaderData {
+  popularGames: GameDetails[]
+}
+
+export const loader: LoaderFunction = async () => {
+  const popularGameIds = [
+    367520, 1817230, 1145360, 973230, 391540, 207610, 1766740, 72850, 105600,
+    1332010, 2230760, 646570, 567380, 1942280, 1708091, 379430, 488821, 322170
+  ]
+
+  const games = await fetchGames()
+
+  const popularGames = games.filter((game) => popularGameIds.includes(game.id))
+
+  return { popularGames }
+}
+
 export default function HomePageRoute() {
+  const { popularGames } = useLoaderData<LoaderData>()
+
+  console.log(popularGames)
+
   const [numberOfReviews, setNumberOfReviews] = useState('1540')
   const [price, setPrice] = useState('14.99')
 
@@ -70,6 +95,44 @@ export default function HomePageRoute() {
         </div>
         <div>
           <RevenueBreakdownTable breakdown={revenueBreakdown(grossRevenue)} />
+        </div>
+      </div>
+
+      <div className="py-16">
+        <div className="w-full h-[1px] bg-gray-700" />
+      </div>
+
+      <div className="w-full space-y-8">
+        <h2>Popular games</h2>
+        <div className="space-y-8">
+          {popularGames.map((game) => (
+            <div
+              key={game.id}
+              className="flex flex-col md:flex-row gap-4"
+            >
+              <div className="flex-shrink-0">
+                <img
+                  alt={game.name}
+                  className="w-full max-w-[10rem] aspect-video object-cover rounded-md"
+                  loading="lazy"
+                  src={game.screenshots[0]}
+                />
+              </div>
+              <div className="space-y-2 max-w-lg">
+                <div>
+                  <Link
+                    className="text-sm font-semibold hover:underline"
+                    to={`/app/${game.id}/${slugify(game.name, {
+                      lower: true
+                    })}`}
+                  >
+                    <h3>{game.name}</h3>
+                  </Link>
+                </div>
+                <div className="text-xs">{game.description}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </Page>
