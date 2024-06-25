@@ -1,5 +1,5 @@
 import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
-import { useLoaderData } from '@remix-run/react'
+import { Link, useLoaderData } from '@remix-run/react'
 import type { ReactElement } from 'react'
 import slugify from 'slugify'
 import { Page } from '~/components/page'
@@ -130,6 +130,15 @@ export default function AppRoute(): ReactElement {
                     </div>
                   </div>
                 )}
+              </div>
+
+              <div>
+                <Link
+                  className="text-xs hover:underline"
+                  to={`https://store.steampowered.com/app/${game.id}`}
+                >
+                  View on Steam
+                </Link>
               </div>
 
               <div className="mt-4">
