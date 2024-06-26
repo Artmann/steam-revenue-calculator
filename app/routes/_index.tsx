@@ -28,8 +28,6 @@ export const loader: LoaderFunction = async () => {
 export default function HomePageRoute() {
   const { popularGames } = useLoaderData<LoaderData>()
 
-  console.log(popularGames)
-
   const [numberOfReviews, setNumberOfReviews] = useState('1540')
   const [price, setPrice] = useState('14.99')
 
@@ -108,7 +106,7 @@ export default function HomePageRoute() {
           {popularGames.map((game) => (
             <div
               key={game.id}
-              className="flex flex-col md:flex-row gap-4"
+              className="flex flex-col md:flex-row gap-4 md:gap-8"
             >
               <div className="flex-shrink-0">
                 <img
