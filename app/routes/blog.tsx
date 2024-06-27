@@ -14,7 +14,7 @@ export const meta: V2_MetaFunction = () => {
     },
     {
       name: 'description',
-      content: 'Write me'
+      content: `Stay updated with the latest insights and trends in the gaming industry with the Steam Revenue Calculator blog. Explore articles on game revenue, market analysis, developer tips, and more.`
     },
     {
       name: 'og:url',

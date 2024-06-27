@@ -14,7 +14,7 @@ export const meta: V2_MetaFunction = () => {
     },
     {
       name: 'description',
-      content: 'Write me'
+      content: `Read Steam Revenue Calculator's privacy policy to learn how we protect your personal information. Find out about our data collection practices, user rights, and commitment to safeguarding your privacy.`
     },
     {
       name: 'og:url',

@@ -14,7 +14,7 @@ export const meta: V2_MetaFunction = () => {
     },
     {
       name: 'description',
-      content: 'Write me'
+      content: ` Learn about Steam Revenue Calculator, the ultimate tool for estimating game revenue on Steam. Discover our mission, features, and why we're the best choice for game developers, marketers, and gaming enthusiasts.`
     },
     {
       name: 'og:url',

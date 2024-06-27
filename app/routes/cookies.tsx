@@ -14,7 +14,7 @@ export const meta: V2_MetaFunction = () => {
     },
     {
       name: 'description',
-      content: 'Write me'
+      content: `Understand how Steam Revenue Calculator uses cookies to enhance your browsing experience. Learn about our cookie policy, the types of cookies we use, and how you can manage your cookie preferences.`
     },
     {
       name: 'og:url',
