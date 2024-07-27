@@ -1,3 +1,5 @@
+import slugify from 'slugify'
+
 export interface GameDetails {
   id: number
   categories: string[]
@@ -17,6 +19,12 @@ export interface GameDetails {
 }
 
 let games: GameDetails[] | undefined
+
+export function createGameSlug(name: string): string {
+  return slugify(name, {
+    lower: true
+  })
+}
 
 export async function fetchGames(): Promise<GameDetails[]> {
   if (games) {

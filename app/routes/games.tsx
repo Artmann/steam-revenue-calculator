@@ -1,42 +1,50 @@
 import type { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
-import { useRef, type ReactElement, useEffect, useState } from 'react'
+import { useRef, type ReactElement, useEffect, useMemo } from 'react'
 import slugify from 'slugify'
-import { Page } from '~/components/page'
 
-import { fetchGames, type GameDetails } from '~/games'
+import { Page } from '~/components/page'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '~/components/ui/pagination'
+import { type GameDetails } from '~/games'
+import { Game } from '~/models/game'
 import { calculateRevenue } from '~/revenue'
+import { GameService } from '~/services/game-service.server'
 
 interface LoaderData {
   games: GameDetails[]
+  page: number
+  pageCount: number
+  timestamp: number
 }
 
-export const loader: LoaderFunction = async (): Promise<LoaderData> => {
+export const loader: LoaderFunction = async ({
+  request
+}): Promise<LoaderData> => {
+  const pageSize = 48
+  const timestamp = Date.now()
+
   try {
-    console.time('fetch games')
-    const games = await fetchGames()
-    console.timeEnd('fetch games')
+    const params = new URL(request.url).searchParams
 
-    const filteredGames = games
-      .filter((game) => game.price >= 100)
-      .filter((game) => game.numberOfReviews >= 3050)
+    const page = parseInt(params.get('page') ?? '1', 10)
+    const gameCount = await Game.orderBy('grossRevenue', 'desc').count()
+    const pageCount = Math.ceil(gameCount / pageSize)
 
-    const seenNames = new Set()
-    const uniqueGames = filteredGames.filter((game) => {
-      if (!seenNames.has(game.name)) {
-        seenNames.add(game.name)
+    const gameService = new GameService()
+    const games = await gameService.listGames(page, pageSize)
 
-        return true
-      }
-
-      return false
-    })
-
-    return { games: uniqueGames }
+    return { games, page, pageCount, timestamp }
   } catch (error) {
     console.error(error)
 
-    return { games: [] }
+    return { games: [], page: 1, pageCount: 1, timestamp }
   }
 }
 
@@ -45,16 +53,25 @@ interface GameWithRevenue extends GameDetails {
 }
 
 export default function GamesRoute(): ReactElement {
-  const { games } = useLoaderData<LoaderData>()
+  const { games, page, pageCount, timestamp } = useLoaderData<LoaderData>()
 
   const gamesWithRevenue = games.map((game) => ({
     ...game,
     grossRevenue: calculateRevenue(game.numberOfReviews, game.price / 100)
   }))
 
-  const filteredGames = gamesWithRevenue
+  const previousPageNumber = Math.max(page - 1, 1)
+  const nextPageNumber = page + 1
 
-  //  const genres = [...new Set(filteredGames.flatMap((g) => g.genres))]
+  const pageNumbers = useMemo(() => {
+    const startNumber = Math.max(page - 2, 1)
+    const endNumber = Math.min(page + 2, pageCount)
+
+    return Array.from(
+      { length: endNumber - startNumber + 1 },
+      (_, index) => startNumber + index
+    )
+  }, [page, pageCount])
 
   return (
     <Page>
@@ -71,185 +88,101 @@ export default function GamesRoute(): ReactElement {
           favorite games might be performing on Steam!
         </div>
 
-        <div className="flex flex-col gap-8">
-          <GameSection
-            title="Over 100 million"
-            games={filteredGames}
-            min={100_000_000}
-            max={Infinity}
-          />
-          <GameSection
-            title="Over 50 million"
-            games={filteredGames}
-            min={50_000_000}
-            max={100_000_000}
-          />
-          <GameSection
-            title="Over 25 million"
-            games={filteredGames}
-            min={25_000_000}
-            max={50_000_000}
-          />
-          <GameSection
-            title="Over 1 million"
-            games={filteredGames}
-            min={1_000_000}
-            max={25_000_000}
-          />
-          <GameSection
-            title="Over $500,000"
-            games={filteredGames}
-            min={500_000}
-            max={1_000_000}
-            collapsedByDefault={true}
-          />
-          <GameSection
-            title="Over $100,000"
-            games={filteredGames}
-            min={100_000}
-            max={500_000}
-            collapsedByDefault={true}
-          />
-          <GameSection
-            title="Over $50,000"
-            games={filteredGames}
-            min={50_000}
-            max={100_000}
-            collapsedByDefault={true}
-          />
-          <GameSection
-            title="Over $1,000"
-            games={filteredGames}
-            min={1_000}
-            max={50_000}
-            collapsedByDefault={true}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {gamesWithRevenue.map((game) => (
+            <GameCard
+              key={game.id}
+              game={game}
+              timestamp={timestamp}
+            />
+          ))}
+        </div>
+        <div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  className="text-white"
+                  href={`/games?page=${previousPageNumber}`}
+                />
+              </PaginationItem>
+
+              {pageNumbers.map((pageNumber) => (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink
+                    className={
+                      page === pageNumber ? 'text-gray-700' : 'text-white'
+                    }
+                    href={`/games?page=${pageNumber}`}
+                    isActive={page === pageNumber}
+                  >
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  className="text-white"
+                  href={`/games?page=${nextPageNumber}`}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </Page>
   )
 }
 
-function GameSection({
-  title,
-  games,
-  min,
-  max,
-  collapsedByDefault = false
+function GameCard({
+  game,
+  timestamp
 }: {
-  title: string
-  games: GameWithRevenue[]
-  min: number
-  max: number
-  collapsedByDefault?: boolean
-}): ReactElement | null {
-  const [isCollapsed, setIsCollapsed] = useState(collapsedByDefault)
-
-  const filteredGames = games
-    .filter((game) => game.grossRevenue >= min && game.grossRevenue < max)
-    .sort((a, b) => (a.grossRevenue > b.grossRevenue ? -1 : 1))
-
-  if (filteredGames.length === 0) {
-    return null
-  }
-
-  return (
-    <div className="w-full">
-      <div
-        className="flex pointer-cursor items-center gap-4 mb-8"
-        onClick={() => setIsCollapsed(!isCollapsed)}
-      >
-        <div>
-          <h2
-            className="text-3xl pointer-cursor block"
-            id={slugify(title, { lower: true })}
-          >
-            {title}
-          </h2>
-        </div>
-
-        <div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="stroke-white h-4 w-4"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {isCollapsed ? (
-              <>
-                <path
-                  stroke="none"
-                  d="M0 0h24v24H0z"
-                  fill="none"
-                ></path>
-                <path d="M6 15l6 -6l6 6"></path>
-              </>
-            ) : (
-              <>
-                <path
-                  stroke="none"
-                  d="M0 0h24v24H0z"
-                  fill="none"
-                ></path>
-                <path d="M6 9l6 6l6 -6"></path>
-              </>
-            )}
-          </svg>
-        </div>
-      </div>
-      {!isCollapsed && (
-        <div className="flex flex-wrap gap-8">
-          {filteredGames.map((game) => (
-            <GameCard
-              key={game.id}
-              game={game}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function GameCard({ game }: { game: GameWithRevenue }): ReactElement {
+  game: GameWithRevenue
+  timestamp: number
+}): ReactElement {
   const slug = slugify(game.name, { lower: true })
 
   return (
-    <div className="mb-8 w-48">
+    <div className="mb-8 md:mb-16 mx-auto w-full md:w-48 space-y-4">
       <div>
         <Link to={`/app/${game.id}/${slug}`}>
           <GameImage
             id={game.id}
             name={game.name}
             price={game.price}
+            timestamp={timestamp}
           />
         </Link>
       </div>
-      <div className="py-4 text-sm w-full flex flex-col gap-2">
-        <Link
-          className="font-medium truncate w-full block"
-          title={game.name}
-          to={`/app/${game.id}/${slug}`}
-        >
-          {game.name}
-        </Link>
-      </div>
-      <div className="flex items-center text-xs">
-        <div className="flex-1">
-          $
-          {new Intl.NumberFormat('en-US').format(Math.round(game.grossRevenue))}
-        </div>
-        <div>
-          <Link to={`https://store.steampowered.com/app/${game.id}`}>
-            <img
-              className="w-4 h-4"
-              alt="Steam"
-              loading="lazy"
-              src="/images/steam.png"
-            />
+      <div className="space-y-1">
+        <div className="text-sm w-full flex flex-col gap-2">
+          <Link
+            className="font-medium truncate w-full block"
+            title={game.name}
+            to={`/app/${game.id}/${slug}`}
+          >
+            {game.name}
           </Link>
+        </div>
+        <div className="flex items-center text-xs">
+          <div className="flex-1">
+            $
+            {new Intl.NumberFormat('en-US').format(
+              Math.round(game.grossRevenue)
+            )}
+          </div>
+          <div>
+            <Link to={`https://store.steampowered.com/app/${game.id}`}>
+              <img
+                className="w-4 h-4"
+                alt="Steam"
+                loading="lazy"
+                src="/images/steam.png"
+              />
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -259,14 +192,16 @@ function GameCard({ game }: { game: GameWithRevenue }): ReactElement {
 function GameImage({
   id,
   name,
-  price
+  price,
+  timestamp
 }: {
   id: number
   name: string
   price: number
+  timestamp: number
 }): ReactElement {
   const ref = useRef<HTMLImageElement>(null)
-  const url = `https://cdn.akamai.steamstatic.com/steam/apps/${id}/hero_capsule.jpg?t=${Date.now()}`
+  const url = `https://cdn.akamai.steamstatic.com/steam/apps/${id}/hero_capsule.jpg?t=${timestamp}`
 
   useEffect(() => {
     if (!ref.current) {
@@ -284,9 +219,9 @@ function GameImage({
   return (
     <div
       className={`
-        relative w-48 h-auto
-        transition-transform duration-400 ease-in-out transform hover:scale-110
+        relative w-full h-auto
         overflow-hidden
+        rounded-md
       `}
       style={{ aspectRatio: '192 / 230' }}
     >
