@@ -5,7 +5,13 @@ import fs from 'fs'
 //@ts-ignore
 import tqdm from 'tqdm'
 
-import type { GameDetails } from '~/games'
+import { createGameSlug, type GameDetails } from '~/games'
+import { Game } from '~/models/game'
+import { calculateRevenue } from '~/revenue'
+
+interface ScrapeGamesMetadata {
+  cursor?: number
+}
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
@@ -19,43 +25,84 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const gameIds = await fetchGameIds()
 
-  const games = []
+  const metadata = await loadScrapeGamesMetadata()
 
-  let counter = 0
+  const batchSize = 150
 
+  let cursor = metadata.cursor ?? 0
 
-  for (const gameId of tqdm(gameIds)) {
+  const gameIdsToScrape = gameIds.slice(
+    cursor * batchSize,
+    (cursor + 1) * batchSize
+  )
+
+  for (const gameId of tqdm(gameIdsToScrape)) {
     try {
       if (ignoredIds.includes(gameId)) {
         continue
       }
 
-      const game = await fetchGameDetails(gameId)
+      const gameDetails = await fetchGameDetails(gameId)
 
-      if (game) {
-        games.push(game)
+      if (!gameDetails) {
+        console.log(`Game with the id: ${gameId} is not found.`)
+
+        continue
+      }
+
+      const slug = createGameSlug(gameDetails.name)
+
+      const existingGame = await Game.findBy('gameId', gameId)
+
+      const grossRevenue = calculateRevenue(
+        gameDetails.numberOfReviews,
+        gameDetails.price / 100
+      )
+
+      if (existingGame) {
+        existingGame.details = gameDetails
+        existingGame.grossRevenue
+        existingGame.slug = slug
+
+        await existingGame.save()
       } else {
-        ignoredIds.push(gameId)
+        await Game.create({
+          details: gameDetails,
+          gameId,
+          grossRevenue,
+          slug
+        })
       }
 
-      if (counter++ % 50 === 0) {
-        await saveGames(games, ignoredIds)
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 2_000))
     } catch (error) {
       console.error(`Failed to scrape the game with the id: ${gameId}.`)
       console.error(error)
     }
   }
 
-  await saveGames(games, ignoredIds)
+  cursor += 1
 
-  return json({ games })
+  if (cursor * batchSize >= gameIds.length) {
+    cursor = 0
+  }
+
+  await saveScrapeGamesMetadata({
+    ...metadata,
+    cursor
+  })
+
+  return json({
+    batchSize,
+    cursor,
+    gameIdsToScrape
+  })
 }
 
 async function fetchGameIds(): Promise<number[]> {
-  const request = await fetch('http://api.steampowered.com/ISteamApps/GetAppList/v0002/?format=json')
+  const request = await fetch(
+    'http://api.steampowered.com/ISteamApps/GetAppList/v0002/?format=json'
+  )
   const data = await request.json()
 
   return data.applist.apps
@@ -63,8 +110,12 @@ async function fetchGameIds(): Promise<number[]> {
     .map((app: any) => app.appid)
 }
 
-async function fetchGameDetails(gameId: number): Promise<GameDetails | undefined> {
-  const request = await fetch(`https://store.steampowered.com/api/appdetails?appids=${gameId}&cc=us&l=en`)
+async function fetchGameDetails(
+  gameId: number
+): Promise<GameDetails | undefined> {
+  const request = await fetch(
+    `https://store.steampowered.com/api/appdetails?appids=${gameId}&cc=us&l=en`
+  )
 
   if (request.status == 429) {
     console.log('Rate limited. Waiting 30 seconds...')
@@ -95,21 +146,41 @@ async function fetchGameDetails(gameId: number): Promise<GameDetails | undefined
     price: details.price_overview?.final,
     metacritic: {
       score: details.metacritic?.score,
-      url: details.metacritic?.url,
+      url: details.metacritic?.url
     },
-    screenshots: details.screenshots?.map((screenshot: any) => screenshot.path_full),
+    screenshots: details.screenshots?.map(
+      (screenshot: any) => screenshot.path_full
+    ),
     numberOfReviews: details.recommendations?.total ?? 0,
     genres: details.genres?.map((genre: any) => genre.description) ?? [],
-    categories: details.categories?.map((category: any) => category.description) ?? [],
+    categories:
+      details.categories?.map((category: any) => category.description) ?? []
   }
-
 }
 
-async function saveGames(games: GameDetails[], ignoredIds: number[]): Promise<void> {
-  console.log(`Saving data(${games.length} Games, ${ignoredIds.length}) Ignored Games.`)
+async function loadScrapeGamesMetadata(): Promise<ScrapeGamesMetadata> {
+  const defaultMetadata: ScrapeGamesMetadata = {
+    cursor: 0
+  }
 
-  await fs.promises.writeFile('./data/games.json', JSON.stringify(games, null, 2))
-  await fs.promises.writeFile('./data/ignored.json', JSON.stringify(ignoredIds, null, 2))
+  const metadataPath = './scrape-games.json'
+
+  const doesFileExist = fs.existsSync(metadataPath)
+
+  if (!doesFileExist) {
+    return defaultMetadata
+  }
+
+  try {
+    const json = await fs.promises.readFile(metadataPath, 'utf-8')
+    const data = JSON.parse(json)
+
+    return data as ScrapeGamesMetadata
+  } catch (error) {
+    console.error(error)
+  }
+
+  return defaultMetadata
 }
 
 async function loadIgnoredIds(): Promise<number[]> {
@@ -122,4 +193,16 @@ async function loadIgnoredIds(): Promise<number[]> {
   }
 
   return []
+}
+
+async function saveScrapeGamesMetadata(
+  metadata: ScrapeGamesMetadata
+): Promise<void> {
+  const metadataPath = './scrape-games.json'
+
+  try {
+    await fs.promises.writeFile(metadataPath, JSON.stringify(metadata, null, 2))
+  } catch (error) {
+    console.error(error)
+  }
 }

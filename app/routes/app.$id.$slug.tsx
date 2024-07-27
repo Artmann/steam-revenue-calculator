@@ -2,10 +2,11 @@ import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import type { ReactElement } from 'react'
 import slugify from 'slugify'
-import { Page } from '~/components/page'
 
+import { Page } from '~/components/page'
 import type { GameDetails } from '~/games'
-import { fetchGames, formatCurrency } from '~/games'
+import { formatCurrency } from '~/games'
+import { Game } from '~/models/game'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 
@@ -13,11 +14,12 @@ interface LoaderData {
   game: GameDetails
 }
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({
+  params
+}): Promise<LoaderData | Response> => {
   const gameId = parseInt(params.id as string, 10)
 
-  const games = await fetchGames()
-  const game = games.find((game) => game.id === gameId)
+  const game = await Game.findBy('gameId', gameId)
 
   if (!game) {
     throw new Response(null, {
@@ -26,8 +28,15 @@ export const loader: LoaderFunction = async ({ params }) => {
     })
   }
 
+  if (!game.details) {
+    throw new Response(null, {
+      status: 404,
+      statusText: 'Game Not Found.'
+    })
+  }
+
   return {
-    game
+    game: game.details
   }
 }
 

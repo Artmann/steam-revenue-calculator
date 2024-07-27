@@ -4,23 +4,18 @@ import { useState } from 'react'
 import slugify from 'slugify'
 
 import { Page } from '~/components/page'
-import { GameDetails, fetchGames } from '~/games'
+import { GameDetails } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
+import { GameService } from '~/services/game-service.server'
 
 interface LoaderData {
   popularGames: GameDetails[]
 }
 
 export const loader: LoaderFunction = async () => {
-  const popularGameIds = [
-    367520, 1817230, 1145360, 973230, 391540, 207610, 1766740, 72850, 105600,
-    1332010, 2230760, 646570, 567380, 1942280, 1708091, 379430, 488821, 322170
-  ]
-
-  const games = await fetchGames()
-
-  const popularGames = games.filter((game) => popularGameIds.includes(game.id))
+  const gameService = new GameService()
+  const popularGames = await gameService.listPopularGames()
 
   return { popularGames }
 }
