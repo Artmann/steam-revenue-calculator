@@ -1,6 +1,4 @@
-//@ts-ignore
-import { MongoClient } from 'mongodb'
-
+import { getCollection } from '~/db'
 import { createGameSlug, fetchGames, GameDetails } from '~/games'
 import { Game } from '~/models/game'
 import { calculateRevenue } from '~/revenue'
@@ -8,17 +6,7 @@ import { calculateRevenue } from '~/revenue'
 export class GameService {
   async listGames(page: number, pageSize: number): Promise<GameDetails[]> {
     // Use a raw db query because Esix doesn't support skip.
-    const url = process.env.DB_URL ?? 'mongodb://127.0.0.1:27017/'
-    const poolSize = parseInt(process.env.DB_POOL_SIZE ?? '10', 10)
-    const databaseName = process.env.DB_DATABASE ?? ''
-
-    const client = await MongoClient.connect(url, {
-      poolSize,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    })
-    const database = await client.db(databaseName)
-    const collection = await database.collection<Game>('games')
+    const collection = await getCollection('games')
 
     const skip = Math.max(page - 1, 0) * pageSize
     const limit = pageSize
