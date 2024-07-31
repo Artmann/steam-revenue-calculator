@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const metadata = await loadScrapeGamesMetadata()
 
-  const batchSize = 150
+  const batchSize = 1
 
   let cursor = metadata.cursor ?? 0
 
