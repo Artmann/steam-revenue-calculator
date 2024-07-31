@@ -22,9 +22,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const gameIds = await fetchGameIds()
 
-  const batchSize = 1
+  const batchSize = 2
   const maxCursor = Math.ceil(gameIds.length / batchSize)
-  const nextCursor = cursor + 1 > maxCursor ? 0 : cursor + 1
+  const nextCursor = cursor + batchSize > maxCursor ? 0 : cursor + batchSize
 
   const gameIdsToScrape = gameIds.slice(
     cursor * batchSize,
