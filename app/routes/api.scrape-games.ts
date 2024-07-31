@@ -9,13 +9,10 @@ import { createGameSlug, type GameDetails } from '~/games'
 import { Game } from '~/models/game'
 import { calculateRevenue } from '~/revenue'
 
-interface ScrapeGamesMetadata {
-  cursor?: number
-}
-
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const key = url.searchParams.get('key')
+  const cursor = parseInt(url.searchParams.get('cursor') ?? '1', 10)
 
   if (!key || key !== 'YTViNDlkMGMtNTZiYi00Y2ExLWFhOGItZmE5NDNhM2E3ZWYyIA') {
     return new Response('Unauthorized.', { status: 401 })
@@ -25,11 +22,9 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   const gameIds = await fetchGameIds()
 
-  const metadata = await loadScrapeGamesMetadata()
-
   const batchSize = 1
-
-  let cursor = metadata.cursor ?? 0
+  const maxCursor = Math.ceil(gameIds.length / batchSize)
+  const nextCursor = cursor + 1 > maxCursor ? 0 : cursor + 1
 
   const gameIdsToScrape = gameIds.slice(
     cursor * batchSize,
@@ -61,7 +56,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
       if (existingGame) {
         existingGame.details = gameDetails
-        existingGame.grossRevenue
+        existingGame.grossRevenue = grossRevenue
         existingGame.slug = slug
 
         await existingGame.save()
@@ -81,20 +76,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     }
   }
 
-  cursor += 1
-
-  if (cursor * batchSize >= gameIds.length) {
-    cursor = 0
-  }
-
-  await saveScrapeGamesMetadata({
-    ...metadata,
-    cursor
-  })
 
   return json({
     batchSize,
     cursor,
+    maxCursor,
+    nextCursor,
     gameIdsToScrape
   })
 }
@@ -158,31 +145,6 @@ async function fetchGameDetails(
   }
 }
 
-async function loadScrapeGamesMetadata(): Promise<ScrapeGamesMetadata> {
-  const defaultMetadata: ScrapeGamesMetadata = {
-    cursor: 0
-  }
-
-  const metadataPath = './scrape-games.json'
-
-  const doesFileExist = fs.existsSync(metadataPath)
-
-  if (!doesFileExist) {
-    return defaultMetadata
-  }
-
-  try {
-    const json = await fs.promises.readFile(metadataPath, 'utf-8')
-    const data = JSON.parse(json)
-
-    return data as ScrapeGamesMetadata
-  } catch (error) {
-    console.error(error)
-  }
-
-  return defaultMetadata
-}
-
 async function loadIgnoredIds(): Promise<number[]> {
   try {
     const data = await fs.promises.readFile('./data/ignored.json', 'utf-8')
@@ -195,14 +157,3 @@ async function loadIgnoredIds(): Promise<number[]> {
   return []
 }
 
-async function saveScrapeGamesMetadata(
-  metadata: ScrapeGamesMetadata
-): Promise<void> {
-  const metadataPath = './scrape-games.json'
-
-  try {
-    await fs.promises.writeFile(metadataPath, JSON.stringify(metadata, null, 2))
-  } catch (error) {
-    console.error(error)
-  }
-}
