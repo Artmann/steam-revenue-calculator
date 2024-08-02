@@ -18,7 +18,7 @@ export const loader = async () => {
   `
 
   const gameXml = games
-    .map((game) => urlBlock(`/app/${game.id}/${game.slug}`))
+    .map((game) => urlBlock(`/app/${game.gameId}/${game.slug}`))
     .join('\n')
 
   const pageBlocks: string[] = []
