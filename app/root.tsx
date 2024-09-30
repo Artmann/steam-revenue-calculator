@@ -8,10 +8,10 @@ import {
   Scripts,
   ScrollRestoration
 } from '@remix-run/react'
-import { Analytics } from '@vercel/analytics/react'
 
 import tailwind from './tailwind.css'
 import styles from './global.css'
+import { useEffect, useRef } from 'react'
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -43,20 +43,6 @@ export default function App() {
   return (
     <html lang="en">
       <head>
-        <script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-ZRVV1BYVCR"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-6XN7FH6J2P');
-            `
-          }}
-        />
         <meta charSet="utf-8" />
         <meta
           name="viewport"
@@ -70,8 +56,67 @@ gtag('config', 'G-6XN7FH6J2P');
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
-        <Analytics />
+        <GoogleScripts />
       </body>
     </html>
   )
+}
+
+interface Script {
+  async?: boolean
+  crossOrigin?: 'anonymous' | 'use-credentials'
+  html?: string
+  src?: string
+}
+
+function GoogleScripts() {
+  const addedScripts = useRef<Record<string, boolean>>({})
+
+  useEffect(() => {
+    const scripts: Script[] = [
+      {
+        async: true,
+        src: 'https://www.googletagmanager.com/gtag/js?id=G-ZRVV1BYVCR'
+      },
+      {
+        html: `window.dataLayer = window.dataLayer
+        || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date());
+        gtag('config', 'G-6XN7FH6J2P');`
+      }
+    ]
+
+    scripts.forEach((script) => {
+      if (!script.src && !script.html) {
+        throw new Error('Either src or html must be provided.')
+      }
+
+      const key = script.src || (script.html as string)
+
+      if (addedScripts.current[key]) {
+        return
+      }
+
+      const element = document.createElement('script')
+
+      element.async = script.async ?? false
+
+      if (script.crossOrigin) {
+        element.crossOrigin = script.crossOrigin
+      }
+
+      if (script.src) {
+        element.src = script.src
+      }
+
+      if (script.html) {
+        element.innerHTML = script.html
+      }
+
+      document.head.appendChild(element)
+
+      addedScripts.current[key] = true
+    })
+  }, [])
+
+  return null
 }
