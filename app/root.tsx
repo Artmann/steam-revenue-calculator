@@ -35,6 +35,10 @@ export const meta: V2_MetaFunction = () => {
     {
       name: 'description',
       content: 'Discover how much revenue video games make on Steam.'
+    },
+    {
+      name: 'google-adsense-account',
+      content: 'ca-pub-7586045516328295'
     }
   ]
 }
