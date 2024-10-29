@@ -1,4 +1,5 @@
-import type { V2_MetaFunction } from '@remix-run/node'
+import type { LinksFunction, V2_MetaFunction } from '@remix-run/node'
+import { Outlet } from '@remix-run/react'
 import type { ReactElement } from 'react'
 
 import { Page } from '~/components/page'
@@ -26,8 +27,8 @@ export const meta: V2_MetaFunction = () => {
 export default function BlogRoute(): ReactElement {
   return (
     <Page>
-      <div className="space-y-8 max-w-2xl leading-loose">
-        <h1 className="text-3xl md:text-4xl font-poppins font-bold">Blog</h1>
+      <div className="w-full blog max-w-3xl">
+        <Outlet />
       </div>
     </Page>
   )

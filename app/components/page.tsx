@@ -17,13 +17,21 @@ export function Page({ children }: PageProps): ReactElement {
             Steam Revenue Calculator
           </Link>
         </div>
-        <div className="flex">
+        <div className="flex gap-4">
           <div>
             <Link
               className="text-xs uppercase text-slate-300 hover:text-slate-50 cursor-pointer font-semibold"
               to="/games"
             >
               Games
+            </Link>
+          </div>
+          <div>
+            <Link
+              className="text-xs uppercase text-slate-300 hover:text-slate-50 cursor-pointer font-semibold"
+              to="/Blog"
+            >
+              Blog
             </Link>
           </div>
         </div>

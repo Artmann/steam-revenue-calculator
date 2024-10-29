@@ -8,10 +8,11 @@ import {
   Scripts,
   ScrollRestoration
 } from '@remix-run/react'
+import { useEffect, useRef } from 'react'
 
 import tailwind from './tailwind.css'
 import styles from './global.css'
-import { useEffect, useRef } from 'react'
+import blogStyles from './blog.css'
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -23,6 +24,7 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
   { rel: 'stylesheet', href: tailwind },
   { rel: 'stylesheet', href: styles },
+  { rel: 'stylesheet', href: blogStyles },
   {
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap'

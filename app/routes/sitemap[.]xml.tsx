@@ -38,6 +38,11 @@ export const loader = async () => {
   ${urlBlock('/games')}
   ${urlBlock('/privacy')}
 
+  ${urlBlock('/blog')}
+  ${urlBlock(
+    '/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated'
+  )}
+
   ${gameXml}
 
   ${pagesXml}
