@@ -8,9 +8,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: npm ci
+      - run: yarn
       - name: build
-        run: npm run build # build your project – this should be a production build
+        run: yarn run build # build your project – this should be a production build
       - run: npx @gravityci/cli ./dist/ # run Gravity CLI against the build artifacts
         env:
           GRAVITY_TOKEN: ${{ secrets.GRAVITY_TOKEN }}
