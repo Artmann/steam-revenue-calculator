@@ -32,6 +32,7 @@
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
     "tqdm": "^2.0.3",
+    "vanilla-cookieconsent": "^3.1.0",
     "yarn": "^1.22.19"
   },
   "devDependencies": {
