@@ -1,4 +1,4 @@
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useRef, type ReactElement, useEffect, useMemo } from 'react'
 import slugify from 'slugify'
@@ -22,6 +22,35 @@ interface LoaderData {
   page: number
   pageCount: number
   timestamp: number
+}
+
+export const meta: V2_MetaFunction = () => {
+  return [
+    {
+      title: 'Steam Games Ranked by Revenue — Steam Revenue Calculator'
+    },
+    {
+      name: 'description',
+      content: 'Browse our database of Steam games ranked by estimated revenue. See which PC games earn the most on Steam, with detailed revenue breakdowns for each game.'
+    },
+    {
+      property: 'og:title',
+      content: 'Steam Games Ranked by Revenue — Steam Revenue Calculator'
+    },
+    {
+      property: 'og:description',
+      content: 'Browse our database of Steam games ranked by estimated revenue. See which PC games earn the most on Steam, with detailed revenue breakdowns for each game.'
+    },
+    {
+      property: 'og:url',
+      content: 'https://steam-revenue-calculator.com/games'
+    },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: 'https://steam-revenue-calculator.com/games'
+    }
+  ]
 }
 
 export const loader: LoaderFunction = async ({
@@ -178,7 +207,9 @@ function GameCard({
               <img
                 className="w-4 h-4"
                 alt="Steam"
-                loading="lazy"
+                loading="eager"
+                width={16}
+                height={16}
                 src="/images/steam.png"
               />
             </Link>

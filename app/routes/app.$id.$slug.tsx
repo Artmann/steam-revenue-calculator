@@ -43,19 +43,23 @@ export const loader: LoaderFunction = async ({
 export const meta: V2_MetaFunction = ({ data }) => {
   return [
     {
-      title: data.game.name
+      title: `${data.game.name} — Steam Revenue Calculator`
     },
     {
       property: 'og:title',
-      content: data.game.name
+      content: `${data.game.name} — Steam Revenue Calculator`
     },
     {
       name: 'description',
-      content: data.game.description
+      content: `${data.game.name} on Steam — estimated revenue, sales data, and financial breakdown. See gross revenue, net revenue, and review-based calculations for this game.`
     },
     {
-      name: 'og:image',
+      property: 'og:image',
       content: data.game.screenshots[0]
+    },
+    {
+      property: 'og:description',
+      content: `${data.game.name} on Steam — estimated revenue, sales data, and financial breakdown. See gross revenue, net revenue, and review-based calculations for this game.`
     },
     {
       name: 'og:url',
@@ -64,6 +68,20 @@ export const meta: V2_MetaFunction = ({ data }) => {
       }/${slugify(data.game.name, {
         lower: true
       })}`
+    },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: data.game.id
+        ? `https://steam-revenue-calculator.com/app/${data.game.id}/${slugify(data.game.name, { lower: true })}`
+        : 'https://steam-revenue-calculator.com/games'
+    },
+    {
+      tagName: 'link',
+      rel: 'preload',
+      href: data.game.screenshots[0],
+      as: 'image',
+      fetchpriority: 'high'
     }
   ]
 }
@@ -93,6 +111,8 @@ export default function AppRoute(): ReactElement {
                 <img
                   alt={game.name}
                   className="w-full h-auto aspect-video shadow-lg block"
+                  width={616}
+                  height={347}
                   src={game.screenshots[0]}
                 />
                 <div className="text-slate-300 text-xs">

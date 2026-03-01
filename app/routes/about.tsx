@@ -6,19 +6,28 @@ import { Page } from '~/components/page'
 export const meta: V2_MetaFunction = () => {
   return [
     {
-      title: 'About'
+      title: 'About — Steam Revenue Calculator'
     },
     {
       property: 'og:title',
-      content: 'About'
+      content: 'About — Steam Revenue Calculator'
     },
     {
       name: 'description',
-      content: ` Learn about Steam Revenue Calculator, the ultimate tool for estimating game revenue on Steam. Discover our mission, features, and why we're the best choice for game developers, marketers, and gaming enthusiasts.`
+      content: 'Learn about Steam Revenue Calculator — the tool for estimating game revenue on Steam. Built for game developers, marketers, and gaming enthusiasts.'
+    },
+    {
+      property: 'og:description',
+      content: 'Learn about Steam Revenue Calculator — the tool for estimating game revenue on Steam. Built for game developers, marketers, and gaming enthusiasts.'
     },
     {
       name: 'og:url',
       content: 'https://steam-revenue-calculator.com/about'
+    },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: 'https://steam-revenue-calculator.com/about'
     }
   ]
 }

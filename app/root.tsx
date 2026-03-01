@@ -28,20 +28,29 @@ export const links: LinksFunction = () => [
   {
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap'
-  }
+  },
+  { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
 ]
 
 export const meta: V2_MetaFunction = () => {
   return [
-    { title: 'Steam Revenue Calculator' },
+    { title: 'Steam Revenue Calculator — Estimate Any Game\'s Revenue on Steam' },
     {
       name: 'description',
-      content: 'Discover how much revenue video games make on Steam.'
+      content: 'Use the Steam Revenue Calculator to estimate how much any game made on Steam. Enter review count and price for gross revenue, net revenue, and a full breakdown.'
     },
     {
       name: 'google-adsense-account',
       content: 'ca-pub-7586045516328295'
-    }
+    },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'Steam Revenue Calculator' },
+    { property: 'og:title', content: 'Steam Revenue Calculator — Estimate Any Game\'s Revenue on Steam' },
+    { property: 'og:description', content: 'Use the Steam Revenue Calculator to estimate how much any game made on Steam. Enter review count and price for gross revenue, net revenue, and a full breakdown.' },
+    { property: 'og:url', content: 'https://steam-revenue-calculator.com' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: 'Steam Revenue Calculator — Estimate Any Game\'s Revenue on Steam' },
+    { name: 'twitter:description', content: 'Use the Steam Revenue Calculator to estimate how much any game made on Steam. Enter review count and price for gross revenue, net revenue, and a full breakdown.' }
   ]
 }
 

@@ -1,3 +1,4 @@
+import type { V2_MetaFunction } from '@remix-run/node'
 import { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
@@ -11,6 +12,35 @@ import { GameService } from '~/services/game-service.server'
 
 interface LoaderData {
   popularGames: GameDetails[]
+}
+
+export const meta: V2_MetaFunction = () => {
+  return [
+    {
+      title: 'Steam Revenue Calculator — Estimate Any Game\'s Revenue on Steam'
+    },
+    {
+      name: 'description',
+      content: 'Use the Boxleiter method to estimate how much any Steam game has made. Enter review count and price to calculate gross revenue, net revenue, and a full financial breakdown.'
+    },
+    {
+      property: 'og:title',
+      content: 'Steam Revenue Calculator — Estimate Any Game\'s Revenue on Steam'
+    },
+    {
+      property: 'og:description',
+      content: 'Use the Boxleiter method to estimate how much any Steam game has made. Enter review count and price to calculate gross revenue, net revenue, and a full financial breakdown.'
+    },
+    {
+      property: 'og:url',
+      content: 'https://steam-revenue-calculator.com/'
+    },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: 'https://steam-revenue-calculator.com/'
+    }
+  ]
 }
 
 export const loader: LoaderFunction = async () => {
@@ -42,7 +72,7 @@ export default function HomePageRoute() {
             Using the{' '}
             <a
               className="underline text-primary"
-              href="http://greyaliengames.com/blog/how-to-estimate-how-many-sales-a-steam-game-has-made"
+              href="https://greyaliengames.com/blog/how-to-estimate-how-many-sales-a-steam-game-has-made"
             >
               Boxleiter method
             </a>{' '}
@@ -107,7 +137,6 @@ export default function HomePageRoute() {
                 <img
                   alt={game.name}
                   className="w-full max-w-[10rem] aspect-video object-cover rounded-md"
-                  loading="lazy"
                   src={game.screenshots[0]}
                 />
               </div>

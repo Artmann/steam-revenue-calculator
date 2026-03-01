@@ -7,19 +7,28 @@ import { Page } from '~/components/page'
 export const meta: V2_MetaFunction = () => {
   return [
     {
-      title: 'Blog'
+      title: 'Steam Revenue Calculator Blog — Game Revenue Insights'
     },
     {
       property: 'og:title',
-      content: 'Blog'
+      content: 'Steam Revenue Calculator Blog — Game Revenue Insights'
     },
     {
       name: 'description',
-      content: `Stay updated with the latest insights and trends in the gaming industry with the Steam Revenue Calculator blog. Explore articles on game revenue, market analysis, developer tips, and more.`
+      content: 'Explore the Steam Revenue Calculator blog for game revenue analysis, market trends, developer tips, and insights into how games perform financially on Steam.'
+    },
+    {
+      property: 'og:description',
+      content: 'Explore the Steam Revenue Calculator blog for game revenue analysis, market trends, developer tips, and insights into how games perform financially on Steam.'
     },
     {
       name: 'og:url',
       content: 'https://steam-revenue-calculator.com/blog'
+    },
+    {
+      tagName: 'link',
+      rel: 'canonical',
+      href: 'https://steam-revenue-calculator.com/blog'
     }
   ]
 }

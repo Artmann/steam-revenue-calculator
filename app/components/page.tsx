@@ -29,7 +29,7 @@ export function Page({ children }: PageProps): ReactElement {
           <div>
             <Link
               className="text-xs uppercase text-slate-300 hover:text-slate-50 cursor-pointer font-semibold"
-              to="/Blog"
+              to="/blog"
             >
               Blog
             </Link>
@@ -37,14 +37,14 @@ export function Page({ children }: PageProps): ReactElement {
         </div>
       </div>
 
-      <div className="w-full max-w-5xl mx-auto p-8 pb-32 box-border space-y-8">
+      <main className="w-full max-w-5xl mx-auto p-8 pb-32 box-border space-y-8">
         {children}
-      </div>
+      </main>
 
       <div className="bg-[#1c1c21] w-full pt-16 pb-32 box-border text-white">
         <div className="w-full max-w-5xl px-8 box-border mx-auto flex flex-col md:flex-row gap-8 md:gap-16 text-center md:text-left">
           <div className="space-y-2">
-            <h3 className="font-semibold">Resources</h3>
+            <p className="font-semibold">Resources</p>
             <div className="text-sm space-y-1.5">
               <Link
                 className="block hover:underline"
@@ -61,7 +61,7 @@ export function Page({ children }: PageProps): ReactElement {
             </div>
           </div>
           <div className="space-y-2">
-            <h3 className="font-semibold">Company</h3>
+            <p className="font-semibold">Company</p>
             <div className="text-sm space-y-1.5">
               <Link
                 className="block hover:underline"
