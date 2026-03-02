@@ -3,8 +3,10 @@ import { createGameSlug, fetchGames, GameDetails } from '~/games'
 import { Game } from '~/models/game'
 import { calculateRevenue } from '~/revenue'
 
+let cachedGameCount: number | null = null
+
 export class GameService {
-  async listGames(page: number, pageSize: number): Promise<GameDetails[]> {
+  async listGames(page: number, pageSize: number): Promise<(GameDetails & { grossRevenue: number })[]> {
     // Use a raw db query because Esix doesn't support skip.
     const collection = await getCollection('games')
 
@@ -18,9 +20,17 @@ export class GameService {
       .limit(limit)
       .toArray()) as Game[]
 
-    const details = games.map((game) => game.details) as GameDetails[]
+    return games.map((game) => ({ ...game.details, grossRevenue: game.grossRevenue }))
+  }
 
-    return details
+  async getGameCount(): Promise<number> {
+    if (cachedGameCount !== null) {
+      return cachedGameCount
+    }
+
+    cachedGameCount = await Game.orderBy('grossRevenue', 'desc').count()
+
+    return cachedGameCount
   }
 
   async listPopularGames(): Promise<GameDetails[]> {

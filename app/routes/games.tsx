@@ -1,4 +1,4 @@
-import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useRef, type ReactElement, useEffect, useMemo } from 'react'
 import slugify from 'slugify'
@@ -13,15 +13,16 @@ import {
   PaginationPrevious
 } from '~/components/ui/pagination'
 import { type GameDetails } from '~/games'
-import { Game } from '~/models/game'
-import { calculateRevenue } from '~/revenue'
 import { GameService } from '~/services/game-service.server'
 
+interface GameWithRevenue extends GameDetails {
+  grossRevenue: number
+}
+
 interface LoaderData {
-  games: GameDetails[]
+  games: GameWithRevenue[]
   page: number
   pageCount: number
-  timestamp: number
 }
 
 export const meta: V2_MetaFunction = () => {
@@ -53,41 +54,37 @@ export const meta: V2_MetaFunction = () => {
   ]
 }
 
+export const headers: HeadersFunction = () => {
+  return {
+    'Cache-Control': 'public, max-age=300, s-maxage=3600'
+  }
+}
+
 export const loader: LoaderFunction = async ({
   request
 }): Promise<LoaderData> => {
   const pageSize = 48
-  const timestamp = Date.now()
 
   try {
     const params = new URL(request.url).searchParams
 
     const page = parseInt(params.get('page') ?? '1', 10)
-    const gameCount = await Game.orderBy('grossRevenue', 'desc').count()
+    const gameService = new GameService()
+    const gameCount = await gameService.getGameCount()
     const pageCount = Math.ceil(gameCount / pageSize)
 
-    const gameService = new GameService()
     const games = await gameService.listGames(page, pageSize)
 
-    return { games, page, pageCount, timestamp }
+    return { games, page, pageCount }
   } catch (error) {
     console.error(error)
 
-    return { games: [], page: 1, pageCount: 1, timestamp }
+    return { games: [], page: 1, pageCount: 1 }
   }
 }
 
-interface GameWithRevenue extends GameDetails {
-  grossRevenue: number
-}
-
 export default function GamesRoute(): ReactElement {
-  const { games, page, pageCount, timestamp } = useLoaderData<LoaderData>()
-
-  const gamesWithRevenue = games.map((game) => ({
-    ...game,
-    grossRevenue: calculateRevenue(game.numberOfReviews, game.price / 100)
-  }))
+  const { games, page, pageCount } = useLoaderData<LoaderData>()
 
   const previousPageNumber = Math.max(page - 1, 1)
   const nextPageNumber = page + 1
@@ -118,11 +115,10 @@ export default function GamesRoute(): ReactElement {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {gamesWithRevenue.map((game) => (
+          {games.map((game) => (
             <GameCard
               key={game.id}
               game={game}
-              timestamp={timestamp}
             />
           ))}
         </div>
@@ -165,11 +161,9 @@ export default function GamesRoute(): ReactElement {
 }
 
 function GameCard({
-  game,
-  timestamp
+  game
 }: {
   game: GameWithRevenue
-  timestamp: number
 }): ReactElement {
   const slug = slugify(game.name, { lower: true })
 
@@ -181,7 +175,6 @@ function GameCard({
             id={game.id}
             name={game.name}
             price={game.price}
-            timestamp={timestamp}
           />
         </Link>
       </div>
@@ -223,16 +216,14 @@ function GameCard({
 function GameImage({
   id,
   name,
-  price,
-  timestamp
+  price
 }: {
   id: number
   name: string
   price: number
-  timestamp: number
 }): ReactElement {
   const ref = useRef<HTMLImageElement>(null)
-  const url = `https://cdn.akamai.steamstatic.com/steam/apps/${id}/hero_capsule.jpg?t=${timestamp}`
+  const url = `https://cdn.akamai.steamstatic.com/steam/apps/${id}/hero_capsule.jpg`
 
   useEffect(() => {
     if (!ref.current) {
