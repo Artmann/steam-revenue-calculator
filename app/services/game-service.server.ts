@@ -16,6 +16,13 @@ export class GameService {
     const games = (await collection
       .find({})
       .sort({ grossRevenue: -1 })
+      .project({
+        _id: 0,
+        grossRevenue: 1,
+        'details.id': 1,
+        'details.name': 1,
+        'details.price': 1
+      })
       .skip(skip)
       .limit(limit)
       .toArray()) as Game[]
@@ -28,7 +35,8 @@ export class GameService {
       return cachedGameCount
     }
 
-    cachedGameCount = await Game.orderBy('grossRevenue', 'desc').count()
+    const collection = await getCollection('games')
+    cachedGameCount = await collection.estimatedDocumentCount()
 
     return cachedGameCount
   }
