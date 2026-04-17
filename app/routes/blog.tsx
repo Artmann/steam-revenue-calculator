@@ -1,8 +1,14 @@
-import type { LinksFunction, V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, LinksFunction, V2_MetaFunction } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import type { ReactElement } from 'react'
 
 import { Page } from '~/components/page'
+
+export const headers: HeadersFunction = () => {
+  return {
+    'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'
+  }
+}
 
 export const meta: V2_MetaFunction = () => {
   return [
