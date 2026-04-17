@@ -15,8 +15,6 @@ export function Page({ children }: PageProps): ReactElement {
             to="/"
           >
             Steam Revenue Calculator
-            <span className="text-paper-dim"> / est. </span>
-            <span className="italic text-accent">Boxleiter</span>
           </Link>
         </div>
         <div className="flex gap-6 text-sm">
