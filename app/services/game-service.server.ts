@@ -47,9 +47,14 @@ export class GameService {
       1332010, 2230760, 646570, 567380, 1942280, 1708091, 379430, 488821, 322170
     ]
 
-    const games = await Game.whereIn('gameId', popularGameIds).get()
+    const collection = await getCollection('games')
 
-    return games.map((game) => game.details) as GameDetails[]
+    const games = (await collection
+      .find({ gameId: { $in: popularGameIds } })
+      .project({ _id: 0, details: 1 })
+      .toArray()) as { details: GameDetails }[]
+
+    return games.map((game) => game.details)
   }
 
   async migrateGamesToDatabase(): Promise<void> {
