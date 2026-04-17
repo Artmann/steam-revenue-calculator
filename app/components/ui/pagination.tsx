@@ -6,7 +6,8 @@ import {
 } from "@radix-ui/react-icons"
 
 import { cn } from "~/lib/utils"
-import { ButtonProps, buttonVariants } from "~/components/ui/button"
+import type { ButtonProps} from "~/components/ui/button";
+import { buttonVariants } from "~/components/ui/button"
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
@@ -44,6 +45,7 @@ type PaginationLinkProps = {
   React.ComponentProps<"a">
 
 const PaginationLink = ({
+  children,
   className,
   isActive,
   size = "icon",
@@ -59,7 +61,9 @@ const PaginationLink = ({
       className
     )}
     {...props}
-  />
+  >
+    {children}
+  </a>
 )
 PaginationLink.displayName = "PaginationLink"
 

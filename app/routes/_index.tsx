@@ -1,11 +1,11 @@
-import type { HeadersFunction, V2_MetaFunction } from '@remix-run/node'
-import { LoaderFunction } from '@remix-run/node'
+import type { HeadersFunction, V2_MetaFunction , LoaderFunction } from '@remix-run/node'
+
 import { Link, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
 import slugify from 'slugify'
 
 import { Page } from '~/components/page'
-import { GameDetails } from '~/games'
+import type { GameDetails } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 import { GameService } from '~/services/game-service.server'

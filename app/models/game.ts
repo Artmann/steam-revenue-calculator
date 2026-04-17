@@ -1,5 +1,5 @@
 import { BaseModel } from 'esix'
-import { GameDetails } from '~/games'
+import type { GameDetails } from '~/games'
 
 export class Game extends BaseModel {
   details?: GameDetails
