@@ -21,6 +21,9 @@ export const links: LinksFunction = () => [
     href: 'https://fonts.gstatic.com',
     crossOrigin: 'anonymous'
   },
+  { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com' },
+  { rel: 'dns-prefetch', href: 'https://pagead2.googlesyndication.com' },
+  { rel: 'dns-prefetch', href: 'https://cdn.akamai.steamstatic.com' },
   ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
   { rel: 'stylesheet', href: tailwind },
   { rel: 'stylesheet', href: styles },
