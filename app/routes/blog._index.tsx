@@ -1,6 +1,6 @@
 import type { HeadersFunction } from '@remix-run/node'
 import { Link } from '@remix-run/react'
-import { ReactElement } from 'react'
+import type { ReactElement } from 'react'
 
 export const headers: HeadersFunction = () => {
   return {

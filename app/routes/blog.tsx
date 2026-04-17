@@ -1,4 +1,4 @@
-import type { HeadersFunction, LinksFunction, V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, V2_MetaFunction } from '@remix-run/node'
 import { Outlet } from '@remix-run/react'
 import type { ReactElement } from 'react'
 
