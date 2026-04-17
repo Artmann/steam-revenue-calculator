@@ -1,4 +1,4 @@
-import type { LoaderFunction, V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, LoaderFunction, V2_MetaFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import type { ReactElement } from 'react'
 import slugify from 'slugify'
@@ -12,6 +12,12 @@ import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 
 interface LoaderData {
   game: GameDetails
+}
+
+export const headers: HeadersFunction = () => {
+  return {
+    'Cache-Control': 'public, max-age=300, s-maxage=86400, stale-while-revalidate=604800'
+  }
 }
 
 export const loader: LoaderFunction = async ({

@@ -1,5 +1,12 @@
+import type { HeadersFunction } from '@remix-run/node'
 import { Link } from '@remix-run/react'
 import { ReactElement } from 'react'
+
+export const headers: HeadersFunction = () => {
+  return {
+    'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'
+  }
+}
 
 export default function BlogRoute(): ReactElement {
   return (

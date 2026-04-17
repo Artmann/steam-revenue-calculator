@@ -1,4 +1,4 @@
-import type { V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, V2_MetaFunction } from '@remix-run/node'
 import { LoaderFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
@@ -41,6 +41,12 @@ export const meta: V2_MetaFunction = () => {
       href: 'https://steam-revenue-calculator.com/'
     }
   ]
+}
+
+export const headers: HeadersFunction = () => {
+  return {
+    'Cache-Control': 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
+  }
 }
 
 export const loader: LoaderFunction = async () => {
