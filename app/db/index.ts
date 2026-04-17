@@ -9,7 +9,12 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
   indexesEnsured = true
   const databaseName = process.env.DB_DATABASE ?? ''
   const db = mongoClient.db(databaseName)
-  await db.collection('games').createIndex({ grossRevenue: -1 }, { background: true })
+  const games = db.collection('games')
+  await Promise.all([
+    games.createIndex({ grossRevenue: -1 }, { background: true }),
+    games.createIndex({ gameId: 1 }, { background: true, unique: true }),
+    games.createIndex({ name: 1 }, { background: true })
+  ])
 }
 
 export async function getCollection(collectionName: string) {
