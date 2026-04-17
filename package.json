@@ -1,4 +1,24 @@
 {
+  "name": "steam-revenue-calculator",
+  "description": "Estimate how much any Steam game has earned using the Boxleiter method, with a full breakdown of Steam's cut, VAT, refunds, regional pricing, and discounts.",
+  "keywords": [
+    "steam",
+    "steam-api",
+    "revenue-calculator",
+    "boxleiter",
+    "indie-games",
+    "game-development",
+    "game-revenue",
+    "sales-estimation",
+    "remix",
+    "mongodb",
+    "typescript"
+  ],
+  "homepage": "https://steam-revenue-calculator.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Artmann/steam-revenue-calculator.git"
+  },
   "private": true,
   "license": "MIT",
   "sideEffects": false,
