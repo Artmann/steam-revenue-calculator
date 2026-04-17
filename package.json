@@ -9,7 +9,7 @@
     "typecheck": "tsc"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.0",
