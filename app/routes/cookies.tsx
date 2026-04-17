@@ -33,12 +33,12 @@ export default function CookiesRoute(): ReactElement {
   return (
     <Page>
       <div className="space-y-8 max-w-2xl leading-loose">
-        <h1 className="text-3xl md:text-4xl font-poppins font-bold">Cookies</h1>
+        <h1>Cookies</h1>
         <div className="space-y-8">
           <p>Last updated: June 26, 2024</p>
 
           <section className="space-y-2">
-            <h2 className="text-xl md:text-2xl font-poppins font-bold">
+            <h2>
               What Are Cookies?
             </h2>
             <p>
@@ -51,7 +51,7 @@ export default function CookiesRoute(): ReactElement {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-xl md:text-2xl font-poppins font-bold">
+            <h2>
               How We Use Cookies
             </h2>
             <p>We use cookies for several purposes, detailed below:</p>
@@ -67,7 +67,7 @@ export default function CookiesRoute(): ReactElement {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-xl md:text-2xl font-poppins font-bold">
+            <h2>
               Disabling Cookies
             </h2>
             <p>
@@ -82,7 +82,7 @@ export default function CookiesRoute(): ReactElement {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-xl md:text-2xl font-poppins font-bold">
+            <h2>
               The Cookies We Set
             </h2>
             <ul className="list-disc pl-4 space-y-2">
@@ -117,7 +117,7 @@ export default function CookiesRoute(): ReactElement {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-xl md:text-2xl font-poppins font-bold">
+            <h2>
               Third Party Cookies
             </h2>
             <p>
@@ -138,7 +138,7 @@ export default function CookiesRoute(): ReactElement {
           </section>
 
           <section className="space-y-2">
-            <h2 className="text-xl md:text-2xl font-poppins font-bold">
+            <h2>
               More Information
             </h2>
             <p>
