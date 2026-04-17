@@ -52,8 +52,7 @@
     "source-map-support": "^0.5.21",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "tqdm": "^2.0.3",
-    "vanilla-cookieconsent": "^3.1.0"
+    "tqdm": "^2.0.3"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.19.3",

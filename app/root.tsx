@@ -11,8 +11,6 @@ import {
 import tailwind from './tailwind.css'
 import styles from './global.css'
 import blogStyles from './blog.css'
-import cookieConsentStyles from 'vanilla-cookieconsent/dist/cookieconsent.css'
-import { CookieConsentBanner } from './components/cookie-consent'
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -32,8 +30,7 @@ export const links: LinksFunction = () => [
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap'
   },
-  { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-  { rel: 'stylesheet', href: cookieConsentStyles }
+  { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
 ]
 
 export const meta: V2_MetaFunction = () => {
@@ -69,13 +66,29 @@ export default function App() {
         />
         <Meta />
         <Links />
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZRVV1BYVCR"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-6XN7FH6J2P');`
+          }}
+        />
+        <script
+          async
+          crossOrigin="anonymous"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7586045516328295"
+        />
       </head>
       <body>
         <Outlet />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
-        <CookieConsentBanner />
       </body>
     </html>
   )
