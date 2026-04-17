@@ -85,7 +85,7 @@ export default function HomePageRoute() {
               value={numberOfReviews}
               onChange={setNumberOfReviews}
               suffix=" reviews"
-              width="5.5rem"
+              width="4.5rem"
             /> a Steam game has accumulated are a rough proxy for its number
             of owners. Multiply by a price of{' '}
             <InlineInput
@@ -94,7 +94,7 @@ export default function HomePageRoute() {
               value={price}
               onChange={setPrice}
               prefix="$"
-              width="4rem"
+              width="3.5rem"
               step="0.01"
             />
             {' '}and adjust for regional pricing, launch discounts, refunds,
@@ -196,12 +196,13 @@ function InlineInput({
       <input
         id={id}
         type="number"
+        inputMode="decimal"
         min="0"
         step={step}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{ width }}
-        className="bg-transparent border-b border-dashed border-rule-strong focus:border-accent text-accent font-display text-[1.05em] tabular-nums lining-nums px-1 mx-0.5 focus:outline-none focus:border-solid transition-colors"
+        className="inline-number-input bg-transparent border-b border-dashed border-rule-strong focus:border-accent text-accent font-sans font-medium tabular-nums lining-nums slashed-zero tracking-tight px-1 mx-0.5 focus:outline-none focus:border-solid transition-colors"
       />
       {suffix ? <span className="text-paper-muted">{suffix}</span> : null}
     </span>

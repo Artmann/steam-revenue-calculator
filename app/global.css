@@ -90,6 +90,18 @@ h3 {
   color: var(--ink);
 }
 
+/* Inline MadLib inputs — hide native number spinners, keep field flush with prose */
+.inline-number-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.inline-number-input::-webkit-outer-spin-button,
+.inline-number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 ::-webkit-scrollbar {
   -webkit-appearance: none;
   width: 8px;
