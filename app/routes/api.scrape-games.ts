@@ -13,8 +13,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const key = url.searchParams.get('key')
   const cursor = parseInt(url.searchParams.get('cursor') ?? '1', 10)
+  const expectedKey = process.env.SCRAPE_KEY
 
-  if (!key || key !== 'YTViNDlkMGMtNTZiYi00Y2ExLWFhOGItZmE5NDNhM2E3ZWYyIA') {
+  if (!expectedKey || !key || key !== expectedKey) {
     return new Response('Unauthorized.', { status: 401 })
   }
 
