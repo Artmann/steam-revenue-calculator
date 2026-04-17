@@ -1,5 +1,6 @@
 import { getCollection } from '~/db'
-import { createGameSlug, fetchGames, GameDetails } from '~/games'
+import type { GameDetails } from '~/games';
+import { createGameSlug, fetchGames } from '~/games'
 import { Game } from '~/models/game'
 import { calculateRevenue } from '~/revenue'
 
@@ -25,7 +26,7 @@ export class GameService {
       })
       .skip(skip)
       .limit(limit)
-      .toArray()) as Game[]
+      .toArray()) as { grossRevenue: number; details: GameDetails }[]
 
     return games.map((game) => ({ ...game.details, grossRevenue: game.grossRevenue }))
   }
@@ -36,9 +37,10 @@ export class GameService {
     }
 
     const collection = await getCollection('games')
-    cachedGameCount = await collection.estimatedDocumentCount()
+    const count = (await collection.estimatedDocumentCount()) as number
+    cachedGameCount = count
 
-    return cachedGameCount
+    return count
   }
 
   async listPopularGames(): Promise<GameDetails[]> {
