@@ -94,7 +94,7 @@ export default function HomePageRoute() {
               value={price}
               onChange={setPrice}
               prefix="$"
-              width="3.5rem"
+              width="4.25rem"
               step="0.01"
             />
             {' '}and adjust for regional pricing, launch discounts, refunds,

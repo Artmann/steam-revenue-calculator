@@ -64,13 +64,17 @@ h3 {
   font-feature-settings: 'tnum', 'lnum', 'zero', 'ss01';
 }
 
-/* Display figures get optical-size boost via Fraunces */
+/* Hero figures — prioritise legibility at large sizes.
+   Set in the body grotesque (not Fraunces) because the serif's fine strokes
+   muddy under sub-pixel rendering; tabular lining numerals + heavy weight
+   keep the figure scannable. */
 .figures-display {
-  font-family: Fraunces, Georgia, Cambria, 'Times New Roman', serif;
+  font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
   font-variant-numeric: tabular-nums lining-nums slashed-zero;
-  font-feature-settings: 'tnum', 'lnum', 'zero', 'ss01';
-  font-variation-settings: 'opsz' 144, 'SOFT' 20, 'wght' 450;
-  letter-spacing: -0.03em;
+  font-feature-settings: 'tnum', 'lnum', 'zero';
+  font-weight: 600;
+  font-size: clamp(2.5rem, 1.8rem + 2.6vw, 3.75rem);
+  letter-spacing: -0.035em;
   line-height: 0.95;
 }
 
