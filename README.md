@@ -1,25 +1,50 @@
 # Steam Revenue Calculator
 
-Estimates the revenue of games on Steam.
+Estimate how much any Steam game has earned.
 
-## Development
+**[steam-revenue-calculator.com](https://steam-revenue-calculator.com/)**
 
-To run your Remix app locally, make sure your project's local dependencies are
-installed:
+Plug in a game's review count and price, and the calculator returns an estimated gross revenue plus a breakdown of what the developer likely took home after Steam's cut, VAT, refunds, regional pricing, and sale discounts.
 
-```sh
-yarn install
-```
+## Who it's for
 
-Afterwards, start the Remix development server like so:
+- **Indie developers** sizing up similar titles before committing to a pitch, a price point, or a platform.
+- **Publishers and analysts** looking for a quick ballpark on a game or genre.
+- **Press and curious players** who want to know what a game actually made — not just how many copies it "sold".
 
-```sh
-yarn run dev
-```
+## How it works
 
-Open up [http://localhost:3000](http://localhost:3000) and you should be ready
-to go!
+The calculator uses the **Boxleiter method** — a well-known rule of thumb in game dev circles that estimates total sales from the number of reviews a game has on Steam. Different review tiers use different multipliers, because tiny games, mid-sized hits, and blockbusters all have very different review-to-sales ratios.
 
-If you're used to using the `vercel dev` command provided by
-[Vercel CLI](https://vercel.com/cli) instead, you can also use that, but it's
-not needed.
+Gross revenue comes from that estimate times the price. From there the breakdown subtracts the things that actually eat into a developer's take:
+
+- Regional pricing adjustments
+- Sale and launch discounts
+- Refunds
+- Steam's 30% revenue share
+- VAT
+
+What's left is the **net revenue** — what actually reaches the developer's account.
+
+## These are estimates, not audits
+
+A few things the method can't see:
+
+- Free-to-play games — the model doesn't apply.
+- Giveaways, bundles, and off-platform Steam key sales skew the numbers low.
+- A handful of outsized hits break the review curve.
+- Steam's cut drops to 25% above $10M and 20% above $50M; the calculator doesn't model those tier breaks yet.
+
+Treat the output as an order-of-magnitude guide.
+
+## Browse games
+
+The full [ranked list](https://steam-revenue-calculator.com/games) sorts thousands of Steam titles by estimated revenue. Click any game for its full breakdown.
+
+## Read more
+
+For a deeper look at what Steam's cut really costs and why "gross revenue" isn't what hits the developer's bank account, see [The Real Talk on Steam's Cut](https://steam-revenue-calculator.com/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated).
+
+## Contributing
+
+Running the project locally, the tech stack, and the data pipeline are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
