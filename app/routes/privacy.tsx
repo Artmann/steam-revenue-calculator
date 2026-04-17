@@ -33,7 +33,7 @@ export default function PrivacyRoute(): ReactElement {
   return (
     <Page>
       <div className="space-y-8">
-        <h1 className="text-3xl md:text-4xl font-poppins font-bold">
+        <h1>
           Privacy Policy
         </h1>
         <div className="space-y-4">
@@ -45,7 +45,7 @@ export default function PrivacyRoute(): ReactElement {
             practices described in this policy.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Collection of Personal Data
           </h2>
           <p>
@@ -55,7 +55,7 @@ export default function PrivacyRoute(): ReactElement {
             details.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Use of Personal Data
           </h2>
           <p>
@@ -64,7 +64,7 @@ export default function PrivacyRoute(): ReactElement {
             data with third parties that assist us in offering the service.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Cookies and Tracking
           </h2>
           <p>
@@ -73,7 +73,7 @@ export default function PrivacyRoute(): ReactElement {
             service.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Data Sharing
           </h2>
           <p>
@@ -82,7 +82,7 @@ export default function PrivacyRoute(): ReactElement {
             visible to other users if you interact in public areas.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Data Retention
           </h2>
           <p>
@@ -91,7 +91,7 @@ export default function PrivacyRoute(): ReactElement {
             is required or permitted by law.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Data Transfer
           </h2>
           <p>
@@ -99,7 +99,7 @@ export default function PrivacyRoute(): ReactElement {
             your own. We ensure the security of your data in these transfers.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Your Rights
           </h2>
           <p>
@@ -107,7 +107,7 @@ export default function PrivacyRoute(): ReactElement {
             Contact us to exercise these rights.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Security
           </h2>
           <p>
@@ -115,7 +115,7 @@ export default function PrivacyRoute(): ReactElement {
             absolute security.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Children's Privacy
           </h2>
           <p>
@@ -123,7 +123,7 @@ export default function PrivacyRoute(): ReactElement {
             knowingly collect data from this age group.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Third-Party Links
           </h2>
           <p>
@@ -131,7 +131,7 @@ export default function PrivacyRoute(): ReactElement {
             for their privacy practices.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Changes to This Policy
           </h2>
           <p>
@@ -139,7 +139,7 @@ export default function PrivacyRoute(): ReactElement {
             changes. You're encouraged to review this policy periodically.
           </p>
 
-          <h2 className="text-xl md:text-2xl font-poppins font-bold">
+          <h2>
             Contact Us
           </h2>
           <p>

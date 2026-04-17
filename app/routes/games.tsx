@@ -12,7 +12,7 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '~/components/ui/pagination'
-import { type GameDetails } from '~/games'
+import { type GameDetails, formatCurrency } from '~/games'
 import { GameService } from '~/services/game-service.server'
 
 interface GameWithRevenue extends GameDetails {
@@ -23,6 +23,7 @@ interface LoaderData {
   games: GameWithRevenue[]
   page: number
   pageCount: number
+  totalCount: number
 }
 
 export const meta: V2_MetaFunction = () => {
@@ -70,24 +71,26 @@ export const loader: LoaderFunction = async ({
 
     const page = parseInt(params.get('page') ?? '1', 10)
     const gameService = new GameService()
-    const gameCount = await gameService.getGameCount()
-    const pageCount = Math.ceil(gameCount / pageSize)
+    const totalCount = await gameService.getGameCount()
+    const pageCount = Math.ceil(totalCount / pageSize)
 
     const games = await gameService.listGames(page, pageSize)
 
-    return { games, page, pageCount }
+    return { games, page, pageCount, totalCount }
   } catch (error) {
     console.error(error)
 
-    return { games: [], page: 1, pageCount: 1 }
+    return { games: [], page: 1, pageCount: 1, totalCount: 0 }
   }
 }
 
 export default function GamesRoute(): ReactElement {
-  const { games, page, pageCount } = useLoaderData<LoaderData>()
+  const { games, page, pageCount, totalCount } = useLoaderData<LoaderData>()
 
   const previousPageNumber = Math.max(page - 1, 1)
   const nextPageNumber = page + 1
+  const pageSize = 48
+  const startRank = (page - 1) * pageSize + 1
 
   const pageNumbers = useMemo(() => {
     const startNumber = Math.max(page - 2, 1)
@@ -101,33 +104,43 @@ export default function GamesRoute(): ReactElement {
 
   return (
     <Page>
-      <div className="flex flex-col gap-8">
-        <h1 className="text-4xl">Games</h1>
+      <div className="flex flex-col gap-12">
+        <header className="flex flex-col gap-6 pt-4 md:pt-10 max-w-2xl">
+          <div className="eyebrow">League table</div>
+          <h1 className="font-display leading-[1.02]">Steam games by revenue</h1>
+          <p className="text-lg text-paper-muted max-w-xl">
+            {new Intl.NumberFormat('en-US').format(totalCount)} titles, ranked
+            by estimated gross revenue from the{' '}
+            <em className="text-accent not-italic">Boxleiter</em> method. Click
+            a row for the full breakdown.
+          </p>
+        </header>
 
-        <div className="w-full">
-          Here, we've compiled a list of games along with their estimated
-          revenue figures. Our estimations are based on various metrics like
-          sales volume, current market trends, and user reviews. While we strive
-          to be as accurate as possible, it's important to note that these
-          figures are approximations and might not represent the exact revenue
-          earned by the developers or publishers. Dive in and explore how your
-          favorite games might be performing on Steam!
-        </div>
+        <section>
+          <div className="hidden md:grid md:grid-cols-[3rem_5rem_1fr_8rem] gap-6 items-baseline eyebrow pb-3 border-b border-rule-strong">
+            <div className="text-right">#</div>
+            <div></div>
+            <div>Title</div>
+            <div className="text-right">Est. gross</div>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {games.map((game) => (
-            <GameCard
-              key={game.id}
-              game={game}
-            />
-          ))}
-        </div>
-        <div>
+          <div className="divide-y divide-rule">
+            {games.map((game, index) => (
+              <GameRow
+                key={game.id}
+                rank={startRank + index}
+                game={game}
+              />
+            ))}
+          </div>
+        </section>
+
+        <div className="pt-4">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
-                  className="text-white"
+                  className="text-paper hover:text-accent"
                   href={`/games?page=${previousPageNumber}`}
                 />
               </PaginationItem>
@@ -136,7 +149,9 @@ export default function GamesRoute(): ReactElement {
                 <PaginationItem key={pageNumber}>
                   <PaginationLink
                     className={
-                      page === pageNumber ? 'text-gray-700' : 'text-white'
+                      page === pageNumber
+                        ? 'text-accent font-display'
+                        : 'text-paper-muted hover:text-paper'
                     }
                     href={`/games?page=${pageNumber}`}
                     isActive={page === pageNumber}
@@ -148,7 +163,7 @@ export default function GamesRoute(): ReactElement {
 
               <PaginationItem>
                 <PaginationNext
-                  className="text-white"
+                  className="text-paper hover:text-accent"
                   href={`/games?page=${nextPageNumber}`}
                 />
               </PaginationItem>
@@ -160,70 +175,54 @@ export default function GamesRoute(): ReactElement {
   )
 }
 
-function GameCard({
+function GameRow({
+  rank,
   game
 }: {
+  rank: number
   game: GameWithRevenue
 }): ReactElement {
   const slug = slugify(game.name, { lower: true })
+  const detailHref = `/app/${game.id}/${slug}`
 
   return (
-    <div className="mb-8 md:mb-16 mx-auto w-full md:w-48 space-y-4">
-      <div>
-        <Link to={`/app/${game.id}/${slug}`}>
-          <GameImage
-            id={game.id}
-            name={game.name}
-            price={game.price}
-          />
-        </Link>
+    <Link
+      to={detailHref}
+      className="group grid grid-cols-[2rem_1fr_auto] md:grid-cols-[3rem_5rem_1fr_8rem] gap-4 md:gap-6 items-center py-3 hover:bg-paper/[0.02] transition-colors"
+    >
+      <div className="font-display text-paper-muted tabular-nums text-right text-sm md:text-base">
+        {String(rank).padStart(3, '0')}
       </div>
-      <div className="space-y-1">
-        <div className="text-sm w-full flex flex-col gap-2">
-          <Link
-            className="font-medium truncate w-full block"
-            title={game.name}
-            to={`/app/${game.id}/${slug}`}
-          >
-            {game.name}
-          </Link>
+      <div className="hidden md:block">
+        <GameImage
+          id={game.id}
+          name={game.name}
+        />
+      </div>
+      <div className="min-w-0 flex items-baseline gap-3">
+        <div className="font-display text-base md:text-lg leading-tight group-hover:text-accent truncate">
+          {game.name}
         </div>
-        <div className="flex items-center text-xs">
-          <div className="flex-1">
-            $
-            {new Intl.NumberFormat('en-US').format(
-              Math.round(game.grossRevenue)
-            )}
-          </div>
-          <div>
-            <Link to={`https://store.steampowered.com/app/${game.id}`}>
-              <img
-                className="w-4 h-4"
-                alt="Steam"
-                loading="eager"
-                width={16}
-                height={16}
-                src="/images/steam.png"
-              />
-            </Link>
-          </div>
+        <div className="hidden md:inline text-xs text-paper-dim tabular-nums shrink-0">
+          ${(game.price / 100).toFixed(2)}
         </div>
       </div>
-    </div>
+      <div className="text-right font-display text-base md:text-lg tabular-nums">
+        {formatCurrency(Math.round(game.grossRevenue), true)}
+      </div>
+    </Link>
   )
 }
 
 function GameImage({
   id,
-  name,
-  price
+  name
 }: {
   id: number
   name: string
-  price: number
 }): ReactElement {
   const ref = useRef<HTMLImageElement>(null)
-  const url = `https://cdn.akamai.steamstatic.com/steam/apps/${id}/hero_capsule.jpg`
+  const url = `https://cdn.akamai.steamstatic.com/steam/apps/${id}/capsule_184x69.jpg`
 
   useEffect(() => {
     if (!ref.current) {
@@ -239,27 +238,12 @@ function GameImage({
   }, [id])
 
   return (
-    <div
-      className={`
-        relative w-full h-auto
-        overflow-hidden
-        rounded-md
-      `}
-      style={{ aspectRatio: '192 / 230' }}
-    >
-      <img
-        ref={ref}
-        alt={name}
-        className={`
-          absolute inset-0 object-cover
-          shadow-md
-        `}
-        loading="lazy"
-        src={url}
-      />
-      <div className="absolute bottom-0 left-0 right-0 p-2 text-xs bg-black z-10 text-white bg-opacity-80">
-        ${(price / 100).toFixed(2)}
-      </div>
-    </div>
+    <img
+      ref={ref}
+      alt={name}
+      className="w-20 h-auto"
+      loading="lazy"
+      src={url}
+    />
   )
 }

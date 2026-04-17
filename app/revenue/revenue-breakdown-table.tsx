@@ -11,49 +11,73 @@ export function RevenueBreakdownTable({
   breakdown
 }: RevenueBreakdownTableProps): ReactElement {
   return (
-    <div className="flex flex-col items-center gap-4 w-full min-w-[18rem]">
-      <div className="text-center flex flex-col gap-3">
+    <div className="flex flex-col gap-6 w-full min-w-[18rem] max-w-sm">
+      <div className="flex flex-col gap-2">
+        <div className="eyebrow">Estimated gross revenue</div>
         <div
-          className="font-bold font-poppins text-4xl"
+          className="figures-display"
           data-testid="gross-revenue"
         >
           {formatCurrency(breakdown.grossRevenue, true)}
         </div>
-        <div className="uppercase text-sm">Gross Revenue</div>
       </div>
-      <div className="w-full">
-        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
-          <div className="uppercase flex-1">Adj. Regional Pricing</div>
-          <div data-testid="adjusted-regional-pricing">
-            {formatCurrency(breakdown.adjustedRegionalPricing)}
-          </div>
-        </div>
-        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
-          <div className="uppercase flex-1">Discounts</div>
-          <div data-testid="discounts">
-            {formatCurrency(breakdown.discounts)}
-          </div>
-        </div>
-        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
-          <div className="uppercase flex-1">Refunds</div>
-          <div data-testid="refunds">{formatCurrency(breakdown.refunds)}</div>
-        </div>
-        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
-          <div className="uppercase flex-1">Steam Cut</div>
-          <div data-testid="steam-fee">
-            {formatCurrency(breakdown.steamFee)}
-          </div>
-        </div>
-        <div className="flex items-center gap-6 w-full border-b border-dashed border-slate-100 text-xs py-2">
-          <div className="uppercase flex-1">VAT / Sales Tax</div>
-          <div data-testid="vat">{formatCurrency(breakdown.vat)}</div>
-        </div>
-        <div className="flex text-sm items-center gap-6 w-full border-b border-dashed border-slate-100 py-2 font-bold">
-          <div className="uppercase flex-1">Net Revenue</div>
-          <div data-testid="net-revenue">
+      <div className="w-full border-t border-rule-strong">
+        <Row
+          label="Adj. Regional Pricing"
+          value={formatCurrency(breakdown.adjustedRegionalPricing)}
+          testId="adjusted-regional-pricing"
+        />
+        <Row
+          label="Discounts"
+          value={formatCurrency(breakdown.discounts)}
+          testId="discounts"
+        />
+        <Row
+          label="Refunds"
+          value={formatCurrency(breakdown.refunds)}
+          testId="refunds"
+        />
+        <Row
+          label="Steam cut"
+          value={formatCurrency(breakdown.steamFee)}
+          testId="steam-fee"
+        />
+        <Row
+          label="VAT / Sales tax"
+          value={formatCurrency(breakdown.vat)}
+          testId="vat"
+        />
+        <div className="flex items-baseline gap-6 w-full border-t border-rule-strong pt-3 mt-1 text-accent">
+          <div className="flex-1 font-display text-lg">Net revenue</div>
+          <div
+            className="figures text-lg font-display"
+            data-testid="net-revenue"
+          >
             {formatCurrency(breakdown.netRevenue)}
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function Row({
+  label,
+  value,
+  testId
+}: {
+  label: string
+  value: string
+  testId: string
+}): ReactElement {
+  return (
+    <div className="flex items-baseline gap-6 w-full border-b border-rule py-2.5 text-sm">
+      <div className="flex-1 text-paper-muted">{label}</div>
+      <div
+        className="figures tabular-nums"
+        data-testid={testId}
+      >
+        {value}
       </div>
     </div>
   )

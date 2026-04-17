@@ -121,8 +121,8 @@ export default function AppRoute(): ReactElement {
                   height={347}
                   src={game.screenshots[0]}
                 />
-                <div className="text-slate-300 text-xs">
-                  By:{' '}
+                <div className="text-paper-muted text-sm">
+                  <span className="eyebrow mr-2">By</span>
                   {[...new Set([...game.developers, ...game.publishers])].join(
                     ', '
                   )}
@@ -130,31 +130,25 @@ export default function AppRoute(): ReactElement {
               </div>
 
               <div data-testid="description">{game.description}</div>
-              <div className="flex gap-8 md:gap-16">
-                <div>
-                  <div className="uppercase font-bold text-xs text-slate-300">
-                    Price
-                  </div>
-                  <div className="font-bold text-lg">
+              <div className="flex gap-10 md:gap-14 border-y border-rule py-4">
+                <div className="space-y-1.5">
+                  <div className="eyebrow">Price</div>
+                  <div className="font-display text-xl tabular-nums">
                     {formatCurrency(game.price / 100)}
                   </div>
                 </div>
-                <div>
-                  <div className="uppercase font-bold text-xs text-slate-300">
-                    Reviews
-                  </div>
-                  <div className="font-bold text-lg">
+                <div className="space-y-1.5">
+                  <div className="eyebrow">Reviews</div>
+                  <div className="font-display text-xl tabular-nums">
                     {new Intl.NumberFormat('en-US').format(
                       game.numberOfReviews
                     )}
                   </div>
                 </div>
                 {game.metacritic && (
-                  <div>
-                    <div className="uppercase font-bold text-xs text-slate-300">
-                      Metacritic
-                    </div>
-                    <div className="font-bold text-lg">
+                  <div className="space-y-1.5">
+                    <div className="eyebrow">Metacritic</div>
+                    <div className="font-display text-xl tabular-nums">
                       <a
                         href={game.metacritic.url}
                         rel="noopener noreferrer"
@@ -169,10 +163,10 @@ export default function AppRoute(): ReactElement {
 
               <div>
                 <Link
-                  className="text-xs hover:underline"
+                  className="text-sm text-accent hover:text-accent-strong underline underline-offset-4 decoration-accent/40 hover:decoration-accent"
                   to={`https://store.steampowered.com/app/${game.id}`}
                 >
-                  View on Steam
+                  View on Steam →
                 </Link>
               </div>
 

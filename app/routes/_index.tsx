@@ -69,100 +69,141 @@ export default function HomePageRoute() {
 
   return (
     <Page>
-      <div className="flex flex-col items-center gap-8 md:gap-32 md:flex-row md:flex-wrap md:items-start md:justify-center md:pt-32">
-        <div className="max-w-sm flex flex-col gap-4 text-center md:text-left">
-          <h1 className="text-3xl">
-            Calculating the Revenue for Games on Steam
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 pt-4 md:pt-16">
+        <header className="md:col-span-7 flex flex-col gap-8">
+          <div className="eyebrow">
+            The Steam Revenue Calculator — Issue N°1
+          </div>
+          <h1 className="font-display text-4xl md:text-5xl leading-[1.02] tracking-tight">
+            How much does a game on Steam{' '}
+            <em className="text-accent">actually</em> earn?
           </h1>
-          <div className="mb-8">
-            Using the{' '}
+          <p className="text-lg md:text-xl text-paper leading-relaxed max-w-xl">
+            The <InlineInput
+              id="number-of-reviews"
+              label="Reviews"
+              value={numberOfReviews}
+              onChange={setNumberOfReviews}
+              suffix=" reviews"
+              width="5.5rem"
+            /> a Steam game has accumulated are a rough proxy for its number
+            of owners. Multiply by a price of{' '}
+            <InlineInput
+              id="price"
+              label="Price"
+              value={price}
+              onChange={setPrice}
+              prefix="$"
+              width="4rem"
+              step="0.01"
+            />
+            {' '}and adjust for regional pricing, launch discounts, refunds,
+            VAT, and Steam's 30% cut — what remains is what the developer
+            actually banks. The method is called{' '}
             <a
-              className="underline text-primary"
+              className="text-accent underline decoration-accent/50 underline-offset-4 hover:decoration-accent"
               href="https://greyaliengames.com/blog/how-to-estimate-how-many-sales-a-steam-game-has-made"
             >
-              Boxleiter method
-            </a>{' '}
-            we can use the number of review a game has on Steam to estimate the
-            number of owners. From this, we can calculate the gross revenue and
-            by adjusting for discounts, regional pricing, etc. we can get a
-            rough idea of the net revune.
-          </div>
-          <div className="flex gap-4 flex-col items-center md:flex-row md:gap-8">
-            <div className="">
-              <label
-                className="block uppercase tracking-wide font-semibold text-sm mb-2"
-                htmlFor="number-of-reviews"
-              >
-                Reviews
-              </label>
-              <input
-                className="border border-gray-300 rounded-md p-2 bg-transparent w-32"
-                id="number-of-reviews"
-                min="1"
-                type="number"
-                value={numberOfReviews}
-                onChange={(e) => setNumberOfReviews(e.target.value)}
-              />
-            </div>
-            <div className="">
-              <label
-                className="block uppercase tracking-wide font-semibold text-sm mb-2"
-                htmlFor="price"
-              >
-                Price
-              </label>
-              <input
-                className="border border-gray-300 rounded-md p-2 bg-transparent w-32"
-                id="price"
-                min="0"
-                type="number"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-        <div>
+              Boxleiter
+            </a>
+            ; treat the output as an order-of-magnitude guide, not an audit.
+          </p>
+        </header>
+
+        <aside className="md:col-span-5 md:border-l md:border-rule md:pl-10">
           <RevenueBreakdownTable breakdown={revenueBreakdown(grossRevenue)} />
+        </aside>
+      </div>
+
+      <div className="mt-24 md:mt-32 pt-10 border-t border-rule">
+        <div className="flex items-baseline justify-between gap-6 mb-10">
+          <h2 className="font-display text-3xl md:text-4xl">Selected titles</h2>
+          <Link
+            to="/games"
+            className="text-sm text-accent hover:text-accent-strong"
+          >
+            View the full ranking →
+          </Link>
         </div>
-      </div>
-
-      <div className="py-16">
-        <div className="w-full h-[1px] bg-gray-700" />
-      </div>
-
-      <div className="w-full space-y-8">
-        <h2>Popular games</h2>
-        <div className="space-y-8">
-          {popularGames.map((game) => (
-            <div
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+          {popularGames.map((game, index) => (
+            <article
               key={game.id}
-              className="flex flex-col md:flex-row gap-4 md:gap-8"
+              className="flex gap-5 items-start border-t border-rule pt-6"
             >
-              <div className="flex-shrink-0">
+              <div className="eyebrow pt-1 w-6 shrink-0">
+                {String(index + 1).padStart(2, '0')}
+              </div>
+              <Link
+                to={`/app/${game.id}/${slugify(game.name, { lower: true })}`}
+                className="shrink-0"
+              >
                 <img
                   alt={game.name}
-                  className="w-full max-w-[10rem] aspect-video object-cover rounded-md"
+                  className="w-28 aspect-video object-cover"
                   src={game.screenshots[0]}
                 />
+              </Link>
+              <div className="space-y-1.5 flex-1 min-w-0">
+                <Link
+                  className="hover:text-accent"
+                  to={`/app/${game.id}/${slugify(game.name, { lower: true })}`}
+                >
+                  <h3 className="font-display text-lg leading-tight truncate">
+                    {game.name}
+                  </h3>
+                </Link>
+                <p className="text-sm text-paper-muted leading-snug line-clamp-2">
+                  {game.description}
+                </p>
               </div>
-              <div className="space-y-2 max-w-lg">
-                <div>
-                  <Link
-                    className="text-sm font-semibold hover:underline"
-                    to={`/app/${game.id}/${slugify(game.name, {
-                      lower: true
-                    })}`}
-                  >
-                    <h3>{game.name}</h3>
-                  </Link>
-                </div>
-                <div className="text-xs">{game.description}</div>
-              </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>
     </Page>
+  )
+}
+
+function InlineInput({
+  id,
+  label,
+  value,
+  onChange,
+  prefix,
+  suffix,
+  width,
+  step
+}: {
+  id: string
+  label: string
+  value: string
+  onChange: (v: string) => void
+  prefix?: string
+  suffix?: string
+  width: string
+  step?: string
+}) {
+  return (
+    <span className="whitespace-nowrap inline-flex items-baseline">
+      <label
+        htmlFor={id}
+        className="sr-only"
+      >
+        {label}
+      </label>
+      {prefix ? <span className="text-paper-muted">{prefix}</span> : null}
+      <input
+        id={id}
+        type="number"
+        min="0"
+        step={step}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ width }}
+        className="bg-transparent border-b border-dashed border-rule-strong focus:border-accent text-accent font-display text-[1.05em] tabular-nums lining-nums px-1 mx-0.5 focus:outline-none focus:border-solid transition-colors"
+      />
+      {suffix ? <span className="text-paper-muted">{suffix}</span> : null}
+    </span>
   )
 }

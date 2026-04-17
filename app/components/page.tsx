@@ -8,32 +8,36 @@ type PageProps = {
 export function Page({ children }: PageProps): ReactElement {
   return (
     <div className="w-full">
-      <div className="w-full max-w-5xl mx-auto px-8 py-4 box-border flex">
+      <div className="w-full max-w-5xl mx-auto px-8 pt-6 pb-4 box-border flex items-baseline border-b border-rule">
         <div className="flex-1">
           <Link
-            className="uppercase font-poppins font-black text-sm"
+            className="font-display text-lg tracking-tight hover:text-paper"
             to="/"
           >
             Steam Revenue Calculator
+            <span className="text-paper-dim"> / est. </span>
+            <span className="italic text-accent">Boxleiter</span>
           </Link>
         </div>
-        <div className="flex gap-4">
-          <div>
-            <Link
-              className="text-xs uppercase text-slate-300 hover:text-slate-50 cursor-pointer font-semibold"
-              to="/games"
-            >
-              Games
-            </Link>
-          </div>
-          <div>
-            <Link
-              className="text-xs uppercase text-slate-300 hover:text-slate-50 cursor-pointer font-semibold"
-              to="/blog"
-            >
-              Blog
-            </Link>
-          </div>
+        <div className="flex gap-6 text-sm">
+          <Link
+            className="text-paper-muted hover:text-paper"
+            to="/games"
+          >
+            Games
+          </Link>
+          <Link
+            className="text-paper-muted hover:text-paper"
+            to="/blog"
+          >
+            Blog
+          </Link>
+          <Link
+            className="text-paper-muted hover:text-paper"
+            to="/about"
+          >
+            About
+          </Link>
         </div>
       </div>
 
@@ -41,50 +45,52 @@ export function Page({ children }: PageProps): ReactElement {
         {children}
       </main>
 
-      <div className="bg-[#1c1c21] w-full pt-16 pb-32 box-border text-white">
-        <div className="w-full max-w-5xl px-8 box-border mx-auto flex flex-col md:flex-row gap-8 md:gap-16 text-center md:text-left">
-          <div className="space-y-2">
-            <p className="font-semibold">Resources</p>
-            <div className="text-sm space-y-1.5">
-              <Link
-                className="block hover:underline"
-                to="/blog"
-              >
-                Blog
-              </Link>
-              <Link
-                className="block hover:underline"
-                to="/games"
-              >
-                Games
-              </Link>
+      <footer className="w-full pt-20 pb-16 box-border border-t border-rule">
+        <div className="w-full max-w-5xl px-8 box-border mx-auto flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-md space-y-3">
+            <div className="font-display text-xl leading-snug">
+              An estimate of what Steam games earn — figures based on the{' '}
+              <em className="text-accent">Boxleiter</em> method, not audited
+              numbers.
+            </div>
+            <div className="text-sm text-paper-muted">
+              Treat the output as an order-of-magnitude guide.
             </div>
           </div>
-          <div className="space-y-2">
-            <p className="font-semibold">Company</p>
-            <div className="text-sm space-y-1.5">
-              <Link
-                className="block hover:underline"
-                to="/about"
-              >
-                About
-              </Link>
-              <Link
-                className="block hover:underline"
-                to="/cookies"
-              >
-                Cookies
-              </Link>
-              <Link
-                className="block hover:underline"
-                to="/privacy"
-              >
-                Privacy
-              </Link>
-            </div>
-          </div>
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-paper-muted">
+            <Link
+              className="hover:text-paper"
+              to="/games"
+            >
+              Games
+            </Link>
+            <Link
+              className="hover:text-paper"
+              to="/blog"
+            >
+              Blog
+            </Link>
+            <Link
+              className="hover:text-paper"
+              to="/about"
+            >
+              About
+            </Link>
+            <Link
+              className="hover:text-paper"
+              to="/cookies"
+            >
+              Cookies
+            </Link>
+            <Link
+              className="hover:text-paper"
+              to="/privacy"
+            >
+              Privacy
+            </Link>
+          </nav>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }

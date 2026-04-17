@@ -45,6 +45,6 @@ describe('GameRoute', () => {
       'A game about rugs and pumpkins.'
     )
 
-    expect(screen.getByText('Gross Revenue')).toBeInTheDocument()
+    expect(screen.getByText('Estimated gross revenue')).toBeInTheDocument()
   })
 })
