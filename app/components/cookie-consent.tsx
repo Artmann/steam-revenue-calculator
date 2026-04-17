@@ -7,13 +7,14 @@ interface Script {
   src?: string
 }
 
-function GoogleScripts() {
-  const [added, setAdded] = useState(false)
+let scriptsInjected = false
 
+function GoogleScripts() {
   useEffect(() => {
-    if (added) {
+    if (scriptsInjected) {
       return
     }
+    scriptsInjected = true
 
     const scripts: Script[] = [
       {
@@ -56,9 +57,7 @@ function GoogleScripts() {
 
       document.head.appendChild(element)
     })
-
-    setAdded(true)
-  }, [added])
+  }, [])
 
   return null
 }
