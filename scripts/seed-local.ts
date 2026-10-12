@@ -78,7 +78,7 @@ async function main(): Promise<void> {
 
   await gamesCollection.bulkWrite(
     games.map((game) =>
-      buildGameUpsert(game, now, `seed-${game.gameId}`)
+      buildGameUpsert(game, now, `seed-${game.gameId}`, now)
     ),
     { ordered: false }
   )

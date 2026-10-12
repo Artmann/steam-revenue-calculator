@@ -35,6 +35,7 @@ async function ensureIndexes(db: Db): Promise<void> {
     games.createIndex({ tagIds: 1 }),
     games.createIndex({ releaseYear: 1 }),
     games.createIndex({ basePrice: 1 }),
+    games.createIndex({ listedAt: 1 }),
     tags.createIndex({ tagId: 1 }, { unique: true }),
     tags.createIndex({ slug: 1 }, { unique: true }),
     scrapeRuns.createIndex({ startedAt: -1 })
