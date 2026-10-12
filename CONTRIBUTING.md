@@ -34,10 +34,11 @@ Copy `.env.template` to `.env.local` and fill in local values only.
 | `DB_URL` | MongoDB connection string | `mongodb://127.0.0.1:27017/` |
 | `DB_DATABASE` | Database name | `steam_revenue` |
 | `DB_POOL_SIZE` | Connection pool size (optional, defaults to 10). esix reads `DB_MAX_POOL_SIZE` and falls back to `DB_POOL_SIZE` | `10` |
-| `SCRAPE_KEY` | Shared secret required by the scrape, compute-stats and migrate endpoints (`?key=`) and by `POST /api/workflows/health` (`x-scrape-key` header) | any long random string |
-| `STEAM_API_KEY` | Steam Web API key, needed by `/api/scrape-games` | your Steam Web API key |
+| `SCRAPE_KEY` | Shared secret for starting the scrape workflow by hand (`POST /api/workflows/scrape` with an `x-scrape-key` header) | any long random string |
+| `CRON_SECRET` | Secret Vercel Cron sends as `Authorization: Bearer …` when it starts the daily scrape | any long random string |
+| `STEAM_API_KEY` | Steam Web API key, needed by the scrape workflow | your Steam Web API key |
 
-The key-gated endpoints return 401 when `SCRAPE_KEY` is unset — that's intentional, not a bug.
+`/api/workflows/scrape` returns 401 when the matching secret is unset — that's intentional, not a bug.
 
 ## Scripts
 
@@ -45,10 +46,13 @@ The key-gated endpoints return 401 when `SCRAPE_KEY` is unset — that's intenti
 pnpm dev             # Vite dev server with HMR
 pnpm build           # Vite + Nitro production build to build/
 pnpm start           # node build/server/index.mjs
-pnpm test            # Vitest (no coverage)
+pnpm test            # unit tests, then workflow integration tests
+pnpm test:unit       # Vitest unit and integration tests only
+pnpm test:workflows  # workflow integration tests (deletes build/ first)
 pnpm test:watch      # Vitest in watch mode
 pnpm typecheck       # react-router typegen && tsc
 pnpm seed:local      # seed the local Docker MongoDB
+pnpm scrape:local    # run the scrape steps against a local MongoDB: [limit]
 pnpm parity:capture  # capture every route of a running build: <url> <name>
 pnpm parity:compare  # compare two captures: <a> <b>
 pnpm workflow:web    # local workflow run inspector
@@ -60,15 +64,17 @@ pnpm workflow:web    # local workflow run inspector
 app/
   components/    shared UI + shadcn primitives
   db/            MongoDB client + index setup
-  games/         fetchGames(), slug helpers, GameDetails type
+  games/         slug helpers, GameDetails type
   models/        esix models (Game)
   revenue/       calculateRevenue(), revenueBreakdown()
   routes/        React Router route modules (flat-routes file convention; app/routes.ts)
+  scrape/        scrape steps: tag sync, app listing, chunk scraping, delisting, run record
   services/      higher-level server code (GameService)
+  sitemap/       sitemap XML rendering
   tests/         Vitest route tests; tests/integration/ runs against in-memory MongoDB
 server/          Nitro entry (ssr.ts) and Nitro routes (routes/)
-workflows/       Workflow SDK workflows
-scripts/         local seed and parity tools
+workflows/       Workflow SDK workflows (scrapeGames)
+scripts/         local seed, scrape and parity tools
 public/          static assets
 data/            local data files (e.g. ignored app IDs)
 ```
@@ -84,11 +90,10 @@ Unit tests under `app/revenue/` cover the math — keep them green if you touch 
 
 ## Data pipeline
 
-Steam game data lives in MongoDB. Two admin endpoints keep it fresh, both gated behind `?key=<SCRAPE_KEY>`:
+Steam game data lives in MongoDB.
 
-- `GET /api/scrape-games?key=…&cursor=N` — pages through Steam's game list (`IStoreService/GetAppList`, needs `STEAM_API_KEY`) 1000 games at a time and upserts them using `IStoreBrowseService/GetItems`. Start with `cursor=0` (which also syncs the tag list) and call again with the returned `nextCursor` until it is `0`.
-- `GET /api/compute-stats?key=…` — recomputes per-tag market stats. Run it after a full scrape pass.
-- `GET /api/migrate-games?key=…` — bulk load from a seed JSON file.
+- The `scrapeGames` workflow (`workflows/scrape-games.ts`) refreshes the whole catalog. Vercel Cron starts it daily at 04:00 UTC through `GET /api/workflows/scrape`, and you can start it by hand with `curl -X POST -H "x-scrape-key: $SCRAPE_KEY" https://<host>/api/workflows/scrape`. It syncs tags, lists every game with `IStoreService/GetAppList`, scrapes them 1,000 at a time with `IStoreBrowseService/GetItems`, retries failed ids once, flags games Steam no longer lists (`delistedAt`, data kept), and recomputes tag stats. Watch the steps in the Vercel Workflows dashboard; each run's summary is stored in the `scrapeRuns` collection.
+- `pnpm scrape:local [limit]` runs the same steps against your local MongoDB (see the comment at the top of `scripts/scrape-local.ts`).
 
 Indexes on the `games` collection are created lazily by `ensureIndexes()` in [`app/db/index.ts`](app/db/index.ts) on the first request after a cold start.
 
@@ -98,7 +103,7 @@ Indexes on the `games` collection are created lazily by `ensureIndexes()` in [`a
 pnpm test
 ```
 
-Runs Vitest. Integration tests start their own in-memory MongoDB, so no running database is needed. New routes should get a smoke test following the pattern in `app/tests/routes/`.
+Runs the unit tests (`pnpm test:unit`) and then the workflow integration tests (`pnpm test:workflows`, which deletes `build/` first because the workflow plugin scans the whole project). Integration tests start their own in-memory MongoDB, so no running database is needed. New routes should get a smoke test following the pattern in `app/tests/routes/`.
 
 ## Deployment
 

@@ -35,6 +35,7 @@
     "test:watch": "vitest",
     "typecheck": "react-router typegen && tsc",
     "seed:local": "tsx scripts/seed-local.ts",
+    "scrape:local": "tsx scripts/scrape-local.ts",
     "parity:capture": "tsx scripts/parity.ts capture",
     "parity:compare": "tsx scripts/parity.ts compare",
     "workflow:web": "workflow web"
