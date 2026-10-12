@@ -91,7 +91,6 @@ gtag('config', 'G-6XN7FH6J2P');`
   )
 }
 
-
 export default function App() {
   return <Outlet />
 }
