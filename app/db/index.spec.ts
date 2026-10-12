@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
 
 const { createIndex, dropIndex } = vi.hoisted(() => ({
   createIndex: vi.fn(),
@@ -6,18 +6,27 @@ const { createIndex, dropIndex } = vi.hoisted(() => ({
 }))
 
 vi.mock('mongodb', () => ({
-  default: {
-    MongoClient: {
-      connect: vi.fn(async () => ({
-        db: () => ({
-          collection: (name: string) => ({ name, createIndex, dropIndex })
-        })
-      }))
+  MongoClient: class {
+    async connect() {
+      return this
     }
+
+    db() {
+      return {
+        collection: (name: string) => ({ name, createIndex, dropIndex })
+      }
+    }
+
+    async close() {}
   }
 }))
 
-import { getCollection } from '~/db'
+import { getCollection, resetDatabaseConnection } from '~/db'
+
+beforeEach(async () => {
+  await resetDatabaseConnection()
+  vi.clearAllMocks()
+})
 
 describe('getCollection', () => {
   it('returns the collection even when an index conflicts with an existing one.', async () => {
@@ -35,7 +44,7 @@ describe('getCollection', () => {
 
     const collection = await getCollection('games')
 
-    expect(collection.name).toBe('games')
+    expect((collection as any).name).toBe('games')
     expect(createIndex).toHaveBeenCalledTimes(7)
     expect(consoleError).toHaveBeenCalledWith(
       'Failed to create index:',
@@ -43,5 +52,17 @@ describe('getCollection', () => {
     )
 
     consoleError.mockRestore()
+  })
+
+  it('retries index creation after a failed attempt.', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    dropIndex.mockRejectedValueOnce(new Error('network blip'))
+    dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
+    createIndex.mockResolvedValue('ok')
+
+    await expect(getCollection('games')).rejects.toThrow('network blip')
+    await getCollection('games')
+
+    expect(createIndex).toHaveBeenCalledTimes(7)
   })
 })
