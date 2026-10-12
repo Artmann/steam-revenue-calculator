@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest'
+import { RetryableError } from 'workflow'
 
-import { fetchAppIdPage, fetchStoreItems } from '~/steam/store-api'
+import { fetchAppIdPage, fetchStoreItems, fetchTagList } from '~/steam/store-api'
 
 function okResponse(body: unknown) {
   return { ok: true, status: 200, json: async () => body } as Response
@@ -20,6 +21,7 @@ describe('store api', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    delete process.env.STEAM_RATE_LIMIT_RETRY_AFTER_MS
   })
 
   it('skips only the failing batch and reports its ids.', async () => {
@@ -35,7 +37,14 @@ describe('store api', () => {
 
     expect(result.items).toEqual([{ appid: 1 }, { appid: 2 }])
     expect(result.failedIds).toEqual(appIds.slice(200))
-    expect(result.failedIds).toHaveLength(50)
+  })
+
+  it('records a batch whose request throws as failed.', async () => {
+    fetchMock.mockRejectedValueOnce(new Error('socket hang up'))
+
+    const result = await fetchStoreItems([1, 2])
+
+    expect(result.failedIds).toEqual([1, 2])
   })
 
   it('never leaks the api key in error messages.', async () => {
@@ -48,73 +57,64 @@ describe('store api', () => {
     expect(error.message).not.toContain('key=')
   })
 
-  it('retries once after a 429 and then succeeds.', async () => {
-    const sleep = vi.fn(async (_ms: number) => {})
+  it('gives every request a timeout signal.', async () => {
+    fetchMock.mockResolvedValueOnce(okResponse({ response: { tags: [] } }))
 
+    await fetchTagList()
+
+    expect(fetchMock.mock.calls[0][1]?.signal).toBeInstanceOf(AbortSignal)
+  })
+
+  it('turns a rate limit into a retryable error that waits a minute.', async () => {
+    fetchMock.mockResolvedValueOnce(errorResponse(429))
+
+    const before = Date.now()
+    const error = await fetchTagList().catch((e) => e)
+
+    expect(RetryableError.is(error)).toBe(true)
+    expect(error.retryAfter.getTime() - before).toBeGreaterThanOrEqual(59_000)
+  })
+
+  it('uses the configured rate limit wait when one is set.', async () => {
+    process.env.STEAM_RATE_LIMIT_RETRY_AFTER_MS = '10'
+    fetchMock.mockResolvedValueOnce(errorResponse(429))
+
+    const before = Date.now()
+    const error = await fetchTagList().catch((e) => e)
+
+    expect(error.retryAfter.getTime() - before).toBeLessThan(1_000)
+  })
+
+  it('lets a rate limit escape the batch loop instead of recording it as failed.', async () => {
+    fetchMock.mockResolvedValueOnce(errorResponse(429))
+
+    const error = await fetchStoreItems([1, 2]).catch((e) => e)
+
+    expect(RetryableError.is(error)).toBe(true)
+  })
+
+  it('uses last_appid as the next cursor when Steam sends it.', async () => {
+    fetchMock.mockResolvedValueOnce(
+      okResponse({
+        response: { apps: [{ appid: 10 }], have_more_results: true, last_appid: 12 }
+      })
+    )
+
+    expect(await fetchAppIdPage('k', 0, 10)).toEqual({
+      appIds: [10],
+      lastAppId: 12,
+      haveMoreResults: true
+    })
+  })
+
+  it('falls back to the last app, then to the requested cursor, never to 0.', async () => {
     fetchMock
-      .mockResolvedValueOnce(errorResponse(429))
       .mockResolvedValueOnce(
-        okResponse({ response: { store_items: [{ appid: 1 }] } })
+        okResponse({ response: { apps: [{ appid: 7 }, { appid: 9 }], have_more_results: true } })
       )
+      .mockResolvedValueOnce(okResponse({ response: { have_more_results: true } }))
 
-    const result = await fetchStoreItems([1], {
-      deadline: 1_000_000,
-      now: () => 0,
-      sleep
-    })
-
-    expect(sleep).toHaveBeenCalledTimes(1)
-    expect(sleep.mock.calls[0][0]).toBeLessThanOrEqual(10_000)
-    expect(result.items).toEqual([{ appid: 1 }])
-    expect(result.failedIds).toEqual([])
-  })
-
-  it('fails the batch after a second 429 without more retries.', async () => {
-    const sleep = vi.fn(async (_ms: number) => {})
-
-    fetchMock.mockResolvedValue(errorResponse(429))
-
-    const result = await fetchStoreItems([1, 2], { now: () => 0, sleep })
-
-    expect(sleep).toHaveBeenCalledTimes(1)
-    expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(result.failedIds).toEqual([1, 2])
-  })
-
-  it('does not wait for a retry that would pass the deadline.', async () => {
-    const sleep = vi.fn(async (_ms: number) => {})
-
-    fetchMock.mockResolvedValue(errorResponse(429))
-
-    const result = await fetchStoreItems([1], {
-      deadline: 5_000,
-      now: () => 0,
-      sleep
-    })
-
-    expect(sleep).not.toHaveBeenCalled()
-    expect(result.failedIds).toEqual([1])
-  })
-
-  it('reports the remaining batches as failed once the budget is exhausted.', async () => {
-    const appIds = Array.from({ length: 450 }, (_, index) => index + 1)
-    let clock = 0
-
-    fetchMock.mockImplementation(async () => {
-      clock += 30_000
-
-      return okResponse({ response: { store_items: [{ appid: 1 }] } })
-    })
-
-    const result = await fetchStoreItems(appIds, {
-      deadline: 45_000,
-      now: () => clock,
-      sleep: async () => {}
-    })
-
-    // Two batches fit in the budget; the third is skipped unfetched.
-    expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(result.items).toHaveLength(2)
-    expect(result.failedIds).toEqual(appIds.slice(400))
+    expect((await fetchAppIdPage('k', 5, 10)).lastAppId).toBe(9)
+    expect((await fetchAppIdPage('k', 500, 10)).lastAppId).toBe(500)
   })
 })

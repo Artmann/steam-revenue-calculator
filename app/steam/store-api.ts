@@ -1,3 +1,5 @@
+import { RetryableError } from 'workflow'
+
 import type { SteamTag, StoreItem } from '~/steam/types'
 
 export interface AppIdPage {
@@ -13,24 +15,20 @@ export interface StoreItemsResult {
 
 // GetItems accepts ~250 ids before the GET URL gets too long; stay below it.
 const storeItemsBatchSize = 200
-// One retry after a short pause keeps a scrape call well inside the 60s limit.
-const rateLimitDelayMs = 8_000
+// A hung Steam call must not hold a step open indefinitely.
+const requestTimeoutMs = 30_000
 
-export interface RequestOptions {
-  // Epoch ms after which no request or wait may start.
-  deadline?: number
-  now?: () => number
-  sleep?: (ms: number) => Promise<void>
+function rateLimitRetryAfterMs(): number {
+  // Tests shorten the wait; production waits a minute before the step retries.
+  const configured = Number(process.env.STEAM_RATE_LIMIT_RETRY_AFTER_MS)
+
+  return configured > 0 ? configured : 60_000
 }
-
-const defaultSleep = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 export async function fetchAppIdPage(
   apiKey: string,
   lastAppId: number,
-  maxResults: number,
-  options: RequestOptions = {}
+  maxResults: number
 ): Promise<AppIdPage> {
   const params = new URLSearchParams({
     key: apiKey,
@@ -45,36 +43,26 @@ export async function fetchAppIdPage(
       have_more_results?: boolean
       last_appid?: number
     }
-  }>(
-    `https://api.steampowered.com/IStoreService/GetAppList/v1/?${params}`,
-    options
-  )
+  }>(`https://api.steampowered.com/IStoreService/GetAppList/v1/?${params}`)
 
   const apps = data.response.apps ?? []
 
   return {
     appIds: apps.map(({ appid }) => appid),
-    lastAppId: data.response.last_appid ?? apps[apps.length - 1]?.appid ?? 0,
+    // Fall back to the requested cursor so an empty page never rewinds to 0.
+    lastAppId:
+      data.response.last_appid ?? apps[apps.length - 1]?.appid ?? lastAppId,
     haveMoreResults: Boolean(data.response.have_more_results)
   }
 }
 
 export async function fetchStoreItems(
-  appIds: number[],
-  options: RequestOptions = {}
+  appIds: number[]
 ): Promise<StoreItemsResult> {
-  const now = options.now ?? Date.now
   const items: StoreItem[] = []
   const failedIds: number[] = []
 
   for (let start = 0; start < appIds.length; start += storeItemsBatchSize) {
-    if (options.deadline !== undefined && now() >= options.deadline) {
-      // Out of time budget: report the rest as failed instead of fetching.
-      console.error(`Time budget exhausted; skipping ${appIds.length - start} ids.`)
-      failedIds.push(...appIds.slice(start))
-      break
-    }
-
     const batch = appIds.slice(start, start + storeItemsBatchSize)
 
     const input = {
@@ -93,13 +81,17 @@ export async function fetchStoreItems(
       const data = await getJson<{ response: { store_items?: StoreItem[] } }>(
         `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?input_json=${encodeURIComponent(
           JSON.stringify(input)
-        )}`,
-        options
+        )}`
       )
 
       items.push(...(data.response.store_items ?? []))
     } catch (error) {
-      // Skip just this batch rather than losing the whole page.
+      // A rate limit fails the whole step so the runtime retries it later.
+      if (RetryableError.is(error)) {
+        throw error
+      }
+
+      // Skip just this batch rather than losing the whole chunk.
       console.error(
         `Failed to fetch store items for ${batch.length} ids starting at app id ${batch[0]}.`
       )
@@ -112,52 +104,30 @@ export async function fetchStoreItems(
   return { items, failedIds }
 }
 
-export async function fetchTagList(
-  options: RequestOptions = {}
-): Promise<SteamTag[]> {
+export async function fetchTagList(): Promise<SteamTag[]> {
   const data = await getJson<{ response: { tags?: SteamTag[] } }>(
-    'https://api.steampowered.com/IStoreService/GetTagList/v1/?language=english',
-    options
+    'https://api.steampowered.com/IStoreService/GetTagList/v1/?language=english'
   )
 
   return data.response.tags ?? []
 }
 
-async function getJson<T>(
-  url: string,
-  options: RequestOptions = {},
-  attempt = 1
-): Promise<T> {
-  const now = options.now ?? Date.now
-  const sleep = options.sleep ?? defaultSleep
-  const { deadline } = options
+async function getJson<T>(url: string): Promise<T> {
+  // Strip the query string so the API key never reaches the logs.
+  const endpoint = url.split('?')[0]
 
-  if (deadline !== undefined && now() >= deadline) {
-    throw new Error(`Time budget exhausted: ${url.split('?')[0]}`)
-  }
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(requestTimeoutMs)
+  })
 
-  const response = await fetch(url)
-
-  if (response.status === 429 && attempt < 2) {
-    // Never start a wait that would run past the deadline.
-    if (deadline !== undefined && now() + rateLimitDelayMs >= deadline) {
-      throw new Error(
-        `Steam rate limited and no time left to retry: ${url.split('?')[0]}`
-      )
-    }
-
-    console.log('Rate limited by Steam. Waiting before one retry...')
-
-    await sleep(rateLimitDelayMs)
-
-    return getJson(url, options, attempt + 1)
+  if (response.status === 429) {
+    throw new RetryableError(`Steam rate limited the request: ${endpoint}`, {
+      retryAfter: rateLimitRetryAfterMs()
+    })
   }
 
   if (!response.ok) {
-    // Strip the query string so the API key never reaches the logs.
-    throw new Error(
-      `Steam request failed with ${response.status}: ${url.split('?')[0]}`
-    )
+    throw new Error(`Steam request failed with ${response.status}: ${endpoint}`)
   }
 
   return (await response.json()) as T
