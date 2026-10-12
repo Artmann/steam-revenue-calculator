@@ -1,8 +1,5 @@
 import { getCollection } from '~/db'
 import type { GameDetails } from '~/games';
-import { createGameSlug, fetchGames } from '~/games'
-import { Game } from '~/models/game'
-import { calculateRevenue } from '~/revenue'
 
 let cachedGameCount: number | null = null
 
@@ -57,41 +54,5 @@ export class GameService {
       .toArray()) as { details: GameDetails }[]
 
     return games.map((game) => game.details)
-  }
-
-  async migrateGamesToDatabase(): Promise<void> {
-    const games = await fetchGames()
-
-    console.log(`Migrating ${games.length} games to the database.`)
-
-    let counter = 0
-
-    for (const game of games) {
-      const existingGame = await Game.findBy('gameId', game.id)
-
-      if (existingGame) {
-        existingGame.details = game
-        await existingGame.save()
-      } else {
-        const slug = createGameSlug(game.name)
-        const grossRevenue = calculateRevenue(
-          game.numberOfReviews,
-          game.price / 100
-        )
-
-        await Game.create({
-          details: game,
-          gameId: game.id,
-          grossRevenue,
-          slug
-        })
-      }
-
-      if (counter % 1000 === 0) {
-        console.log(`Migrated ${counter} games.`)
-      }
-
-      counter += 1
-    }
   }
 }

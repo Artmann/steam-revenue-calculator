@@ -16,10 +16,7 @@ const routes = [
   '/ads.txt',
   '/sitemap.xml',
   '/sitemap-tags.xml',
-  '/does-not-exist',
-  '/api/scrape-games',
-  '/api/compute-stats',
-  '/api/migrate-games'
+  '/does-not-exist'
 ]
 
 interface Capture {

@@ -1,17 +1,9 @@
-import type { LoaderFunction } from 'react-router'
-
 import { getCollection } from '~/db'
 import { computeAllTagStats } from '~/market/compute-all'
 import { loadMarketGames } from '~/market/market-service.server'
+import type { StatsSummary } from '~/scrape/run-record'
 
-export const loader: LoaderFunction = async ({ request }) => {
-  const key = new URL(request.url).searchParams.get('key')
-  const expectedKey = process.env.SCRAPE_KEY
-
-  if (!expectedKey || !key || key !== expectedKey) {
-    return new Response('Unauthorized.', { status: 401 })
-  }
-
+export async function computeAndSaveStats(): Promise<StatsSummary> {
   // Only games scraped since tags were introduced carry tagIds.
   const games = await loadMarketGames({ 'tagIds.0': { $exists: true } })
   const { baseline, tags } = computeAllTagStats(games)
@@ -65,9 +57,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     await tagsCollection.bulkWrite(operations, { ordered: false })
   }
 
-  return Response.json({
+  return {
     games: games.length,
     tags: tagIds.length,
     tagsWithStats: tags.filter(({ stats }) => stats).length
-  })
+  }
 }
