@@ -27,7 +27,7 @@ export function BarList({
           className="grid grid-cols-[6.5rem_1fr_7rem] gap-4 items-center text-sm"
         >
           <div className="text-paper-muted tabular-nums">{row.label}</div>
-          <div className="h-3 bg-rule/40">
+          <div className="h-3">
             <div
               className="h-full bg-accent"
               style={{ width: max > 0 ? `${(row.value / max) * 100}%` : '0%' }}

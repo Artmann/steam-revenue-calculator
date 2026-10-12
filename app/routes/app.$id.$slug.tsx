@@ -148,7 +148,7 @@ export default function AppRoute(): ReactElement {
                       <li key={tag.tagId}>
                         {tag.hasPage ? (
                           <Link
-                            className="text-accent hover:text-accent-strong underline underline-offset-4 decoration-accent/40"
+                            className="text-accent hover:text-accent-strong underline underline-offset-4"
                             to={`/tags/${tag.slug}`}
                           >
                             {tag.name}
@@ -196,7 +196,7 @@ export default function AppRoute(): ReactElement {
 
               <div>
                 <Link
-                  className="text-sm text-accent hover:text-accent-strong underline underline-offset-4 decoration-accent/40 hover:decoration-accent"
+                  className="text-sm text-accent hover:text-accent-strong underline underline-offset-4 hover:decoration-accent"
                   to={`https://store.steampowered.com/app/${game.id}`}
                 >
                   View on Steam →

@@ -74,11 +74,11 @@ export default function HomePageRoute() {
           <div className="eyebrow">
             The Steam Revenue Calculator — Issue N°1
           </div>
-          <h1 className="font-display text-4xl md:text-5xl leading-[1.02] tracking-tight">
+          <h1 className="font-display text-4xl md:text-5xl leading-[1.02] md:leading-none tracking-tight">
             How much does a game on Steam{' '}
             <em className="text-accent">actually</em> earn?
           </h1>
-          <p className="text-lg md:text-xl text-paper leading-relaxed max-w-xl">
+          <p className="text-lg md:text-xl text-paper leading-relaxed md:leading-7 max-w-xl">
             The <InlineInput
               id="number-of-reviews"
               label="Reviews"
@@ -101,7 +101,7 @@ export default function HomePageRoute() {
             VAT, and Steam's 30% cut — what remains is what the developer
             actually banks. The method is called{' '}
             <a
-              className="text-accent underline decoration-accent/50 underline-offset-4 hover:decoration-accent"
+              className="text-accent underline underline-offset-4 hover:decoration-accent"
               href="https://greyaliengames.com/blog/how-to-estimate-how-many-sales-a-steam-game-has-made"
             >
               Boxleiter
@@ -115,7 +115,7 @@ export default function HomePageRoute() {
         </aside>
       </div>
 
-      <div className="mt-24 md:mt-32 pt-10 border-t border-rule">
+      <div className="pt-10 border-t border-rule">
         <div className="flex items-baseline justify-between gap-6 mb-10">
           <h2 className="font-display text-3xl md:text-4xl">Selected titles</h2>
           <Link
@@ -144,7 +144,7 @@ export default function HomePageRoute() {
                   src={game.screenshots[0]}
                 />
               </Link>
-              <div className="space-y-1.5 flex-1 min-w-0">
+              <div className="flex-1 min-w-0">
                 <Link
                   className="hover:text-accent"
                   to={`/app/${game.id}/${slugify(game.name, { lower: true })}`}
@@ -153,7 +153,7 @@ export default function HomePageRoute() {
                     {game.name}
                   </h3>
                 </Link>
-                <p className="text-sm text-paper-muted leading-snug line-clamp-2">
+                <p className="mt-1.5 text-sm text-paper-muted leading-snug line-clamp-2">
                   {game.description}
                 </p>
               </div>
@@ -202,7 +202,7 @@ function InlineInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{ width }}
-        className="inline-number-input bg-transparent border-b border-dashed border-rule-strong focus:border-accent text-accent font-sans font-medium tabular-nums lining-nums slashed-zero tracking-tight px-1 mx-0.5 focus:outline-none focus:border-solid transition-colors"
+        className="inline-number-input bg-transparent border-b border-dashed border-rule-strong focus:border-accent text-accent font-sans font-medium tabular-nums lining-nums slashed-zero tracking-tight px-1 mx-0.5 focus:outline-hidden focus:border-solid transition-colors"
       />
       {suffix ? <span className="text-paper-muted">{suffix}</span> : null}
     </span>
