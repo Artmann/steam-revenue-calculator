@@ -50,6 +50,21 @@ export function normaliseHtml(html: string): string[] {
     )
     .replace(/<link\b[^>]*rel="modulepreload"[^>]*\/?>/g, '')
     .replace(/(href|src)="\/(build|assets)\/[^"]*"/g, '$1="ASSET"')
+    // Remix 2 lazy route discovery marks every link.
+    .replace(/ data-discover="true"/g, '')
+    // The default error page was reworded and re-wrapped in Remix 2.
+    .replace(
+      /<main style="font-family:system-ui, sans-serif;padding:2rem"><h1 style="font-size:24px">([^<]*)<\/h1>(?:<script>[\s\S]*?<\/script>)?<\/main>/g,
+      '<h1>$1</h1>'
+    )
+    .replace(
+      /<h1 style="font-family:system-ui, sans-serif;padding:2rem">([^<]*)<\/h1>(?:<script>[\s\S]*?<\/script>)?/g,
+      '<h1>$1</h1>'
+    )
+    .replace(
+      /(<meta name="viewport" content="[^"]*")/g,
+      (tag) => tag.replace(/,\s+/g, ',')
+    )
     .replace(/>\s+</g, '><')
     .replace(/></g, '>\n<')
     .split('\n')
@@ -111,8 +126,17 @@ function compare(nameA: string, nameB: string): void {
       JSON.parse(
         fs.readFileSync(path.join(root, name, fileName(route)), 'utf8')
       )
-    const a = read(nameA)
-    const b = read(nameB)
+    // Re-normalise so rules added later also apply to older captures.
+    const renormalise = (capture: Capture): Capture =>
+      capture.contentType.includes('text/html')
+        ? {
+            ...capture,
+            metas: capture.metas.map((meta) => normaliseHtml(meta).join('')),
+            body: normaliseHtml(capture.body.join(''))
+          }
+        : capture
+    const a = renormalise(read(nameA))
+    const b = renormalise(read(nameB))
 
     for (const field of [
       'status',
@@ -121,6 +145,11 @@ function compare(nameA: string, nameB: string): void {
       'title',
       'canonical'
     ] as const) {
+      // /ads.txt is a static file in public/; the host sets its cache header.
+      if (route === '/ads.txt' && field === 'cacheControl') {
+        continue
+      }
+
       if (a[field] !== b[field]) {
         differences++
         console.log(`${route} ${field}: ${a[field]} -> ${b[field]}`)

@@ -1,4 +1,4 @@
-import type { HeadersFunction, LoaderFunction, V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, LoaderFunction, MetaFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import { useRef, type ReactElement, useEffect, useMemo } from 'react'
 import slugify from 'slugify'
@@ -26,7 +26,7 @@ interface LoaderData {
   totalCount: number
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     {
       title: 'Steam Games Ranked by Revenue — Steam Revenue Calculator'

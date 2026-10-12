@@ -1,7 +1,7 @@
 import type {
   HeadersFunction,
   LoaderFunction,
-  V2_MetaFunction
+  MetaFunction
 } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import type { ReactElement } from 'react'
@@ -45,7 +45,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   })
 }
 
-export const meta: V2_MetaFunction = () => [
+export const meta: MetaFunction = () => [
   { title },
   { name: 'description', content: description },
   { property: 'og:title', content: title },

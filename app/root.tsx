@@ -1,16 +1,14 @@
-import { cssBundleHref } from '@remix-run/css-bundle'
-import type { LinksFunction, V2_MetaFunction } from '@remix-run/node'
+import type { LinksFunction, MetaFunction } from '@remix-run/node'
 import {
   Links,
-  LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration
 } from '@remix-run/react'
-import tailwind from './tailwind.css'
-import styles from './global.css'
-import blogStyles from './blog.css'
+import tailwind from './tailwind.css?url'
+import styles from './global.css?url'
+import blogStyles from './blog.css?url'
 
 export const links: LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -22,7 +20,6 @@ export const links: LinksFunction = () => [
   { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com' },
   { rel: 'dns-prefetch', href: 'https://pagead2.googlesyndication.com' },
   { rel: 'dns-prefetch', href: 'https://cdn.akamai.steamstatic.com' },
-  ...(cssBundleHref ? [{ rel: 'stylesheet', href: cssBundleHref }] : []),
   { rel: 'stylesheet', href: tailwind },
   { rel: 'stylesheet', href: styles },
   { rel: 'stylesheet', href: blogStyles },
@@ -33,7 +30,7 @@ export const links: LinksFunction = () => [
   { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
 ]
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     { title: 'Steam Revenue Calculator — Estimate Any Game\'s Revenue on Steam' },
     {
@@ -88,7 +85,6 @@ gtag('config', 'G-6XN7FH6J2P');`
         <Outlet />
         <ScrollRestoration />
         <Scripts />
-        <LiveReload />
       </body>
     </html>
   )

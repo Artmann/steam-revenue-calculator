@@ -1,5 +1,7 @@
 //@ts-ignore
-import { MongoClient } from 'mongodb'
+import mongodb from 'mongodb'
+
+const { MongoClient } = mongodb
 
 let client: any
 let indexesEnsured = false
