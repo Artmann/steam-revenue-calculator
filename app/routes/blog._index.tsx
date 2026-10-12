@@ -1,5 +1,5 @@
-import type { HeadersFunction } from '@remix-run/node'
-import { Link } from '@remix-run/react'
+import type { HeadersFunction } from 'react-router'
+import { Link } from 'react-router'
 import type { ReactElement } from 'react'
 
 export const headers: HeadersFunction = () => {

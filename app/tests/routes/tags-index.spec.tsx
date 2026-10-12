@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from 'vitest'
-import { useLoaderData } from '@remix-run/react'
+import { useLoaderData } from 'react-router'
 
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter } from 'react-router'
 
 import TagsIndexRoute from '~/routes/tags._index'
 
-vi.mock('@remix-run/react', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@remix-run/react')>()),
+vi.mock('react-router', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('react-router')>()),
   useLoaderData: vi.fn()
 }))
 

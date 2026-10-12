@@ -15,3 +15,5 @@ data/games.json
 scrape-games.json
 
 .parity/
+
+/.react-router

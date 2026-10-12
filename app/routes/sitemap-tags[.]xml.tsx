@@ -1,4 +1,4 @@
-import type { HeadersFunction } from '@remix-run/node'
+import type { HeadersFunction } from 'react-router'
 
 import { getCollection } from '~/db'
 import { SITE_URL } from '~/market/constants'
