@@ -6,6 +6,11 @@ export interface AppIdPage {
   haveMoreResults: boolean
 }
 
+export interface StoreItemsResult {
+  items: StoreItem[]
+  failedIds: number[]
+}
+
 // GetItems accepts ~250 ids before the GET URL gets too long; stay below it.
 const storeItemsBatchSize = 200
 const maxAttempts = 3
@@ -40,8 +45,9 @@ export async function fetchAppIdPage(
   }
 }
 
-export async function fetchStoreItems(appIds: number[]): Promise<StoreItem[]> {
+export async function fetchStoreItems(appIds: number[]): Promise<StoreItemsResult> {
   const items: StoreItem[] = []
+  const failedIds: number[] = []
 
   for (let start = 0; start < appIds.length; start += storeItemsBatchSize) {
     const batch = appIds.slice(start, start + storeItemsBatchSize)
@@ -58,16 +64,26 @@ export async function fetchStoreItems(appIds: number[]): Promise<StoreItem[]> {
       }
     }
 
-    const data = await getJson<{ response: { store_items?: StoreItem[] } }>(
-      `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?input_json=${encodeURIComponent(
-        JSON.stringify(input)
-      )}`
-    )
+    try {
+      const data = await getJson<{ response: { store_items?: StoreItem[] } }>(
+        `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?input_json=${encodeURIComponent(
+          JSON.stringify(input)
+        )}`
+      )
 
-    items.push(...(data.response.store_items ?? []))
+      items.push(...(data.response.store_items ?? []))
+    } catch (error) {
+      // Skip just this batch rather than losing the whole page.
+      console.error(
+        `Failed to fetch store items for ${batch.length} ids starting at app id ${batch[0]}.`
+      )
+      console.error(error)
+
+      failedIds.push(...batch)
+    }
   }
 
-  return items
+  return { items, failedIds }
 }
 
 export async function fetchTagList(): Promise<SteamTag[]> {

@@ -14,7 +14,6 @@ import {
   fetchStoreItems,
   fetchTagList
 } from '~/steam/store-api'
-import type { StoreItem } from '~/steam/types'
 
 const pageSize = 1000
 
@@ -41,15 +40,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const page = await fetchAppIdPage(apiKey, cursor, pageSize)
   const appIds = page.appIds.filter((appId) => !ignoredIds.has(appId))
 
-  let items: StoreItem[] = []
-
-  try {
-    items = await fetchStoreItems(appIds)
-  } catch (error) {
-    // Skip this page rather than stall the whole run on one bad batch.
-    console.error(`Failed to fetch store items after app id ${cursor}.`)
-    console.error(error)
-  }
+  const { items, failedIds } = await fetchStoreItems(appIds)
 
   const games = items
     .map(mapStoreItem)
@@ -71,7 +62,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     cursor,
     nextCursor: page.haveMoreResults ? page.lastAppId : 0,
     fetched: appIds.length,
-    saved: games.length
+    saved: games.length,
+    failed: failedIds.length
   })
 }
 
