@@ -89,4 +89,54 @@ describe('TagRoute', () => {
 
     expect(screen.getByText(/nope/)).toBeInTheDocument()
   })
+
+  it('keeps top developers and publishers below the stats threshold.', () => {
+    renderWith(
+      loaderData({ stats: computeMarketStats(games(3)), isFiltered: true })
+    )
+
+    expect(screen.getByText('Top developers')).toBeInTheDocument()
+    expect(screen.getByText('Top publishers')).toBeInTheDocument()
+    expect(screen.queryByTestId('median')).not.toBeInTheDocument()
+  })
+
+  it('says no games match when the filters match nothing.', () => {
+    renderWith(
+      loaderData({ stats: computeMarketStats(games(0)), isFiltered: true })
+    )
+
+    expect(screen.getByText('No games match these filters.')).toBeInTheDocument()
+    expect(screen.queryByText(/Showing the/)).not.toBeInTheDocument()
+  })
+
+  it('puts the headline figures before the filter form.', () => {
+    renderWith(loaderData())
+
+    const median = screen.getByTestId('median')
+    const select = screen.getByRole('combobox', { name: /price/i })
+
+    expect(
+      median.compareDocumentPosition(select) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+  })
+
+  it('keeps every with slug and a custom price when re-submitting.', () => {
+    renderWith(
+      loaderData({
+        isFiltered: true,
+        filterValues: {
+          price: '10-20',
+          since: '',
+          until: '',
+          with: 'deckbuilder,cards,indie'
+        }
+      })
+    )
+
+    const form = screen.getByRole('combobox', { name: /price/i }).closest('form')!
+    const data = new FormData(form)
+
+    expect(data.get('price')).toBe('10-20')
+    expect(data.getAll('with')).toEqual(['deckbuilder', 'cards', 'indie'])
+  })
 })

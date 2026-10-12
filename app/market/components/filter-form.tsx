@@ -29,6 +29,17 @@ export function FilterForm({
   values: FilterValues
   tagOptions: { slug: string; name: string }[]
 }): ReactElement {
+  const withSlugs = values.with
+    .split(',')
+    .map((slug) => slug.trim())
+    .filter(Boolean)
+  const extraWithSlugs = withSlugs.slice(1)
+  const hasCustomPrice =
+    values.price !== '' && !priceOptions.some(([value]) => value === values.price)
+  const options = hasCustomPrice
+    ? [...priceOptions, [values.price, values.price]]
+    : priceOptions
+
   return (
     <form
       action={action}
@@ -42,7 +53,7 @@ export function FilterForm({
           defaultValue={values.price}
           name="price"
         >
-          {priceOptions.map(([value, label]) => (
+          {options.map(([value, label]) => (
             <option
               key={value}
               value={value}
@@ -83,7 +94,7 @@ export function FilterForm({
         <span className="eyebrow">Also tagged</span>
         <select
           className={fieldClassName}
-          defaultValue={values.with.split(',')[0] ?? ''}
+          defaultValue={withSlugs[0] ?? ''}
           name="with"
         >
           <option value="">Any</option>
@@ -97,6 +108,15 @@ export function FilterForm({
           ))}
         </select>
       </label>
+
+      {extraWithSlugs.map((slug) => (
+        <input
+          key={slug}
+          name="with"
+          type="hidden"
+          value={slug}
+        />
+      ))}
 
       <button
         className="text-accent hover:text-accent-strong underline underline-offset-4"

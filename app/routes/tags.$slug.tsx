@@ -162,6 +162,13 @@ export default function TagRoute(): ReactElement {
           </h1>
         </header>
 
+        {enoughGames && (
+          <Headline
+            baseline={baseline}
+            stats={stats}
+          />
+        )}
+
         <FilterForm
           action={`/tags/${tag.slug}`}
           tagOptions={data.tagOptions}
@@ -176,11 +183,6 @@ export default function TagRoute(): ReactElement {
 
         {enoughGames ? (
           <>
-            <Headline
-              baseline={baseline}
-              stats={stats}
-            />
-
             <Section title="How revenue is spread">
               <BarList
                 rows={stats.distribution.map(({ label, count }) => ({
@@ -216,8 +218,9 @@ export default function TagRoute(): ReactElement {
           </>
         ) : (
           <p className="text-paper-muted">
-            Not enough games match these filters for reliable statistics.
-            Showing the {stats.gameCount} that do.
+            {stats.gameCount === 0
+              ? 'No games match these filters.'
+              : `Not enough games match these filters for reliable statistics. Showing the ${stats.gameCount} that do.`}
           </p>
         )}
 
@@ -242,7 +245,7 @@ export default function TagRoute(): ReactElement {
           </ol>
         </Section>
 
-        {enoughGames && (
+        {stats.gameCount > 0 && (
           <div className="grid gap-12 md:grid-cols-2">
             <CompanyList
               companies={stats.topDevelopers}
