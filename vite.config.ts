@@ -1,5 +1,6 @@
 import mdx from '@mdx-js/rollup'
 import { reactRouter } from '@react-router/dev/vite'
+import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -12,6 +13,7 @@ const buildDirectory = reactRouterConfig.buildDirectory
 export default defineConfig({
   plugins: [
     mdx(),
+    tailwindcss(),
     reactRouter(),
     nitro({
       serverDir: './server',

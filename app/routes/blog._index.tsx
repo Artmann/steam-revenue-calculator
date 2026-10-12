@@ -21,7 +21,7 @@ export default function BlogRoute(): ReactElement {
           It's Complicated)
         </Link>
 
-        {/* <div className="h-[1px] bg-slate-300 w-full" />
+        {/* <div className="h-px bg-slate-300 w-full" />
 
         <Link
           className="block hover:underline"

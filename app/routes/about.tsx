@@ -61,7 +61,7 @@ export default function AboutRoute(): ReactElement {
           <p className="text-paper-muted text-base">
             Questions, corrections, or ideas?{' '}
             <a
-              className="text-accent underline decoration-accent/40 underline-offset-4 hover:decoration-accent"
+              className="text-accent underline underline-offset-4 hover:decoration-accent"
               href="mailto:contact@steam-revenue-calculator.com"
             >
               contact@steam-revenue-calculator.com

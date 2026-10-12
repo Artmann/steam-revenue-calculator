@@ -261,7 +261,7 @@ export default function TagRoute(): ReactElement {
                 <li key={related.tagId}>
                   {related.hasPage ? (
                     <Link
-                      className="text-accent hover:text-accent-strong underline underline-offset-4 decoration-accent/40"
+                      className="text-accent hover:text-accent-strong underline underline-offset-4"
                       to={`/tags/${related.slug}`}
                     >
                       {related.name}

@@ -188,7 +188,7 @@ function GameRow({
   return (
     <Link
       to={detailHref}
-      className="group grid grid-cols-[2rem_1fr_auto] md:grid-cols-[3rem_5rem_1fr_8rem] gap-4 md:gap-6 items-center py-3 hover:bg-paper/[0.02] transition-colors"
+      className="group grid grid-cols-[2rem_1fr_auto] md:grid-cols-[3rem_5rem_1fr_8rem] gap-4 md:gap-6 items-center py-3 transition-colors"
     >
       <div className="font-display text-paper-muted tabular-nums text-right text-sm md:text-base">
         {String(rank).padStart(3, '0')}
@@ -200,7 +200,7 @@ function GameRow({
         />
       </div>
       <div className="min-w-0 flex items-baseline gap-3">
-        <div className="font-display text-base md:text-lg leading-tight group-hover:text-accent truncate">
+        <div className="font-display text-base md:text-lg leading-tight md:leading-7 group-hover:text-accent truncate">
           {game.name}
         </div>
         <div className="hidden md:inline text-xs text-paper-dim tabular-nums shrink-0">

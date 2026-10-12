@@ -18,7 +18,7 @@ const priceOptions = [
 ]
 
 const fieldClassName =
-  'bg-transparent border-b border-rule-strong py-1 text-paper focus:outline-none focus:border-accent'
+  'bg-transparent border-b border-rule-strong py-1 text-paper focus:outline-hidden focus:border-accent'
 
 export function FilterForm({
   action,
