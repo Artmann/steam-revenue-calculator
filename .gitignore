@@ -16,3 +16,5 @@ data/games.json
 .DS_Store
 
 scrape-games.json
+
+.parity/
