@@ -165,7 +165,6 @@ Rows come from the precomputed `tags` collection, so there are no heavy queries.
   6. Top games (link to `/app/:id/:slug`)
   7. Top developers and publishers (plain text for now)
   8. Related tags (links)
-  9. Methodology note linking to `/about`
 - Charts are hand-rolled SVG/CSS in the existing editorial style. No chart library.
 
 ### SEO and caching
