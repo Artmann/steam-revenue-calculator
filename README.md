@@ -59,7 +59,8 @@ DB_URL=mongodb://127.0.0.1:27017/ DB_DATABASE=src-parity pnpm dev
 
 `pnpm dev` loads `.env` and then `.env.local`. A `.env` that points at production is loaded too, so always set `DB_URL` and `DB_DATABASE` inline as shown above.
 
-`pnpm test` runs unit tests and integration tests against an in-memory MongoDB.
+`pnpm test` runs unit tests, integration tests against an in-memory MongoDB, and the workflow integration tests.
+The `scrapeGames` workflow refreshes the Steam catalog daily; see [CONTRIBUTING.md](CONTRIBUTING.md#data-pipeline).
 `pnpm parity:capture <url> <name>` and `pnpm parity:compare <a> <b>` compare two builds route by route.
 `pnpm workflow:web` opens the local workflow run inspector.
 
