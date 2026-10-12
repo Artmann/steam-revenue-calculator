@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @config '../tailwind.config.ts';
+@custom-variant hover (&:hover);
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,

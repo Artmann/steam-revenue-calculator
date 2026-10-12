@@ -45,6 +45,24 @@ The full [ranked list](https://steam-revenue-calculator.com/games) sorts thousan
 
 For a deeper look at what Steam's cut really costs and why "gross revenue" isn't what hits the developer's bank account, see [The Real Talk on Steam's Cut](https://steam-revenue-calculator.com/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated).
 
+## Local development
+
+Requires Node 22+, pnpm and Docker.
+
+```bash
+docker compose up -d mongo
+cp .env.template .env.local   # local values only; never point this at production
+pnpm install
+DB_URL=mongodb://127.0.0.1:27017/ DB_DATABASE=src-parity pnpm seed:local
+DB_URL=mongodb://127.0.0.1:27017/ DB_DATABASE=src-parity pnpm dev
+```
+
+`pnpm dev` loads `.env` and then `.env.local`. A `.env` that points at production is loaded too, so always set `DB_URL` and `DB_DATABASE` inline as shown above.
+
+`pnpm test` runs unit tests and integration tests against an in-memory MongoDB.
+`pnpm parity:capture <url> <name>` and `pnpm parity:compare <a> <b>` compare two builds route by route.
+`pnpm workflow:web` opens the local workflow run inspector.
+
 ## Contributing
 
 Running the project locally, the tech stack, and the data pipeline are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
