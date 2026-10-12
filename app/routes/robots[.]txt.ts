@@ -3,6 +3,7 @@ export const loader = async () => {
 Allow: /
 
 Sitemap: https://steam-revenue-calculator.com/sitemap.xml
+Sitemap: https://steam-revenue-calculator.com/sitemap-tags.xml
 `
 
   return new Response(content, {
