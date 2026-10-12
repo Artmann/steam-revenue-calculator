@@ -1,11 +1,10 @@
 import type { LoaderFunction } from 'react-router'
 import { ObjectId } from 'mongodb'
 
-import fs from 'fs'
-
 import { getCollection } from '~/db'
 import { createTagSlugs } from '~/market/tag-slugs'
 import { buildGameUpsert } from '~/steam/build-game-upsert'
+import { ignoredAppIds } from '~/steam/ignored-app-ids'
 import { mapStoreItem, type ScrapedGame } from '~/steam/map-store-item'
 import {
   fetchAppIdPage,
@@ -38,11 +37,10 @@ export const loader: LoaderFunction = async ({ request }) => {
     await syncTags({ deadline })
   }
 
-  const ignoredIds = new Set(await loadIgnoredIds())
   const page = await fetchAppIdPage(apiKey, cursor, pageSize, {
     deadline
   })
-  const appIds = page.appIds.filter((appId) => !ignoredIds.has(appId))
+  const appIds = page.appIds.filter((appId) => !ignoredAppIds.has(appId))
 
   const { items, failedIds } = await fetchStoreItems(appIds, {
     deadline
@@ -100,16 +98,4 @@ async function syncTags(options: RequestOptions): Promise<void> {
     })),
     { ordered: false }
   )
-}
-
-async function loadIgnoredIds(): Promise<number[]> {
-  try {
-    const data = await fs.promises.readFile('./data/ignored.json', 'utf-8')
-
-    return JSON.parse(data) ?? []
-  } catch (error) {
-    console.error(error)
-  }
-
-  return []
 }

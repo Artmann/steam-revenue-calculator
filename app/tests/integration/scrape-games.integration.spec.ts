@@ -99,6 +99,48 @@ describe('scrape-games loader (real MongoDB)', () => {
     vi.restoreAllMocks()
   })
 
+  it('skips app ids from the ignore list.', async () => {
+    const ignoredAppId = 216938
+    const requestedIds: number[] = []
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input)
+
+      if (url.includes('GetAppList')) {
+        return jsonResponse({
+          response: {
+            apps: [{ appid: 10 }, { appid: ignoredAppId }],
+            have_more_results: false,
+            last_appid: ignoredAppId
+          }
+        })
+      }
+
+      if (url.includes('GetItems')) {
+        const inputJson = JSON.parse(
+          decodeURIComponent(url.split('input_json=')[1])
+        ) as { ids: { appid: number }[] }
+
+        requestedIds.push(...inputJson.ids.map(({ appid }) => appid))
+
+        return jsonResponse({ response: { store_items: [storeItem] } })
+      }
+
+      throw new Error(`Unexpected fetch: ${url.split('?')[0]}`)
+    })
+
+    const response = (await loader({
+      request: request(ignoredAppId),
+      params: {},
+      context: {}
+    } as any)) as Response
+
+    expect(response.status).toBe(200)
+    expect(requestedIds).toEqual([10])
+
+    vi.restoreAllMocks()
+  })
+
   it('rejects requests without the key.', async () => {
     const response = (await loader({
       request: new Request('http://localhost/api/scrape-games'),
