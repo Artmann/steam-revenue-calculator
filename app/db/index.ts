@@ -50,14 +50,25 @@ async function getDatabase(): Promise<Db> {
   const maxPoolSize = parseInt(process.env.DB_POOL_SIZE ?? '10', 10)
   const databaseName = process.env.DB_DATABASE ?? ''
 
+  // Assign synchronously so concurrent first callers share one client; the
+  // driver de-duplicates concurrent connect() calls on the same instance.
   if (!client) {
-    const connecting = new MongoClient(url, { maxPoolSize })
-
-    await connecting.connect()
-    client = connecting
+    client = new MongoClient(url, { maxPoolSize })
   }
 
-  const db = client.db(databaseName)
+  const current = client
+
+  try {
+    await current.connect()
+  } catch (error) {
+    if (client === current) {
+      client = undefined
+    }
+
+    throw error
+  }
+
+  const db = current.db(databaseName)
 
   // Share one attempt between concurrent callers; forget it on failure so
   // the next request retries.
