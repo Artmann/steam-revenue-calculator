@@ -1,15 +1,17 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+import { describe, it, expect, vi } from 'vitest'
+import { useLoaderData } from '@remix-run/react'
 
-import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
-import * as remix from '@remix-run/react'
-
 import { computeMarketStats, type MarketGame } from '~/market/stats'
 import TagRoute, { type LoaderData } from '~/routes/tags.$slug'
+
+vi.mock('@remix-run/react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@remix-run/react')>()),
+  useLoaderData: vi.fn()
+}))
 
 function games(count: number): MarketGame[] {
   return Array.from({ length: count }, (_, index) => ({
@@ -46,10 +48,7 @@ function loaderData(overrides: Partial<LoaderData> = {}): LoaderData {
 }
 
 function renderWith(data: LoaderData) {
-  const spy = jest.spyOn(remix, 'useLoaderData')
-
-  // @ts-ignore
-  spy.mockImplementation(() => data)
+  vi.mocked(useLoaderData).mockReturnValue(data as never)
 
   render(
     <MemoryRouter>

@@ -1,11 +1,13 @@
+import { describe, it, expect, vi, type Mock } from 'vitest'
+
 import { getCollection } from '~/db'
 import { loader } from '~/routes/sitemap-tags[.]xml'
 
-jest.mock('~/db', () => ({ getCollection: jest.fn() }))
+vi.mock('~/db', () => ({ getCollection: vi.fn() }))
 
 describe('sitemap-tags loader', () => {
   it('lists static pages and tags with stats, escaping slugs.', async () => {
-    const find = jest.fn().mockReturnValue({
+    const find = vi.fn().mockReturnValue({
       sort: () => ({
         project: () => ({
           toArray: async () => [{ slug: 'roguelike' }, { slug: 'a&b<c>' }]
@@ -13,7 +15,7 @@ describe('sitemap-tags loader', () => {
       })
     })
 
-    ;(getCollection as jest.Mock).mockResolvedValue({ find })
+    ;(getCollection as Mock).mockResolvedValue({ find })
 
     const response = await loader()
     const xml = await response.text()

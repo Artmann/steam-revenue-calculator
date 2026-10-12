@@ -1,9 +1,13 @@
-const createIndex = jest.fn()
-const dropIndex = jest.fn()
+import { describe, it, expect, vi } from 'vitest'
 
-jest.mock('mongodb', () => ({
+const { createIndex, dropIndex } = vi.hoisted(() => ({
+  createIndex: vi.fn(),
+  dropIndex: vi.fn()
+}))
+
+vi.mock('mongodb', () => ({
   MongoClient: {
-    connect: jest.fn(async () => ({
+    connect: vi.fn(async () => ({
       db: () => ({
         collection: (name: string) => ({ name, createIndex, dropIndex })
       })
@@ -15,7 +19,7 @@ import { getCollection } from '~/db'
 
 describe('getCollection', () => {
   it('returns the collection even when an index conflicts with an existing one.', async () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
     createIndex.mockImplementation(async (keys: Record<string, number>) => {

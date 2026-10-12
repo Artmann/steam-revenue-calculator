@@ -1,23 +1,22 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+import { describe, it, expect, vi } from 'vitest'
+import { useLoaderData } from '@remix-run/react'
 
-import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import * as remix from '@remix-run/react'
-
 import HomePageRoute from '~/routes/_index'
+
+vi.mock('@remix-run/react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@remix-run/react')>()),
+  useLoaderData: vi.fn()
+}))
 
 describe('HomePageRoute', () => {
   it('uses the price and number of reviews to calculate the gross & net revenue.', async () => {
-    const spy = jest.spyOn(remix, 'useLoaderData')
-
-    // @ts-ignore
-    spy.mockImplementation(() => ({
+    vi.mocked(useLoaderData).mockReturnValue({
       popularGames: []
-    }))
+    } as never)
 
     render(
       <MemoryRouter>

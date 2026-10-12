@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { buildGameUpsert } from '~/steam/build-game-upsert'
 import type { ScrapedGame } from '~/steam/map-store-item'
 

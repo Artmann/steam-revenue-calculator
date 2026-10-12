@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { computeAllTagStats } from '~/market/compute-all'
 import type { MarketGame } from '~/market/stats'
 

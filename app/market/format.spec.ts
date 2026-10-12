@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { formatCompactCurrency, formatDate, formatPercent } from '~/market/format'
 
 describe('format', () => {
