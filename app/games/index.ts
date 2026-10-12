@@ -18,26 +18,10 @@ export interface GameDetails {
   screenshots: string[]
 }
 
-let games: GameDetails[] | undefined
-
 export function createGameSlug(name: string): string {
   return slugify(name, {
     lower: true
   })
-}
-
-export async function fetchGames(): Promise<GameDetails[]> {
-  if (games) {
-    return games
-  }
-
-  const response = await fetch(
-    'https://steam-revenue-calculator.s3.amazonaws.com/games-filtered.json'
-  )
-
-  games = (await response.json()) as GameDetails[]
-
-  return games
 }
 
 export const formatCurrency = (amount: number, rounded: boolean = false) =>

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto'
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest'
 
 import { getCollection, resetDatabaseConnection } from '~/db'
-import { loader } from '~/routes/api.compute-stats'
+import { computeAndSaveStats } from '~/market/compute-and-save-stats.server'
 
 beforeAll(() => {
   process.env.DB_URL = inject('mongoUri')
@@ -13,10 +13,8 @@ afterAll(async () => {
   await resetDatabaseConnection()
 })
 
-describe('compute-stats loader (real MongoDB)', () => {
+describe('computeAndSaveStats (real MongoDB)', () => {
   it('writes the baseline and stats for tags with enough games.', async () => {
-    process.env.SCRAPE_KEY = 'test-key'
-
     const games = await getCollection('games')
     const tags = await getCollection('tags')
 
@@ -37,13 +35,11 @@ describe('compute-stats loader (real MongoDB)', () => {
       }))
     )
 
-    const response = (await loader({
-      request: new Request('http://localhost/api/compute-stats?key=test-key'),
-      params: {},
-      context: {}
-    } as any)) as Response
-
-    expect(await response.json()).toEqual({ games: 12, tags: 2, tagsWithStats: 1 })
+    expect(await computeAndSaveStats()).toEqual({
+      games: 12,
+      tags: 2,
+      tagsWithStats: 1
+    })
 
     const action = await tags.findOne({ tagId: 19 })
     const indie = await tags.findOne({ tagId: 492 })
