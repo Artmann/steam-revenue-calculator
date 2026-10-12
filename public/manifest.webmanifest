@@ -1,0 +1,32 @@
+{
+  "name": "Steam Revenue Calculator",
+  "short_name": "Steam Revenue",
+  "description": "Estimate how much any Steam game has earned, with a full breakdown of Steam's cut, VAT, refunds, regional pricing, and discounts.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#100d0a",
+  "theme_color": "#100d0a",
+  "categories": ["business", "finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -28,7 +28,10 @@ export const links: LinksFunction = () => [
     rel: 'stylesheet',
     href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap'
   },
-  { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+  { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+  { rel: 'icon', type: 'image/png', href: '/favicon-32x32.png', sizes: '32x32' },
+  { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
+  { rel: 'manifest', href: '/manifest.webmanifest' }
 ]
 
 export const meta: MetaFunction = () => {
@@ -61,6 +64,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta
           name="viewport"
           content="width=device-width,initial-scale=1"
+        />
+        <meta
+          name="theme-color"
+          content="#100d0a"
+        />
+        <meta
+          name="apple-mobile-web-app-title"
+          content="Steam Revenue"
         />
         <Meta />
         <Links />
