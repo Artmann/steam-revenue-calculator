@@ -17,3 +17,7 @@ scrape-games.json
 .parity/
 
 /.react-router
+/.swc
+/.nitro
+/.workflow-data
+/.well-known/workflow

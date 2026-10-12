@@ -156,7 +156,11 @@ function compare(nameA: string, nameB: string): void {
         continue
       }
 
-      if (a[field] !== b[field]) {
+      // Media types and charset names are case-insensitive.
+      const normalise = (value: string) =>
+        field === 'contentType' ? value.toLowerCase() : value
+
+      if (normalise(String(a[field])) !== normalise(String(b[field]))) {
         differences++
         console.log(`${route} ${field}: ${a[field]} -> ${b[field]}`)
       }
