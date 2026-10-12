@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { parseTagSort, sortTagSummaries } from '~/market/tag-summaries'
 
 const summaries = [

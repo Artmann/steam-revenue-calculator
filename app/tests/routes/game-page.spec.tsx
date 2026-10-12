@@ -1,21 +1,20 @@
-/**
- * @jest-environment jsdom
- */
+// @vitest-environment jsdom
+import { describe, it, expect, vi } from 'vitest'
+import { useLoaderData } from '@remix-run/react'
 
-import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 
 import GameRoute from '~/routes/app.$id.$slug'
 
-import * as remix from '@remix-run/react'
+vi.mock('@remix-run/react', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@remix-run/react')>()),
+  useLoaderData: vi.fn()
+}))
 
 describe('GameRoute', () => {
   it('uses the price and number of reviews to calculate the gross & net revenue.', async () => {
-    const spy = jest.spyOn(remix, 'useLoaderData')
-
-    // @ts-ignore
-    spy.mockImplementation(() => ({
+    vi.mocked(useLoaderData).mockReturnValue({
       game: {
         id: 1,
         categories: [],
@@ -32,7 +31,7 @@ describe('GameRoute', () => {
         price: 3999,
         screenshots: []
       }
-    }))
+    } as never)
 
     render(
       <MemoryRouter>
@@ -63,16 +62,13 @@ describe('GameRoute', () => {
   }
 
   it('links tags that have a market page and lists the rest as text.', () => {
-    const spy = jest.spyOn(remix, 'useLoaderData')
-
-    // @ts-ignore
-    spy.mockImplementation(() => ({
+    vi.mocked(useLoaderData).mockReturnValue({
       game: rust,
       tags: [
         { tagId: 1, name: 'Survival', slug: 'survival', hasPage: true },
         { tagId: 2, name: 'Tiny Tag', slug: 'tiny-tag', hasPage: false }
       ]
-    }))
+    } as never)
 
     render(
       <MemoryRouter>
@@ -85,10 +81,7 @@ describe('GameRoute', () => {
   })
 
   it('renders no Metacritic block when there is no score.', () => {
-    const spy = jest.spyOn(remix, 'useLoaderData')
-
-    // @ts-ignore
-    spy.mockImplementation(() => ({ game: rust, tags: [] }))
+    vi.mocked(useLoaderData).mockReturnValue({ game: rust, tags: [] } as never)
 
     render(
       <MemoryRouter>

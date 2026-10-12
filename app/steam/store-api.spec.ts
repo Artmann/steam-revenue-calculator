@@ -1,3 +1,5 @@
+import { describe, it, expect, vi, beforeEach, afterEach, type MockInstance } from 'vitest'
+
 import { fetchAppIdPage, fetchStoreItems } from '~/steam/store-api'
 
 function okResponse(body: unknown) {
@@ -9,15 +11,15 @@ function errorResponse(status: number) {
 }
 
 describe('store api', () => {
-  let fetchMock: jest.SpyInstance
+  let fetchMock: MockInstance
 
   beforeEach(() => {
-    fetchMock = jest.spyOn(global, 'fetch')
-    jest.spyOn(console, 'error').mockImplementation(() => {})
+    fetchMock = vi.spyOn(global, 'fetch')
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('skips only the failing batch and reports its ids.', async () => {
@@ -47,7 +49,7 @@ describe('store api', () => {
   })
 
   it('retries once after a 429 and then succeeds.', async () => {
-    const sleep = jest.fn(async (_ms: number) => {})
+    const sleep = vi.fn(async (_ms: number) => {})
 
     fetchMock
       .mockResolvedValueOnce(errorResponse(429))
@@ -68,7 +70,7 @@ describe('store api', () => {
   })
 
   it('fails the batch after a second 429 without more retries.', async () => {
-    const sleep = jest.fn(async (_ms: number) => {})
+    const sleep = vi.fn(async (_ms: number) => {})
 
     fetchMock.mockResolvedValue(errorResponse(429))
 
@@ -80,7 +82,7 @@ describe('store api', () => {
   })
 
   it('does not wait for a retry that would pass the deadline.', async () => {
-    const sleep = jest.fn(async (_ms: number) => {})
+    const sleep = vi.fn(async (_ms: number) => {})
 
     fetchMock.mockResolvedValue(errorResponse(429))
 

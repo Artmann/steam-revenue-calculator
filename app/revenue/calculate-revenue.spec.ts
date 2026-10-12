@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { calculateRevenue, revenueBreakdown } from './calculate-revenue'
 
 describe('Calculate Revenue', () => {

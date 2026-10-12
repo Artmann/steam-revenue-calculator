@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { calculateRevenue } from '~/revenue'
 import { mapStoreItem } from '~/steam/map-store-item'
 import type { StoreItem } from '~/steam/types'
