@@ -1,5 +1,4 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
 
 import { GameService } from '~/services/game-service.server'
 
@@ -16,7 +15,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
   await gameService.migrateGamesToDatabase()
 
-  return json({
+  return Response.json({
     status: 'success'
   })
 }

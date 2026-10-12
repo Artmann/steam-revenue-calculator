@@ -1,6 +1,6 @@
 import type { LoaderFunction } from '@remix-run/node'
 //@ts-ignore
-import { ObjectId } from 'mongodb'
+import mongodb from 'mongodb'
 
 import fs from 'fs'
 
@@ -59,7 +59,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
     await collection.bulkWrite(
       games.map((game) =>
-        buildGameUpsert(game, now, new ObjectId().toHexString())
+        buildGameUpsert(game, now, new mongodb.ObjectId().toHexString())
       ),
       { ordered: false }
     )

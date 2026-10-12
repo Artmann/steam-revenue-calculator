@@ -1,7 +1,7 @@
 import type {
   HeadersFunction,
   LoaderFunction,
-  V2_MetaFunction
+  MetaFunction
 } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import type { ReactElement } from 'react'
@@ -113,7 +113,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   })
 }
 
-export const meta: V2_MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data }) => {
   if (!data) {
     return [{ title: 'Tag not found — Steam Revenue Calculator' }]
   }

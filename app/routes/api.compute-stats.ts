@@ -1,5 +1,4 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
 
 import { getCollection } from '~/db'
 import { computeAllTagStats } from '~/market/compute-all'
@@ -66,7 +65,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     await tagsCollection.bulkWrite(operations, { ordered: false })
   }
 
-  return json({
+  return Response.json({
     games: games.length,
     tags: tagIds.length,
     tagsWithStats: tags.filter(({ stats }) => stats).length

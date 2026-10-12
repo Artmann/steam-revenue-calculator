@@ -1,4 +1,4 @@
-import type { HeadersFunction, V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, MetaFunction } from '@remix-run/node'
 import type { ReactElement } from 'react'
 
 import { Page } from '~/components/page'
@@ -9,7 +9,7 @@ export const headers: HeadersFunction = () => {
   }
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     {
       title: 'About — Steam Revenue Calculator'

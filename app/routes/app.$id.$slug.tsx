@@ -1,4 +1,4 @@
-import type { HeadersFunction, LoaderFunction, V2_MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, LoaderFunction, MetaFunction } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import type { ReactElement } from 'react'
 import slugify from 'slugify'
@@ -56,7 +56,9 @@ export const loader: LoaderFunction = async ({
   }
 }
 
-export const meta: V2_MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ data: loaderData }) => {
+  const data = loaderData as LoaderData
+
   return [
     {
       title: `${data.game.name} — Steam Revenue Calculator`

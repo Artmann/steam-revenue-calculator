@@ -6,12 +6,14 @@ const { createIndex, dropIndex } = vi.hoisted(() => ({
 }))
 
 vi.mock('mongodb', () => ({
-  MongoClient: {
-    connect: vi.fn(async () => ({
-      db: () => ({
-        collection: (name: string) => ({ name, createIndex, dropIndex })
-      })
-    }))
+  default: {
+    MongoClient: {
+      connect: vi.fn(async () => ({
+        db: () => ({
+          collection: (name: string) => ({ name, createIndex, dropIndex })
+        })
+      }))
+    }
   }
 }))
 

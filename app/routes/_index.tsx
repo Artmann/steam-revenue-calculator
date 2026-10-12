@@ -1,4 +1,4 @@
-import type { HeadersFunction, V2_MetaFunction , LoaderFunction } from '@remix-run/node'
+import type { HeadersFunction, MetaFunction , LoaderFunction } from '@remix-run/node'
 
 import { Link, useLoaderData } from '@remix-run/react'
 import { useState } from 'react'
@@ -14,7 +14,7 @@ interface LoaderData {
   popularGames: GameDetails[]
 }
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [
     {
       title: 'Steam Revenue Calculator — Estimate Any Game\'s Revenue on Steam'
