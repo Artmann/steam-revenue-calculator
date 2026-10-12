@@ -16,12 +16,18 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
   try {
     await games.dropIndex('name_1')
   } catch (error: any) {
+    const message = String(error?.message ?? '')
     const isMissing =
       error?.code === 27 ||
       error?.codeName === 'IndexNotFound' ||
-      String(error?.message ?? '').includes('index not found')
+      message.includes('index not found') ||
+      error?.code === 26 ||
+      error?.codeName === 'NamespaceNotFound' ||
+      message.includes('ns not found')
 
-    if (!isMissing) { throw error }
+    if (!isMissing) {
+      throw error
+    }
   }
 
   await Promise.all([
