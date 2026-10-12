@@ -13,7 +13,16 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
   const tags = db.collection('tags')
 
   // The name lives at details.name, so this index never did anything.
-  await games.dropIndex('name_1').catch(() => {})
+  try {
+    await games.dropIndex('name_1')
+  } catch (error: any) {
+    const isMissing =
+      error?.code === 27 ||
+      error?.codeName === 'IndexNotFound' ||
+      String(error?.message ?? '').includes('index not found')
+
+    if (!isMissing) { throw error }
+  }
 
   await Promise.all([
     games.createIndex({ grossRevenue: -1 }, { background: true }),
