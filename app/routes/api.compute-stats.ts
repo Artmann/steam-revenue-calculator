@@ -1,4 +1,4 @@
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderFunction } from 'react-router'
 
 import { getCollection } from '~/db'
 import { computeAllTagStats } from '~/market/compute-all'

@@ -1,5 +1,5 @@
-import type { HeadersFunction, MetaFunction } from '@remix-run/node'
-import { Outlet } from '@remix-run/react'
+import type { HeadersFunction, MetaFunction } from 'react-router'
+import { Outlet } from 'react-router'
 import type { ReactElement } from 'react'
 
 import { Page } from '~/components/page'

@@ -1,4 +1,4 @@
-import type { LoaderFunction } from '@remix-run/node'
+import type { LoaderFunction } from 'react-router'
 
 export const loader: LoaderFunction = async () => {
   const content = `google.com, pub-7586045516328295, DIRECT, f08c47fec0942fa0`

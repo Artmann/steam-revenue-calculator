@@ -48,6 +48,12 @@ export function normaliseHtml(html: string): string[] {
       /<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?(__remix|__reactRouter|LiveReload)[\s\S]*?<\/script>/g,
       ''
     )
+    // ScrollRestoration's inline script is library-internal and reformatted
+    // between Remix 2 and React Router 7.
+    .replace(
+      /<script\b[^>]*>(?:(?!<\/script>)[\s\S])*?window\.history\.replaceState(?:(?!<\/script>)[\s\S])*?<\/script>/g,
+      ''
+    )
     .replace(/<link\b[^>]*rel="modulepreload"[^>]*\/?>/g, '')
     .replace(/(href|src)="\/(build|assets)\/[^"]*"/g, '$1="ASSET"')
     // Remix 2 lazy route discovery marks every link.

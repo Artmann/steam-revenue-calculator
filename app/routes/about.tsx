@@ -1,4 +1,4 @@
-import type { HeadersFunction, MetaFunction } from '@remix-run/node'
+import type { HeadersFunction, MetaFunction } from 'react-router'
 import type { ReactElement } from 'react'
 
 import { Page } from '~/components/page'

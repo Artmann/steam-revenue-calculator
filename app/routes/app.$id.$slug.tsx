@@ -1,5 +1,5 @@
-import type { HeadersFunction, LoaderFunction, MetaFunction } from '@remix-run/node'
-import { Link, useLoaderData } from '@remix-run/react'
+import type { HeadersFunction, LoaderFunction, MetaFunction } from 'react-router'
+import { Link, useLoaderData } from 'react-router'
 import type { ReactElement } from 'react'
 import slugify from 'slugify'
 

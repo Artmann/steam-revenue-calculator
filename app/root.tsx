@@ -1,11 +1,12 @@
-import type { LinksFunction, MetaFunction } from '@remix-run/node'
+import type { LinksFunction, MetaFunction } from 'react-router'
 import {
+  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration
-} from '@remix-run/react'
+} from 'react-router'
 import tailwind from './tailwind.css?url'
 import styles from './global.css?url'
 import blogStyles from './blog.css?url'
@@ -52,7 +53,7 @@ export const meta: MetaFunction = () => {
   ]
 }
 
-export default function App() {
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -82,7 +83,7 @@ gtag('config', 'G-6XN7FH6J2P');`
         />
       </head>
       <body>
-        <Outlet />
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -90,3 +91,23 @@ gtag('config', 'G-6XN7FH6J2P');`
   )
 }
 
+
+export default function App() {
+  return <Outlet />
+}
+
+export function ErrorBoundary({ error }: { error: unknown }) {
+  const status = isRouteErrorResponse(error) ? error.status : 500
+  const message =
+    status === 404 ? 'This page could not be found.' : 'Something went wrong.'
+
+  return (
+    <main className="mx-auto max-w-3xl px-6 py-24 text-paper">
+      <h1 className="font-display text-4xl">{status}</h1>
+      <p className="mt-4 text-paper-muted">{message}</p>
+      <a className="mt-8 inline-block underline" href="/">
+        Back to the calculator
+      </a>
+    </main>
+  )
+}
