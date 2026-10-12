@@ -20,7 +20,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   const marketStats = await getCollection('marketStats')
 
   await marketStats.updateOne(
-    { _id: 'all' },
+    { _id: 'all' as any },
     { $set: { ...baseline, updatedAt: now } },
     { upsert: true }
   )

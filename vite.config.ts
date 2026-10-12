@@ -15,10 +15,6 @@ export default defineConfig({
     reactRouter(),
     nitro({
       serverDir: './server',
-      // mongodb 3 (used directly and by esix 3) is CommonJS and loads
-      // optional modules with dynamic requires. Leave those as plain
-      // requires so a missing optional module is skipped, not fatal.
-      commonJS: { ignoreDynamicRequires: true },
       output: {
         dir: buildDirectory,
         serverDir: `${buildDirectory}/server`,

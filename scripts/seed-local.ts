@@ -92,7 +92,7 @@ async function main(): Promise<void> {
   const updatedAt = new Date(now)
 
   await marketStats.updateOne(
-    { _id: 'all' },
+    { _id: 'all' as any },
     { $set: { ...baseline, updatedAt } },
     { upsert: true }
   )

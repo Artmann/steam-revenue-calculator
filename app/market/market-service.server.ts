@@ -85,7 +85,7 @@ export async function getBaseline(): Promise<Baseline | null> {
   const collection = await getCollection('marketStats')
 
   return (await collection.findOne(
-    { _id: 'all' },
+    { _id: 'all' as any },
     { projection: { _id: 0 } }
   )) as Baseline | null
 }

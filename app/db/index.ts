@@ -1,16 +1,9 @@
-//@ts-ignore
-import mongodb from 'mongodb'
+import { MongoClient, type Collection, type Db } from 'mongodb'
 
-const { MongoClient } = mongodb
+let client: MongoClient | undefined
+let indexes: Promise<void> | undefined
 
-let client: any
-let indexesEnsured = false
-
-async function ensureIndexes(mongoClient: any): Promise<void> {
-  if (indexesEnsured) { return }
-  indexesEnsured = true
-  const databaseName = process.env.DB_DATABASE ?? ''
-  const db = mongoClient.db(databaseName)
+async function ensureIndexes(db: Db): Promise<void> {
   const games = db.collection('games')
   const tags = db.collection('tags')
 
@@ -36,13 +29,13 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
   // non-unique gameId_1 created before the unique option was added) must
   // not fail the request that happened to trigger this.
   const results = await Promise.allSettled([
-    games.createIndex({ grossRevenue: -1 }, { background: true }),
-    games.createIndex({ gameId: 1 }, { background: true, unique: true }),
-    games.createIndex({ tagIds: 1 }, { background: true }),
-    games.createIndex({ releaseYear: 1 }, { background: true }),
-    games.createIndex({ basePrice: 1 }, { background: true }),
-    tags.createIndex({ tagId: 1 }, { background: true, unique: true }),
-    tags.createIndex({ slug: 1 }, { background: true, unique: true })
+    games.createIndex({ grossRevenue: -1 }),
+    games.createIndex({ gameId: 1 }, { unique: true }),
+    games.createIndex({ tagIds: 1 }),
+    games.createIndex({ releaseYear: 1 }),
+    games.createIndex({ basePrice: 1 }),
+    tags.createIndex({ tagId: 1 }, { unique: true }),
+    tags.createIndex({ slug: 1 }, { unique: true })
   ])
 
   for (const result of results) {
@@ -52,23 +45,43 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
   }
 }
 
-export async function getCollection(collectionName: string) {
+async function getDatabase(): Promise<Db> {
   const url = process.env.DB_URL ?? 'mongodb://127.0.0.1:27017/'
-  const poolSize = parseInt(process.env.DB_POOL_SIZE ?? '10', 10)
+  const maxPoolSize = parseInt(process.env.DB_POOL_SIZE ?? '10', 10)
   const databaseName = process.env.DB_DATABASE ?? ''
 
-  client =
-    client ??
-    (await MongoClient.connect(url, {
-      poolSize,
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    }))
+  if (!client) {
+    const connecting = new MongoClient(url, { maxPoolSize })
 
-  await ensureIndexes(client)
+    await connecting.connect()
+    client = connecting
+  }
 
-  const database = await client.db(databaseName)
-  const collection = await database.collection(collectionName)
+  const db = client.db(databaseName)
 
-  return collection
+  // Share one attempt between concurrent callers; forget it on failure so
+  // the next request retries.
+  indexes ??= ensureIndexes(db).catch((error) => {
+    indexes = undefined
+    throw error
+  })
+
+  await indexes
+
+  return db
+}
+
+export async function getCollection(collectionName: string): Promise<Collection> {
+  const db = await getDatabase()
+
+  return db.collection(collectionName)
+}
+
+export async function resetDatabaseConnection(): Promise<void> {
+  const current = client
+
+  client = undefined
+  indexes = undefined
+
+  await current?.close()
 }

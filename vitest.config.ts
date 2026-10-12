@@ -8,6 +8,9 @@ export default defineConfig({
   esbuild: { jsx: 'automatic' },
   test: {
     environment: 'node',
+    globalSetup: ['./vitest.global-setup.ts'],
+    testTimeout: 30_000,
+    hookTimeout: 60_000,
     setupFiles: ['./vitest.setup.ts'],
     include: ['app/**/*.spec.{ts,tsx}']
   }
