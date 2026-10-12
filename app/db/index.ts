@@ -30,7 +30,10 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
     }
   }
 
-  await Promise.all([
+  // Best effort: an index that conflicts with an existing one (e.g. a
+  // non-unique gameId_1 created before the unique option was added) must
+  // not fail the request that happened to trigger this.
+  const results = await Promise.allSettled([
     games.createIndex({ grossRevenue: -1 }, { background: true }),
     games.createIndex({ gameId: 1 }, { background: true, unique: true }),
     games.createIndex({ tagIds: 1 }, { background: true }),
@@ -39,6 +42,12 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
     tags.createIndex({ tagId: 1 }, { background: true, unique: true }),
     tags.createIndex({ slug: 1 }, { background: true, unique: true })
   ])
+
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      console.error('Failed to create index:', result.reason?.message)
+    }
+  }
 }
 
 export async function getCollection(collectionName: string) {
