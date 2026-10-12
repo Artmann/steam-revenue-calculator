@@ -5,7 +5,7 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "jsx": "react-jsx",
-    "module": "ES2022",
+    "module": "ESNext",
     "moduleResolution": "Bundler",
     "types": ["@react-router/node", "vite/client"],
     "resolveJsonModule": true,
