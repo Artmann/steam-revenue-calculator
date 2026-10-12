@@ -1,0 +1,79 @@
+import { buildGameUpsert } from '~/steam/build-game-upsert'
+import type { ScrapedGame } from '~/steam/map-store-item'
+
+const game: ScrapedGame = {
+  gameId: 646570,
+  name: 'Slay the Spire',
+  description: 'Deckbuilder.',
+  developers: ['Mega Crit'],
+  publishers: ['Mega Crit'],
+  screenshots: ['https://example.com/a.jpg'],
+  tagIds: [1091588, 1666],
+  releaseDate: new Date('2019-01-23T00:00:00Z'),
+  releaseYear: 2019,
+  reviewCount: 192403,
+  percentPositive: 97,
+  price: 1249,
+  basePrice: 2499,
+  grossRevenue: 1000
+}
+
+describe('buildGameUpsert', () => {
+  it('upserts by gameId, setting top-level fields and the details the game page reads.', () => {
+    const operation = buildGameUpsert(game, 1700000000000, 'abc123')
+
+    expect(operation.updateOne.filter).toEqual({ gameId: 646570 })
+    expect(operation.updateOne.upsert).toBe(true)
+    expect(operation.updateOne.update.$set).toEqual({
+      slug: 'slay-the-spire',
+      grossRevenue: 1000,
+      tagIds: [1091588, 1666],
+      releaseDate: new Date('2019-01-23T00:00:00Z'),
+      releaseYear: 2019,
+      reviewCount: 192403,
+      percentPositive: 97,
+      price: 1249,
+      basePrice: 2499,
+      updatedAt: 1700000000000,
+      'details.id': 646570,
+      'details.name': 'Slay the Spire',
+      'details.description': 'Deckbuilder.',
+      'details.developers': ['Mega Crit'],
+      'details.publishers': ['Mega Crit'],
+      'details.screenshots': ['https://example.com/a.jpg'],
+      'details.price': 2499,
+      'details.numberOfReviews': 192403
+    })
+  })
+
+  it('initialises esix and legacy detail fields only on insert.', () => {
+    const operation = buildGameUpsert(game, 1700000000000, 'abc123')
+
+    expect(operation.updateOne.update.$setOnInsert).toEqual({
+      _id: 'abc123',
+      createdAt: 1700000000000,
+      'details.categories': [],
+      'details.genres': [],
+      'details.metacritic': {}
+    })
+  })
+
+  it('omits undefined optional fields instead of writing nulls.', () => {
+    const operation = buildGameUpsert(
+      {
+        ...game,
+        releaseDate: undefined,
+        releaseYear: undefined,
+        percentPositive: undefined
+      },
+      1,
+      'id'
+    )
+
+    const keys = Object.keys(operation.updateOne.update.$set)
+
+    expect(keys).not.toContain('releaseDate')
+    expect(keys).not.toContain('releaseYear')
+    expect(keys).not.toContain('percentPositive')
+  })
+})

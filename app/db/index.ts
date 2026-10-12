@@ -10,10 +10,19 @@ async function ensureIndexes(mongoClient: any): Promise<void> {
   const databaseName = process.env.DB_DATABASE ?? ''
   const db = mongoClient.db(databaseName)
   const games = db.collection('games')
+  const tags = db.collection('tags')
+
+  // The name lives at details.name, so this index never did anything.
+  await games.dropIndex('name_1').catch(() => {})
+
   await Promise.all([
     games.createIndex({ grossRevenue: -1 }, { background: true }),
     games.createIndex({ gameId: 1 }, { background: true, unique: true }),
-    games.createIndex({ name: 1 }, { background: true })
+    games.createIndex({ tagIds: 1 }, { background: true }),
+    games.createIndex({ releaseYear: 1 }, { background: true }),
+    games.createIndex({ basePrice: 1 }, { background: true }),
+    tags.createIndex({ tagId: 1 }, { background: true, unique: true }),
+    tags.createIndex({ slug: 1 }, { background: true, unique: true })
   ])
 }
 
