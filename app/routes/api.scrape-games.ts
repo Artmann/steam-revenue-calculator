@@ -1,149 +1,102 @@
 import type { LoaderFunction } from '@remix-run/node'
 import { json } from '@remix-run/node'
+//@ts-ignore
+import { ObjectId } from 'mongodb'
 
 import fs from 'fs'
-//@ts-ignore
-import tqdm from 'tqdm'
 
-import { createGameSlug, type GameDetails } from '~/games'
-import { Game } from '~/models/game'
-import { calculateRevenue } from '~/revenue'
+import { getCollection } from '~/db'
+import { createTagSlugs } from '~/market/tag-slugs'
+import { buildGameUpsert } from '~/steam/build-game-upsert'
+import { mapStoreItem, type ScrapedGame } from '~/steam/map-store-item'
+import {
+  fetchAppIdPage,
+  fetchStoreItems,
+  fetchTagList
+} from '~/steam/store-api'
+import type { StoreItem } from '~/steam/types'
+
+const pageSize = 1000
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const key = url.searchParams.get('key')
-  const cursor = parseInt(url.searchParams.get('cursor') ?? '1', 10)
+  const cursor = parseInt(url.searchParams.get('cursor') ?? '0', 10) || 0
   const expectedKey = process.env.SCRAPE_KEY
+  const apiKey = process.env.STEAM_API_KEY
 
   if (!expectedKey || !key || key !== expectedKey) {
     return new Response('Unauthorized.', { status: 401 })
   }
 
-  const ignoredIds = await loadIgnoredIds()
-
-  const gameIds = await fetchGameIds()
-
-  const batchSize = 2
-  const maxCursor = Math.ceil(gameIds.length / batchSize)
-  const nextCursor = cursor + batchSize > maxCursor ? 0 : cursor + batchSize
-
-  const gameIdsToScrape = gameIds.slice(
-    cursor * batchSize,
-    (cursor + 1) * batchSize
-  )
-
-  for (const gameId of tqdm(gameIdsToScrape)) {
-    try {
-      if (ignoredIds.includes(gameId)) {
-        continue
-      }
-
-      const gameDetails = await fetchGameDetails(gameId)
-
-      if (!gameDetails) {
-        console.log(`Game with the id: ${gameId} is not found.`)
-
-        continue
-      }
-
-      const slug = createGameSlug(gameDetails.name)
-
-      const existingGame = await Game.findBy('gameId', gameId)
-
-      const grossRevenue = calculateRevenue(
-        gameDetails.numberOfReviews,
-        gameDetails.price / 100
-      )
-
-      if (existingGame) {
-        existingGame.details = gameDetails
-        existingGame.grossRevenue = grossRevenue
-        existingGame.slug = slug
-
-        await existingGame.save()
-      } else {
-        await Game.create({
-          details: gameDetails,
-          gameId,
-          grossRevenue,
-          slug
-        })
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 2_000))
-    } catch (error) {
-      console.error(`Failed to scrape the game with the id: ${gameId}.`)
-      console.error(error)
-    }
+  if (!apiKey) {
+    return new Response('STEAM_API_KEY is not configured.', { status: 500 })
   }
 
+  if (cursor === 0) {
+    await syncTags()
+  }
+
+  const ignoredIds = new Set(await loadIgnoredIds())
+  const page = await fetchAppIdPage(apiKey, cursor, pageSize)
+  const appIds = page.appIds.filter((appId) => !ignoredIds.has(appId))
+
+  let items: StoreItem[] = []
+
+  try {
+    items = await fetchStoreItems(appIds)
+  } catch (error) {
+    // Skip this page rather than stall the whole run on one bad batch.
+    console.error(`Failed to fetch store items after app id ${cursor}.`)
+    console.error(error)
+  }
+
+  const games = items
+    .map(mapStoreItem)
+    .filter((game): game is ScrapedGame => Boolean(game))
+
+  if (games.length > 0) {
+    const collection = await getCollection('games')
+    const now = Date.now()
+
+    await collection.bulkWrite(
+      games.map((game) =>
+        buildGameUpsert(game, now, new ObjectId().toHexString())
+      ),
+      { ordered: false }
+    )
+  }
 
   return json({
-    batchSize,
     cursor,
-    maxCursor,
-    nextCursor,
-    gameIdsToScrape
+    nextCursor: page.haveMoreResults ? page.lastAppId : 0,
+    fetched: appIds.length,
+    saved: games.length
   })
 }
 
-async function fetchGameIds(): Promise<number[]> {
-  const request = await fetch(
-    'http://api.steampowered.com/ISteamApps/GetAppList/v0002/?format=json'
-  )
-  const data = await request.json()
+async function syncTags(): Promise<void> {
+  const tags = createTagSlugs(await fetchTagList())
 
-  return data.applist.apps
-    .filter((app: any) => Boolean(app.name) && app.name.trim() !== '')
-    .map((app: any) => app.appid)
-}
-
-async function fetchGameDetails(
-  gameId: number
-): Promise<GameDetails | undefined> {
-  const request = await fetch(
-    `https://store.steampowered.com/api/appdetails?appids=${gameId}&cc=us&l=en`
-  )
-
-  if (request.status == 429) {
-    console.log('Rate limited. Waiting 30 seconds...')
-
-    await new Promise((resolve) => setTimeout(resolve, 30000))
-
-    return fetchGameDetails(gameId)
-  }
-
-  const data = await request.json()
-
-  const details = data[gameId].data
-
-  if (!details) {
+  if (tags.length === 0) {
     return
   }
 
-  if (details.is_free) {
-    return
-  }
+  const collection = await getCollection('tags')
 
-  return {
-    id: gameId,
-    name: details.name,
-    description: details.short_description,
-    developers: details.developers,
-    publishers: details.publishers,
-    price: details.price_overview?.final,
-    metacritic: {
-      score: details.metacritic?.score,
-      url: details.metacritic?.url
-    },
-    screenshots: details.screenshots?.map(
-      (screenshot: any) => screenshot.path_full
-    ),
-    numberOfReviews: details.recommendations?.total ?? 0,
-    genres: details.genres?.map((genre: any) => genre.description) ?? [],
-    categories:
-      details.categories?.map((category: any) => category.description) ?? []
-  }
+  await collection.bulkWrite(
+    tags.map(({ tagId, name, slug }) => ({
+      updateOne: {
+        filter: { tagId },
+        update: {
+          $set: { name, slug },
+          $setOnInsert: { gameCount: 0 }
+        },
+        upsert: true
+      }
+    })),
+    { ordered: false }
+  )
 }
 
 async function loadIgnoredIds(): Promise<number[]> {
@@ -157,4 +110,3 @@ async function loadIgnoredIds(): Promise<number[]> {
 
   return []
 }
-

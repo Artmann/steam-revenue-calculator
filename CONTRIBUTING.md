@@ -71,7 +71,8 @@ Unit tests under `app/revenue/` cover the math — keep them green if you touch 
 
 Steam game data lives in MongoDB. Two admin endpoints keep it fresh, both gated behind `?key=<SCRAPE_KEY>`:
 
-- `GET /api/scrape-games?key=…&cursor=N` — fetches a small batch of games from Steam's `appdetails` API and upserts them. Paginated via `cursor` and rate-limited to roughly 2 seconds per game; designed to be called on a schedule.
+- `GET /api/scrape-games?key=…&cursor=N` — pages through Steam's game list (`IStoreService/GetAppList`, needs `STEAM_API_KEY`) 1000 games at a time and upserts them using `IStoreBrowseService/GetItems`. Start with `cursor=0` (which also syncs the tag list) and call again with the returned `nextCursor` until it is `0`.
+- `GET /api/compute-stats?key=…` — recomputes per-tag market stats. Run it after a full scrape pass.
 - `GET /api/migrate-games?key=…` — bulk load from a seed JSON file.
 
 Indexes on the `games` collection are created lazily by `ensureIndexes()` in [`app/db/index.ts`](app/db/index.ts) on the first request after a cold start.
