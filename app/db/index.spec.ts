@@ -1,12 +1,17 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 
-const { createIndex, dropIndex } = vi.hoisted(() => ({
+const { createIndex, dropIndex, constructed } = vi.hoisted(() => ({
+  constructed: vi.fn(),
   createIndex: vi.fn(),
   dropIndex: vi.fn()
 }))
 
 vi.mock('mongodb', () => ({
   MongoClient: class {
+    constructor() {
+      constructed()
+    }
+
     async connect() {
       return this
     }
@@ -55,7 +60,7 @@ describe('getCollection', () => {
   })
 
   it('retries index creation after a failed attempt.', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     dropIndex.mockRejectedValueOnce(new Error('network blip'))
     dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
     createIndex.mockResolvedValue('ok')
@@ -63,6 +68,23 @@ describe('getCollection', () => {
     await expect(getCollection('games')).rejects.toThrow('network blip')
     await getCollection('games')
 
+    expect(createIndex).toHaveBeenCalledTimes(7)
+
+    consoleError.mockRestore()
+  })
+
+  it('shares one client and one index attempt between concurrent first calls.', async () => {
+    dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
+    createIndex.mockResolvedValue('ok')
+
+    await Promise.all([
+      getCollection('games'),
+      getCollection('tags'),
+      getCollection('games')
+    ])
+
+    expect(constructed).toHaveBeenCalledTimes(1)
+    expect(dropIndex).toHaveBeenCalledTimes(1)
     expect(createIndex).toHaveBeenCalledTimes(7)
   })
 })
