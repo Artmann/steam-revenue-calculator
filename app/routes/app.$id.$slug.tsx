@@ -6,12 +6,14 @@ import slugify from 'slugify'
 import { Page } from '~/components/page'
 import type { GameDetails } from '~/games'
 import { formatCurrency } from '~/games'
+import { getTagIndex, type TagIndexEntry } from '~/market/market-service.server'
 import { Game } from '~/models/game'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 
 interface LoaderData {
   game: GameDetails
+  tags: TagIndexEntry[]
 }
 
 export const headers: HeadersFunction = () => {
@@ -41,8 +43,16 @@ export const loader: LoaderFunction = async ({
     })
   }
 
+  const tagIndex = await getTagIndex()
+  const tagsById = new Map(tagIndex.map((tag) => [tag.tagId, tag]))
+
   return {
-    game: game.details
+    game: game.details,
+    tags: (game.tagIds ?? []).flatMap((tagId) => {
+      const tag = tagsById.get(tagId)
+
+      return tag ? [tag] : []
+    })
   }
 }
 
@@ -93,7 +103,7 @@ export const meta: V2_MetaFunction = ({ data }) => {
 }
 
 export default function AppRoute(): ReactElement {
-  const { game } = useLoaderData<LoaderData>()
+  const { game, tags = [] } = useLoaderData<LoaderData>()
 
   const grossRevenue = calculateRevenue(game.numberOfReviews, game.price / 100)
   const breakdown = revenueBreakdown(grossRevenue)
@@ -127,6 +137,27 @@ export default function AppRoute(): ReactElement {
                     ', '
                   )}
                 </div>
+                {tags.length > 0 && (
+                  <ul
+                    className="flex flex-wrap gap-x-4 gap-y-1 text-sm"
+                    data-testid="tags"
+                  >
+                    {tags.map((tag) => (
+                      <li key={tag.tagId}>
+                        {tag.hasPage ? (
+                          <Link
+                            className="text-accent hover:text-accent-strong underline underline-offset-4 decoration-accent/40"
+                            to={`/tags/${tag.slug}`}
+                          >
+                            {tag.name}
+                          </Link>
+                        ) : (
+                          <span className="text-paper-muted">{tag.name}</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               <div data-testid="description">{game.description}</div>
@@ -145,7 +176,7 @@ export default function AppRoute(): ReactElement {
                     )}
                   </div>
                 </div>
-                {game.metacritic && (
+                {game.metacritic?.score && (
                   <div className="space-y-1.5">
                     <div className="eyebrow">Metacritic</div>
                     <div className="font-display text-xl tabular-nums">

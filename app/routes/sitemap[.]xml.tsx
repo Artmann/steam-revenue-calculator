@@ -16,9 +16,16 @@ export const loader = async () => {
 
   const games = (await collection
     .find({})
-    .sort({ name: 1 })
+    .sort({ gameId: 1 })
     .project({ _id: 0, gameId: 1, slug: 1 })
     .toArray()) as { gameId: number; slug: string }[]
+
+  const tagsCollection = await getCollection('tags')
+  const tags = (await tagsCollection
+    .find({ stats: { $exists: true } })
+    .sort({ slug: 1 })
+    .project({ _id: 0, slug: 1 })
+    .toArray()) as { slug: string }[]
 
   const gameCount = await new GameService().getGameCount()
   const pageSize = 48
@@ -38,6 +45,10 @@ export const loader = async () => {
     .map((game) => urlBlock(`/app/${game.gameId}/${game.slug}`))
     .join('\n')
 
+  const tagXml = tags
+    .map((tag) => urlBlock(`/tags/${tag.slug}`, '0.8'))
+    .join('\n')
+
   const pageBlocks: string[] = []
 
   for (let i = 1; i <= pageCount; i++) {
@@ -54,6 +65,8 @@ export const loader = async () => {
   ${urlBlock('/cookies')}
   ${urlBlock('/games')}
   ${urlBlock('/privacy')}
+  ${urlBlock('/tags')}
+  ${tagXml}
 
   ${urlBlock(
     '/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated'
