@@ -21,3 +21,5 @@ scrape-games.json
 /.nitro
 /.workflow-data
 /.well-known/workflow
+/.workflow-vitest
+.swc
