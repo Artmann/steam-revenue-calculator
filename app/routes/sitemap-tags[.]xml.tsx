@@ -2,6 +2,7 @@ import type { HeadersFunction } from 'react-router'
 
 import { getCollection } from '~/db'
 import { SITE_URL } from '~/market/constants'
+import { escapeXml } from '~/sitemap/xml'
 
 export const headers: HeadersFunction = () => {
   return {
@@ -10,17 +11,6 @@ export const headers: HeadersFunction = () => {
       'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800'
   }
 }
-
-const xmlEntities: Record<string, string> = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  "'": '&apos;'
-}
-
-const escapeXml = (value: string): string =>
-  value.replace(/[&<>"']/g, (character) => xmlEntities[character])
 
 export const loader = async () => {
   const tagsCollection = await getCollection('tags')
