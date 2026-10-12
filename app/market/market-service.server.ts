@@ -5,6 +5,7 @@ import {
   type MarketGameDocument
 } from '~/market/market-game'
 import type { MarketGame, MarketStats, TagFrequencies } from '~/market/stats'
+import type { TagSummary } from '~/market/tag-summaries'
 
 export async function loadMarketGames(
   query: Record<string, unknown>
@@ -87,4 +88,36 @@ export async function getBaseline(): Promise<Baseline | null> {
     { _id: 'all' },
     { projection: { _id: 0 } }
   )) as Baseline | null
+}
+
+export async function listTagSummaries(): Promise<TagSummary[]> {
+  const collection = await getCollection('tags')
+
+  const documents = (await collection
+    .find({ stats: { $exists: true } })
+    .project({
+      _id: 0,
+      name: 1,
+      slug: 1,
+      gameCount: 1,
+      'stats.percentiles.p50': 1,
+      'stats.shareAbove.hundredThousand': 1
+    })
+    .toArray()) as {
+    name: string
+    slug: string
+    gameCount: number
+    stats: {
+      percentiles: { p50: number }
+      shareAbove: { hundredThousand: number }
+    }
+  }[]
+
+  return documents.map(({ name, slug, gameCount, stats }) => ({
+    name,
+    slug,
+    gameCount,
+    median: stats.percentiles.p50,
+    shareAboveHundredThousand: stats.shareAbove.hundredThousand
+  }))
 }
