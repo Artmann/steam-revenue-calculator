@@ -26,6 +26,12 @@ export function Page({ children }: PageProps): ReactElement {
           </Link>
           <Link
             className="text-paper-muted hover:text-paper"
+            to="/tags"
+          >
+            Tags
+          </Link>
+          <Link
+            className="text-paper-muted hover:text-paper"
             to="/blog"
           >
             Blog
@@ -61,6 +67,12 @@ export function Page({ children }: PageProps): ReactElement {
               to="/games"
             >
               Games
+            </Link>
+            <Link
+              className="hover:text-paper"
+              to="/tags"
+            >
+              Tags
             </Link>
             <Link
               className="hover:text-paper"
