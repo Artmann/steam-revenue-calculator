@@ -79,8 +79,15 @@ describe('buildMarketQuery', () => {
       buildMarketQuery(1, parse('price=10-20&since=2021&with=deckbuilder'))
     ).toEqual({
       tagIds: { $all: [1, 2] },
-      basePrice: { $gte: 1000, $lte: 2000 },
+      basePrice: { $gte: 1000, $lt: 2000 },
       releaseYear: { $gte: 2021 }
+    })
+  })
+
+  it('keeps the release year upper bound inclusive.', () => {
+    expect(buildMarketQuery(1, parse('since=2020&until=2022'))).toEqual({
+      tagIds: { $all: [1] },
+      releaseYear: { $gte: 2020, $lte: 2022 }
     })
   })
 })

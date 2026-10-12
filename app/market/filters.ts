@@ -67,8 +67,8 @@ export function buildMarketQuery(
     tagIds: { $all: [tagId, ...filters.withTagIds] }
   }
 
-  const price = range(filters.minPrice, filters.maxPrice)
-  const year = range(filters.since, filters.until)
+  const price = range(filters.minPrice, filters.maxPrice, '$lt')
+  const year = range(filters.since, filters.until, '$lte')
 
   if (price) {
     query.basePrice = price
@@ -117,7 +117,8 @@ function ordered(
 
 function range(
   low: number | undefined,
-  high: number | undefined
+  high: number | undefined,
+  highOperator: '$lt' | '$lte'
 ): Record<string, number> | undefined {
   if (low === undefined && high === undefined) {
     return
@@ -125,6 +126,6 @@ function range(
 
   return {
     ...(low !== undefined ? { $gte: low } : {}),
-    ...(high !== undefined ? { $lte: high } : {})
+    ...(high !== undefined ? { [highOperator]: high } : {})
   }
 }

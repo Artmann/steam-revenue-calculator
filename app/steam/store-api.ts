@@ -13,13 +13,24 @@ export interface StoreItemsResult {
 
 // GetItems accepts ~250 ids before the GET URL gets too long; stay below it.
 const storeItemsBatchSize = 200
-const maxAttempts = 3
-const rateLimitDelayMs = 30_000
+// One retry after a short pause keeps a scrape call well inside the 60s limit.
+const rateLimitDelayMs = 8_000
+
+export interface RequestOptions {
+  // Epoch ms after which no request or wait may start.
+  deadline?: number
+  now?: () => number
+  sleep?: (ms: number) => Promise<void>
+}
+
+const defaultSleep = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms))
 
 export async function fetchAppIdPage(
   apiKey: string,
   lastAppId: number,
-  maxResults: number
+  maxResults: number,
+  options: RequestOptions = {}
 ): Promise<AppIdPage> {
   const params = new URLSearchParams({
     key: apiKey,
@@ -34,7 +45,10 @@ export async function fetchAppIdPage(
       have_more_results?: boolean
       last_appid?: number
     }
-  }>(`https://api.steampowered.com/IStoreService/GetAppList/v1/?${params}`)
+  }>(
+    `https://api.steampowered.com/IStoreService/GetAppList/v1/?${params}`,
+    options
+  )
 
   const apps = data.response.apps ?? []
 
@@ -45,11 +59,22 @@ export async function fetchAppIdPage(
   }
 }
 
-export async function fetchStoreItems(appIds: number[]): Promise<StoreItemsResult> {
+export async function fetchStoreItems(
+  appIds: number[],
+  options: RequestOptions = {}
+): Promise<StoreItemsResult> {
+  const now = options.now ?? Date.now
   const items: StoreItem[] = []
   const failedIds: number[] = []
 
   for (let start = 0; start < appIds.length; start += storeItemsBatchSize) {
+    if (options.deadline !== undefined && now() >= options.deadline) {
+      // Out of time budget: report the rest as failed instead of fetching.
+      console.error(`Time budget exhausted; skipping ${appIds.length - start} ids.`)
+      failedIds.push(...appIds.slice(start))
+      break
+    }
+
     const batch = appIds.slice(start, start + storeItemsBatchSize)
 
     const input = {
@@ -68,7 +93,8 @@ export async function fetchStoreItems(appIds: number[]): Promise<StoreItemsResul
       const data = await getJson<{ response: { store_items?: StoreItem[] } }>(
         `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?input_json=${encodeURIComponent(
           JSON.stringify(input)
-        )}`
+        )}`,
+        options
       )
 
       items.push(...(data.response.store_items ?? []))
@@ -86,23 +112,45 @@ export async function fetchStoreItems(appIds: number[]): Promise<StoreItemsResul
   return { items, failedIds }
 }
 
-export async function fetchTagList(): Promise<SteamTag[]> {
+export async function fetchTagList(
+  options: RequestOptions = {}
+): Promise<SteamTag[]> {
   const data = await getJson<{ response: { tags?: SteamTag[] } }>(
-    'https://api.steampowered.com/IStoreService/GetTagList/v1/?language=english'
+    'https://api.steampowered.com/IStoreService/GetTagList/v1/?language=english',
+    options
   )
 
   return data.response.tags ?? []
 }
 
-async function getJson<T>(url: string, attempt = 1): Promise<T> {
+async function getJson<T>(
+  url: string,
+  options: RequestOptions = {},
+  attempt = 1
+): Promise<T> {
+  const now = options.now ?? Date.now
+  const sleep = options.sleep ?? defaultSleep
+  const { deadline } = options
+
+  if (deadline !== undefined && now() >= deadline) {
+    throw new Error(`Time budget exhausted: ${url.split('?')[0]}`)
+  }
+
   const response = await fetch(url)
 
-  if (response.status === 429 && attempt < maxAttempts) {
-    console.log('Rate limited by Steam. Waiting 30 seconds...')
+  if (response.status === 429 && attempt < 2) {
+    // Never start a wait that would run past the deadline.
+    if (deadline !== undefined && now() + rateLimitDelayMs >= deadline) {
+      throw new Error(
+        `Steam rate limited and no time left to retry: ${url.split('?')[0]}`
+      )
+    }
 
-    await new Promise((resolve) => setTimeout(resolve, rateLimitDelayMs))
+    console.log('Rate limited by Steam. Waiting before one retry...')
 
-    return getJson(url, attempt + 1)
+    await sleep(rateLimitDelayMs)
+
+    return getJson(url, options, attempt + 1)
   }
 
   if (!response.ok) {
