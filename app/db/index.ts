@@ -6,6 +6,7 @@ let indexes: Promise<void> | undefined
 async function ensureIndexes(db: Db): Promise<void> {
   const games = db.collection('games')
   const tags = db.collection('tags')
+  const scrapeRuns = db.collection('scrapeRuns')
 
   // The name lives at details.name, so this index never did anything.
   try {
@@ -35,7 +36,8 @@ async function ensureIndexes(db: Db): Promise<void> {
     games.createIndex({ releaseYear: 1 }),
     games.createIndex({ basePrice: 1 }),
     tags.createIndex({ tagId: 1 }, { unique: true }),
-    tags.createIndex({ slug: 1 }, { unique: true })
+    tags.createIndex({ slug: 1 }, { unique: true }),
+    scrapeRuns.createIndex({ startedAt: -1 })
   ])
 
   for (const result of results) {

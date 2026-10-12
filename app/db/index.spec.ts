@@ -50,7 +50,7 @@ describe('getCollection', () => {
     const collection = await getCollection('games')
 
     expect((collection as any).name).toBe('games')
-    expect(createIndex).toHaveBeenCalledTimes(7)
+    expect(createIndex).toHaveBeenCalledTimes(8)
     expect(consoleError).toHaveBeenCalledWith(
       'Failed to create index:',
       'An existing index has the same name'
@@ -68,7 +68,7 @@ describe('getCollection', () => {
     await expect(getCollection('games')).rejects.toThrow('network blip')
     await getCollection('games')
 
-    expect(createIndex).toHaveBeenCalledTimes(7)
+    expect(createIndex).toHaveBeenCalledTimes(8)
 
     consoleError.mockRestore()
   })
@@ -85,6 +85,6 @@ describe('getCollection', () => {
 
     expect(constructed).toHaveBeenCalledTimes(1)
     expect(dropIndex).toHaveBeenCalledTimes(1)
-    expect(createIndex).toHaveBeenCalledTimes(7)
+    expect(createIndex).toHaveBeenCalledTimes(8)
   })
 })
