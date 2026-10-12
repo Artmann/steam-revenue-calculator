@@ -93,7 +93,7 @@ Out of scope:
   - `findOneAndUpdate` return value
 - `docker-compose.yml` adds a `mongo:7` service on port 27017, with a named volume.
 - `.env.template` defaults to `DB_URL=mongodb://127.0.0.1:27017/` and `DB_DATABASE=steam-revenue-calculator`.
-- The README gains a short "Local development" section: start Docker Mongo, copy `.env.template`, then seed the database by calling the scrape route locally.
+- The README gains a short "Local development" section: start Docker Mongo, copy `.env.template`, then seed the database with the deterministic `seed:local` script, which refuses non-local `DB_URL`s.
 
 ### Styling
 
