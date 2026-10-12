@@ -1,5 +1,4 @@
 import type { LoaderFunction } from '@remix-run/node'
-import { json } from '@remix-run/node'
 //@ts-ignore
 import { ObjectId } from 'mongodb'
 
@@ -12,14 +11,18 @@ import { mapStoreItem, type ScrapedGame } from '~/steam/map-store-item'
 import {
   fetchAppIdPage,
   fetchStoreItems,
-  fetchTagList
+  fetchTagList,
+  type RequestOptions
 } from '~/steam/store-api'
 
 const pageSize = 1000
+// Stay under the 60s Vercel limit so the write and cursor always happen.
+const timeBudgetMs = 45_000
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url)
   const key = url.searchParams.get('key')
+  const deadline = Date.now() + timeBudgetMs
   const cursor = parseInt(url.searchParams.get('cursor') ?? '0', 10) || 0
   const expectedKey = process.env.SCRAPE_KEY
   const apiKey = process.env.STEAM_API_KEY
@@ -33,14 +36,18 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   if (cursor === 0) {
-    await syncTags()
+    await syncTags({ deadline })
   }
 
   const ignoredIds = new Set(await loadIgnoredIds())
-  const page = await fetchAppIdPage(apiKey, cursor, pageSize)
+  const page = await fetchAppIdPage(apiKey, cursor, pageSize, {
+    deadline
+  })
   const appIds = page.appIds.filter((appId) => !ignoredIds.has(appId))
 
-  const { items, failedIds } = await fetchStoreItems(appIds)
+  const { items, failedIds } = await fetchStoreItems(appIds, {
+    deadline
+  })
 
   const games = items
     .map(mapStoreItem)
@@ -58,17 +65,22 @@ export const loader: LoaderFunction = async ({ request }) => {
     )
   }
 
-  return json({
-    cursor,
-    nextCursor: page.haveMoreResults ? page.lastAppId : 0,
-    fetched: appIds.length,
-    saved: games.length,
-    failed: failedIds.length
-  })
+  return new Response(
+    JSON.stringify({
+      cursor,
+      nextCursor: page.haveMoreResults ? page.lastAppId : 0,
+      fetched: appIds.length,
+      saved: games.length,
+      failed: failedIds.length
+    }),
+    {
+      headers: { 'Content-Type': 'application/json; charset=utf-8' }
+    }
+  )
 }
 
-async function syncTags(): Promise<void> {
-  const tags = createTagSlugs(await fetchTagList())
+async function syncTags(options: RequestOptions): Promise<void> {
+  const tags = createTagSlugs(await fetchTagList(options))
 
   if (tags.length === 0) {
     return
