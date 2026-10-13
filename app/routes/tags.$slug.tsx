@@ -196,7 +196,7 @@ export default function TagRoute(): ReactElement {
                   label,
                   value: median,
                   display: count > 0 ? formatCompactCurrency(median) : '—',
-                  note: `${count.toLocaleString('en-US')} games`
+                  note: `${count.toLocaleString('en-US')} ${count === 1 ? 'game' : 'games'}`
                 }))}
               />
             </Section>
@@ -207,7 +207,7 @@ export default function TagRoute(): ReactElement {
                   label: String(year),
                   value: median,
                   display: formatCompactCurrency(median),
-                  note: `${count.toLocaleString('en-US')} games`
+                  note: `${count.toLocaleString('en-US')} ${count === 1 ? 'game' : 'games'}`
                 }))}
               />
             </Section>
