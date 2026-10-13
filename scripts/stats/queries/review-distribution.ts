@@ -1,11 +1,6 @@
-import { getCollection } from '../utils/db'
 import type { StatsQuery } from '../registry'
-import { summarize } from '../utils/stats'
-
-interface Row {
-  reviews: number
-  revenue: number
-}
+import { loadGames } from '../utils/games'
+import { shareAbove, summarize } from '../utils/stats'
 
 const REVIEW_BOUNDARIES = [
   { label: '0', min: 0, max: 0 },
@@ -21,50 +16,30 @@ const REVIEW_BOUNDARIES = [
 ]
 
 async function run(): Promise<unknown> {
-  const collection = await getCollection('games')
-
-  const cursor = collection
-    .find({
-      'details.numberOfReviews': { $exists: true },
-      grossRevenue: { $gte: 0 }
-    })
-    .project({
-      _id: 0,
-      grossRevenue: 1,
-      'details.numberOfReviews': 1
-    })
-
-  const rows: Row[] = []
-  await cursor.forEach((doc: any) => {
-    const reviews = doc?.details?.numberOfReviews
-    if (typeof reviews !== 'number') {
-      return
-    }
-    rows.push({
-      reviews,
-      revenue: doc.grossRevenue ?? 0
-    })
-  })
+  const rows = await loadGames()
 
   const buckets = REVIEW_BOUNDARIES.map((bucket) => {
     const inBucket = rows.filter(
-      (row) => row.reviews >= bucket.min && row.reviews <= bucket.max
+      (row) => row.reviewCount >= bucket.min && row.reviewCount <= bucket.max
     )
+
     return {
       label: bucket.label,
       minReviews: bucket.min,
       maxReviews: bucket.max === Infinity ? null : bucket.max,
+      count: inBucket.length,
+      share: rows.length === 0 ? 0 : inBucket.length / rows.length,
       revenue: summarize(inBucket.map((row) => row.revenue))
     }
   })
 
-  const overallRevenue = summarize(rows.map((row) => row.revenue))
-  const overallReviews = summarize(rows.map((row) => row.reviews))
+  const revenues = rows.map((row) => row.revenue)
 
   return {
     totalGames: rows.length,
-    overallRevenue,
-    overallReviews,
+    overallRevenue: summarize(revenues),
+    overallShareAbove: shareAbove(revenues),
+    overallReviews: summarize(rows.map((row) => row.reviewCount)),
     buckets
   }
 }
@@ -72,6 +47,6 @@ async function run(): Promise<unknown> {
 export const reviewDistributionQuery: StatsQuery = {
   name: 'review-distribution',
   description:
-    'Distribution of games by review-count bucket, with revenue summaries and overall mean-vs-median stats.',
+    'Distribution of games by review-count bucket, with revenue summaries and the share of games above revenue thresholds.',
   run
 }
