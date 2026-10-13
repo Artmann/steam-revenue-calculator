@@ -17,7 +17,8 @@ import { scrapeIds } from '~/scrape/scrape-ids'
 import { syncTags } from '~/scrape/sync-tags'
 
 function steamApiKey(): string {
-  const apiKey = process.env.STEAM_API_KEY
+  // A pasted key often carries a trailing newline, which Steam rejects with 403.
+  const apiKey = process.env.STEAM_API_KEY?.trim()
 
   if (!apiKey) {
     // Retrying cannot fix missing configuration.
