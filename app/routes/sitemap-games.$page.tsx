@@ -1,7 +1,12 @@
 import type { HeadersFunction, LoaderFunctionArgs } from 'react-router'
 
 import { getCollection } from '~/db'
-import { gamesPerSitemap, renderUrlSet, sitemapHeaders } from '~/sitemap/xml'
+import {
+  gamesPerSitemap,
+  gamesSitemapIndex,
+  renderUrlSet,
+  sitemapHeaders
+} from '~/sitemap/xml'
 
 export const headers: HeadersFunction = () => sitemapHeaders
 
@@ -18,24 +23,32 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   }
 
   const collection = await getCollection('games')
+  // Covered by the index, so this never loads the (large) game documents.
   const games = (await collection
     .find({})
+    .hint(gamesSitemapIndex)
     .sort({ gameId: 1 })
     .skip((page - 1) * gamesPerSitemap)
     .limit(gamesPerSitemap)
-    .project({ _id: 0, gameId: 1, slug: 1 })
-    .toArray()) as { gameId: number; slug: string }[]
+    .project({ _id: 0, gameId: 1, slug: 1, contentUpdatedAt: 1 })
+    .toArray()) as {
+    gameId: number
+    slug: string
+    // Covered queries return null, not a missing key, for absent fields.
+    contentUpdatedAt: number | null
+  }[]
 
   if (games.length === 0 && page > 1) {
     throw notFound()
   }
 
-  const entries = games.map(({ gameId, slug }) => ({
+  const entries = games.map(({ gameId, slug, contentUpdatedAt }) => ({
     path: `/app/${gameId}/${slug}`,
-    priority: '1.0'
+    priority: '1.0',
+    lastmod: contentUpdatedAt ?? undefined
   }))
 
-  return new Response(renderUrlSet(entries, new Date().toISOString()), {
+  return new Response(renderUrlSet(entries), {
     status: 200,
     headers: sitemapHeaders
   })

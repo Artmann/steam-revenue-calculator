@@ -27,6 +27,8 @@ describe('buildGameUpsert', () => {
     expect(operation.updateOne.filter).toEqual({ gameId: 646570 })
     expect(operation.updateOne.upsert).toBe(true)
     expect(operation.updateOne.update.$set).toEqual({
+      contentHash: expect.any(String),
+      contentUpdatedAt: 1700000000000,
       slug: 'slay-the-spire',
       grossRevenue: 1000,
       tagIds: [1091588, 1666],
@@ -47,6 +49,26 @@ describe('buildGameUpsert', () => {
       'details.price': 2499,
       'details.numberOfReviews': 192403
     })
+  })
+
+  it('bumps contentUpdatedAt only when the page content changed.', () => {
+    const { contentHash } = buildGameUpsert(game, 1, 'id', 1).updateOne.update
+      .$set as { contentHash: string }
+
+    const unchanged = buildGameUpsert(game, 2, 'id', 2, contentHash).updateOne
+      .update.$set
+    const changed = buildGameUpsert(
+      { ...game, reviewCount: game.reviewCount + 1 },
+      2,
+      'id',
+      2,
+      contentHash
+    ).updateOne.update.$set
+
+    expect(unchanged.contentHash).toBe(contentHash)
+    expect(unchanged).not.toHaveProperty('contentUpdatedAt')
+    expect(changed.contentHash).not.toBe(contentHash)
+    expect(changed.contentUpdatedAt).toBe(2)
   })
 
   it('initialises esix and legacy detail fields only on insert.', () => {

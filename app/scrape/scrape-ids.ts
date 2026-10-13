@@ -19,10 +19,23 @@ export async function scrapeIds(
   if (games.length > 0) {
     const collection = await getCollection('games')
     const now = Date.now()
+    const previous = (await collection
+      .find({ gameId: { $in: games.map((game) => game.gameId) } })
+      .project({ _id: 0, gameId: 1, contentHash: 1 })
+      .toArray()) as { gameId: number; contentHash?: string }[]
+    const previousHashes = new Map(
+      previous.map(({ gameId, contentHash }) => [gameId, contentHash])
+    )
 
     await collection.bulkWrite(
       games.map((game) =>
-        buildGameUpsert(game, now, new ObjectId().toHexString(), runStartedAt)
+        buildGameUpsert(
+          game,
+          now,
+          new ObjectId().toHexString(),
+          runStartedAt,
+          previousHashes.get(game.gameId)
+        )
       ),
       { ordered: false }
     )

@@ -15,11 +15,10 @@ export const loader = async () => {
 
   const paths = [
     '/sitemap-tags.xml',
-    '/sitemap-pages.xml',
     ...Array.from({ length: pageCount }, (_, index) => `/sitemap-games/${index + 1}`)
   ]
 
-  return new Response(renderSitemapIndex(paths, new Date().toISOString()), {
+  return new Response(renderSitemapIndex(paths), {
     status: 200,
     headers: sitemapHeaders
   })

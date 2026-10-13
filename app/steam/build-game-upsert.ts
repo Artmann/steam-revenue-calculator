@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+
 import { createGameSlug } from '~/games'
 import type { ScrapedGame } from '~/steam/map-store-item'
 
@@ -17,7 +19,8 @@ export function buildGameUpsert(
   game: ScrapedGame,
   now: number,
   newId: string,
-  listedAt: number
+  listedAt: number,
+  previousContentHash?: string
 ): GameUpsertOperation {
   const fields: Record<string, unknown> = {
     slug: createGameSlug(game.name),
@@ -46,6 +49,22 @@ export function buildGameUpsert(
   const $set = Object.fromEntries(
     entries.filter(([, value]) => value !== undefined)
   )
+
+  // Every game is rescraped daily, so updatedAt always reads "today". Track
+  // when the page content last changed, for the sitemap's lastmod.
+  const content = Object.entries($set).filter(
+    ([key]) => key !== 'updatedAt' && key !== 'listedAt'
+  )
+  const contentHash = createHash('sha1')
+    .update(JSON.stringify(content))
+    .digest('base64url')
+
+  $set.contentHash = contentHash
+
+  if (contentHash !== previousContentHash) {
+    $set.contentUpdatedAt = now
+  }
+
   // Clear values Steam no longer reports, so a rescrape never keeps stale data.
   const $unset = Object.fromEntries(
     entries
