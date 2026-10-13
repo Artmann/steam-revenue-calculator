@@ -1,8 +1,17 @@
 import type { HeadersFunction, LoaderFunction, MetaFunction } from 'react-router'
-import { Link, useLoaderData } from 'react-router'
+import { Link, useLoaderData, useLocation } from 'react-router'
 import type { ReactElement } from 'react'
+import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 
 import { Page } from '~/components/page'
+import { buttonVariants } from '~/components/ui/button'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem
+} from '~/components/ui/pagination'
+import { cn } from '~/lib/utils'
 import { BarList } from '~/market/components/bar-list'
 import { FilterForm, type FilterValues } from '~/market/components/filter-form'
 import {
@@ -25,18 +34,23 @@ import {
   getBaseline,
   getTagBySlug,
   getTagIndex,
-  loadMarketGames
+  loadMarketGames,
+  loadTopGames
 } from '~/market/market-service.server'
 import {
   computeMarketStats,
   type MarketStats,
   type RelatedTag,
-  type TopCompany
+  type TopCompany,
+  type TopGame
 } from '~/market/stats'
+
+const topGamesPageSize = 25
 
 export interface LoaderData {
   tag: { name: string; slug: string }
   stats: MarketStats
+  topGames: { games: TopGame[]; page: number; pageCount: number }
   baseline: MarketStats | null
   statsUpdatedAt: string
   isFiltered: boolean
@@ -65,20 +79,32 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     tag.tagId
   )
   const filtered = isFiltered(filters)
+  const query = buildMarketQuery(tag.tagId, filters)
 
   const stats = filtered
     ? computeMarketStats(
-        await loadMarketGames(buildMarketQuery(tag.tagId, filters)),
+        await loadMarketGames(query),
         baseline?.tagFrequencies,
         [tag.tagId, ...filters.withTagIds]
       )
     : tag.stats
+
+  const pageCount = Math.max(1, Math.ceil(stats.gameCount / topGamesPageSize))
+  const page = Math.min(
+    Math.max(parseInt(searchParams.get('page') ?? '1', 10) || 1, 1),
+    pageCount
+  )
 
   const tagsById = new Map(tagIndex.map((entry) => [entry.tagId, entry]))
 
   const data: LoaderData = {
     tag: { name: tag.name, slug: tag.slug },
     stats,
+    topGames: {
+      games: await loadTopGames(query, page, topGamesPageSize),
+      page,
+      pageCount
+    },
     baseline: baseline?.stats ?? null,
     statsUpdatedAt: new Date(tag.statsUpdatedAt ?? Date.now()).toISOString(),
     isFiltered: filtered,
@@ -177,26 +203,12 @@ export default function TagRoute(): ReactElement {
           </p>
         )}
 
-        <Section title="Top games">
-          <ol className="divide-y divide-rule">
-            {stats.topGames.map((game, index) => (
-              <li key={game.gameId}>
-                <Link
-                  className="grid grid-cols-[2.5rem_1fr_auto] gap-4 py-2 hover:text-accent"
-                  to={`/app/${game.gameId}/${game.slug}`}
-                >
-                  <span className="text-paper-muted tabular-nums">
-                    {index + 1}
-                  </span>
-                  <span className="truncate">{game.name}</span>
-                  <span className="tabular-nums">
-                    {formatCompactCurrency(game.grossRevenue)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </Section>
+        {stats.gameCount > 0 && (
+          <TopGames
+            gameCount={stats.gameCount}
+            {...data.topGames}
+          />
+        )}
 
         {enoughGames ? (
           <>
@@ -353,6 +365,163 @@ function Headline({
         </div>
       ))}
     </section>
+  )
+}
+
+function TopGames({
+  games,
+  gameCount,
+  page,
+  pageCount
+}: {
+  games: TopGame[]
+  gameCount: number
+  page: number
+  pageCount: number
+}): ReactElement {
+  const firstRank = (page - 1) * topGamesPageSize + 1
+  const lastRank = firstRank + games.length - 1
+
+  return (
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <h2 className="font-display text-2xl">Top games</h2>
+        <div
+          className="text-sm text-paper-muted tabular-nums"
+          data-testid="top-games-range"
+        >
+          {firstRank.toLocaleString('en-US')}–{lastRank.toLocaleString('en-US')}{' '}
+          of {gameCount.toLocaleString('en-US')}, by estimated revenue
+        </div>
+      </div>
+
+      <ol className="divide-y divide-rule">
+        {games.map((game, index) => (
+          <li key={game.gameId}>
+            <Link
+              className="grid grid-cols-[3.5rem_1fr_auto] gap-4 py-2 hover:text-accent"
+              to={`/app/${game.gameId}/${game.slug}`}
+            >
+              <span className="text-paper-muted tabular-nums">
+                {(firstRank + index).toLocaleString('en-US')}
+              </span>
+              <span className="truncate">{game.name}</span>
+              <span className="tabular-nums">
+                {formatCompactCurrency(game.grossRevenue)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+
+      {pageCount > 1 && (
+        <TopGamesPagination
+          page={page}
+          pageCount={pageCount}
+        />
+      )}
+    </section>
+  )
+}
+
+function TopGamesPagination({
+  page,
+  pageCount
+}: {
+  page: number
+  pageCount: number
+}): ReactElement {
+  const location = useLocation()
+
+  // Keep the filters in the URL; page 1 is the bare (canonical) URL.
+  const pageHref = (target: number) => {
+    const params = new URLSearchParams(location.search)
+
+    if (target === 1) {
+      params.delete('page')
+    } else {
+      params.set('page', String(target))
+    }
+
+    const search = params.toString()
+
+    return `${location.pathname}${search ? `?${search}` : ''}`
+  }
+
+  const numberClassName = (active: boolean) =>
+    cn(
+      buttonVariants({ variant: active ? 'outline' : 'ghost', size: 'icon' }),
+      'w-auto min-w-9 px-2 tabular-nums',
+      active ? 'text-accent' : 'text-paper-muted'
+    )
+  const stepClassName = (disabled: boolean) =>
+    cn(
+      buttonVariants({ variant: 'ghost' }),
+      'gap-1 px-2.5 text-paper hover:text-accent',
+      disabled && 'pointer-events-none opacity-40'
+    )
+
+  return (
+    <Pagination className="justify-start">
+      <PaginationContent className="flex-wrap">
+        <PaginationItem>
+          <Link
+            aria-disabled={page === 1}
+            aria-label="Go to previous page"
+            className={stepClassName(page === 1)}
+            preventScrollReset
+            tabIndex={page === 1 ? -1 : undefined}
+            to={pageHref(Math.max(page - 1, 1))}
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+            <span>Previous</span>
+          </Link>
+        </PaginationItem>
+
+        {pageWindow(page, pageCount).map((item, index) => (
+          <PaginationItem key={index}>
+            {item === null ? (
+              <PaginationEllipsis className="text-paper-dim" />
+            ) : (
+              <Link
+                aria-current={item === page ? 'page' : undefined}
+                className={numberClassName(item === page)}
+                preventScrollReset
+                to={pageHref(item)}
+              >
+                {item.toLocaleString('en-US')}
+              </Link>
+            )}
+          </PaginationItem>
+        ))}
+
+        <PaginationItem>
+          <Link
+            aria-disabled={page === pageCount}
+            aria-label="Go to next page"
+            className={stepClassName(page === pageCount)}
+            preventScrollReset
+            tabIndex={page === pageCount ? -1 : undefined}
+            to={pageHref(Math.min(page + 1, pageCount))}
+          >
+            <span>Next</span>
+            <ChevronRightIcon className="h-4 w-4" />
+          </Link>
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  )
+}
+
+// The first and last page plus the current page's neighbours; null marks a
+// gap between them.
+function pageWindow(page: number, pageCount: number): (number | null)[] {
+  const pages = [...new Set([1, page - 1, page, page + 1, pageCount])]
+    .filter((value) => value >= 1 && value <= pageCount)
+    .sort((a, b) => a - b)
+
+  return pages.flatMap((value, index) =>
+    index > 0 && value - pages[index - 1] > 1 ? [null, value] : [value]
   )
 }
 

@@ -1,4 +1,8 @@
 :root {
+  /* The site only has a dark theme; keep native controls (date pickers,
+     autofill, scrollbars) dark too. */
+  color-scheme: dark;
+
   /* Editorial palette — warm ink on warm paper, one amber accent */
   --ink: oklch(16% 0.008 70);
   --paper: oklch(96% 0.01 85);
@@ -97,18 +101,6 @@
 ::selection {
   background-color: var(--accent);
   color: var(--ink);
-}
-
-/* Inline MadLib inputs — hide native number spinners, keep field flush with prose */
-.inline-number-input {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-.inline-number-input::-webkit-outer-spin-button,
-.inline-number-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
 }
 
 ::-webkit-scrollbar {

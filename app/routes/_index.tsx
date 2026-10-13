@@ -5,6 +5,7 @@ import { useState } from 'react'
 import slugify from 'slugify'
 
 import { Page } from '~/components/page'
+import { Input } from '~/components/ui/input'
 import type { GameDetails } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
@@ -193,7 +194,7 @@ function InlineInput({
         {label}
       </label>
       {prefix ? <span className="text-paper-muted">{prefix}</span> : null}
-      <input
+      <Input
         id={id}
         type="number"
         inputMode="decimal"
@@ -202,7 +203,7 @@ function InlineInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         style={{ width }}
-        className="inline-number-input bg-transparent border-b border-dashed border-rule-strong focus:border-accent text-accent font-sans font-medium tabular-nums lining-nums slashed-zero tracking-tight px-1 mx-0.5 focus:outline-hidden focus:border-solid transition-colors"
+        className="inline-block py-0 border-dashed text-accent font-sans font-medium tabular-nums lining-nums slashed-zero tracking-tight px-1 mx-0.5 focus:border-solid"
       />
       {suffix ? <span className="text-paper-muted">{suffix}</span> : null}
     </span>
