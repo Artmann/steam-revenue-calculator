@@ -1,4 +1,12 @@
-import type { ReactElement } from 'react'
+import { useState, type ReactElement } from 'react'
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '~/components/ui/select'
 
 export interface FilterValues {
   price: string
@@ -7,8 +15,11 @@ export interface FilterValues {
   with: string
 }
 
+// Radix Select items can't use '' as a value, so "any" stands in for no filter.
+const ANY = 'any'
+
 const priceOptions = [
-  ['', 'Any price'],
+  [ANY, 'Any price'],
   ['-5', 'Under $5'],
   ['5-10', '$5–10'],
   ['10-15', '$10–15'],
@@ -35,10 +46,13 @@ export function FilterForm({
     .filter(Boolean)
   const extraWithSlugs = withSlugs.slice(1)
   const hasCustomPrice =
-    values.price !== '' && !priceOptions.some(([value]) => value === values.price)
+    values.price !== '' &&
+    !priceOptions.some(([value]) => value === values.price)
   const options = hasCustomPrice
     ? [...priceOptions, [values.price, values.price]]
     : priceOptions
+  const [price, setPrice] = useState(values.price || ANY)
+  const [withTag, setWithTag] = useState(withSlugs[0] ?? ANY)
 
   return (
     <form
@@ -48,20 +62,31 @@ export function FilterForm({
     >
       <label className="flex flex-col gap-1">
         <span className="eyebrow">Price</span>
-        <select
-          className={fieldClassName}
-          defaultValue={values.price}
-          name="price"
+        <Select
+          onValueChange={setPrice}
+          value={price}
         >
-          {options.map(([value, label]) => (
-            <option
-              key={value}
-              value={value}
-            >
-              {label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="min-w-28">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map(([value, label]) => (
+              <SelectItem
+                key={value}
+                value={value}
+              >
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {price !== ANY && (
+          <input
+            name="price"
+            type="hidden"
+            value={price}
+          />
+        )}
       </label>
 
       <label className="flex flex-col gap-1">
@@ -92,21 +117,32 @@ export function FilterForm({
 
       <label className="flex flex-col gap-1">
         <span className="eyebrow">Also tagged</span>
-        <select
-          className={fieldClassName}
-          defaultValue={withSlugs[0] ?? ''}
-          name="with"
+        <Select
+          onValueChange={setWithTag}
+          value={withTag}
         >
-          <option value="">Any</option>
-          {tagOptions.map(({ slug, name }) => (
-            <option
-              key={slug}
-              value={slug}
-            >
-              {name}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger className="min-w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ANY}>Any</SelectItem>
+            {tagOptions.map(({ slug, name }) => (
+              <SelectItem
+                key={slug}
+                value={slug}
+              >
+                {name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {withTag !== ANY && (
+          <input
+            name="with"
+            type="hidden"
+            value={withTag}
+          />
+        )}
       </label>
 
       {extraWithSlugs.map((slug) => (
