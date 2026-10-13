@@ -48,6 +48,9 @@ export const loader = async () => {
   ${urlBlock(
     '/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated'
   )}
+  ${urlBlock(
+    '/blog/what-147000-steam-games-taught-us-about-pricing-your-indie-game'
+  )}
 </urlset>
 `
 

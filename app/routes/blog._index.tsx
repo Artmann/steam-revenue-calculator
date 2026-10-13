@@ -15,13 +15,12 @@ export default function BlogRoute(): ReactElement {
       <div className="space-y-6">
         <Link
           className="block hover:underline"
-          to="/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated"
+          to="/blog/what-147000-steam-games-taught-us-about-pricing-your-indie-game"
         >
-          The Real Talk on Steam's Cut: What Your Game Actually Makes (And Why
-          It's Complicated)
+          What 147,000 Steam Games Taught Us About Pricing Your Indie Game
         </Link>
 
-        {/* <div className="h-px bg-slate-300 w-full" />
+        <div className="h-px bg-slate-300 w-full" />
 
         <Link
           className="block hover:underline"
@@ -29,7 +28,7 @@ export default function BlogRoute(): ReactElement {
         >
           The Real Talk on Steam's Cut: What Your Game Actually Makes (And Why
           It's Complicated)
-        </Link> */}
+        </Link>
       </div>
     </div>
   )

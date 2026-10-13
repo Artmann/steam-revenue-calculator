@@ -5,6 +5,7 @@ import mdx from '@mdx-js/rollup'
 import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
+import remarkGfm from 'remark-gfm'
 import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { workflow } from 'workflow/vite'
@@ -32,7 +33,7 @@ function copyClientToVercelStatic(outputDirectory: string) {
 
 export default defineConfig({
   plugins: [
-    mdx(),
+    mdx({ remarkPlugins: [remarkGfm] }),
     tailwindcss(),
     reactRouter(),
     nitro({

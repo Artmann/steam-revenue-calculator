@@ -97,6 +97,21 @@ Steam game data lives in MongoDB.
 
 Indexes on the `games` collection are created lazily by `ensureIndexes()` in [`app/db/index.ts`](app/db/index.ts) on the first request after a cold start.
 
+## Running stats queries
+
+The `scripts/stats/` CLI runs read-only aggregations against the games collection and writes JSON to `data/stats/`. Blog posts and charts consume those files.
+
+```sh
+pnpm stats --list                 # available queries
+pnpm stats price-buckets          # one query
+pnpm stats price-buckets review-distribution
+pnpm stats --all                  # every registered query
+```
+
+The CLI reads `DB_URL` and `DB_DATABASE` from `.env` (same vars as the dev server). Point it at prod by swapping the connection string.
+
+Adding a new query: drop a file in `scripts/stats/queries/` that exports a `StatsQuery` (`name`, `description`, `run()`), then register it in `scripts/stats/registry.ts`.
+
 ## Testing
 
 ```sh
