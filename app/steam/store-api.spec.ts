@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest'
 import { RetryableError } from 'workflow'
 
+import { decodeGetItemsAppIds } from '~/steam/get-items-request'
 import { fetchAppIdPage, fetchStoreItems, fetchTagList } from '~/steam/store-api'
 
 function okResponse(body: unknown) {
@@ -22,10 +23,11 @@ describe('store api', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     delete process.env.STEAM_RATE_LIMIT_RETRY_AFTER_MS
+    delete process.env.STEAM_RATE_LIMIT_BACKOFF_MS
   })
 
   it('skips only the failing batch and reports its ids.', async () => {
-    const appIds = Array.from({ length: 250 }, (_, index) => index + 1)
+    const appIds = Array.from({ length: 750 }, (_, index) => index + 1)
 
     fetchMock
       .mockResolvedValueOnce(
@@ -36,7 +38,7 @@ describe('store api', () => {
     const result = await fetchStoreItems(appIds)
 
     expect(result.items).toEqual([{ appid: 1 }, { appid: 2 }])
-    expect(result.failedIds).toEqual(appIds.slice(200))
+    expect(result.failedIds).toEqual(appIds.slice(700))
   })
 
   it('records a batch whose request throws as failed.', async () => {
@@ -85,12 +87,43 @@ describe('store api', () => {
     expect(error.retryAfter.getTime() - before).toBeLessThan(1_000)
   })
 
-  it('lets a rate limit escape the batch loop instead of recording it as failed.', async () => {
-    fetchMock.mockResolvedValueOnce(errorResponse(429))
+  it('lets a rate limit that outlasts the backoff escape the batch loop.', async () => {
+    process.env.STEAM_RATE_LIMIT_BACKOFF_MS = '1'
+    fetchMock.mockResolvedValue(errorResponse(429))
 
     const error = await fetchStoreItems([1, 2]).catch((e) => e)
 
     expect(RetryableError.is(error)).toBe(true)
+    expect(fetchMock).toHaveBeenCalledTimes(4)
+  })
+
+  it('retries a rate-limited batch in place and keeps the batches before it.', async () => {
+    process.env.STEAM_RATE_LIMIT_BACKOFF_MS = '1'
+    const appIds = Array.from({ length: 750 }, (_, index) => index + 1)
+
+    fetchMock
+      .mockResolvedValueOnce(okResponse({ response: { store_items: [{ appid: 1 }] } }))
+      .mockResolvedValueOnce(errorResponse(429))
+      .mockResolvedValueOnce(okResponse({ response: { store_items: [{ appid: 701 }] } }))
+
+    const result = await fetchStoreItems(appIds)
+
+    expect(result).toEqual({ items: [{ appid: 1 }, { appid: 701 }], failedIds: [] })
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock.mock.calls[1][0]).toBe(fetchMock.mock.calls[2][0])
+  })
+
+  it('sends the ids as protobuf and asks for a JSON response.', async () => {
+    fetchMock.mockResolvedValueOnce(okResponse({ response: { store_items: [] } }))
+
+    await fetchStoreItems([10, 3_489_700])
+
+    const params = new URL(fetchMock.mock.calls[0][0]).searchParams
+
+    expect(params.get('format')).toBe('json')
+    expect(decodeGetItemsAppIds(params.get('input_protobuf_encoded') ?? '')).toEqual([
+      10, 3_489_700
+    ])
   })
 
   it('uses last_appid as the next cursor when Steam sends it.', async () => {

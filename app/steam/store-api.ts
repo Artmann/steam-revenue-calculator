@@ -1,5 +1,6 @@
 import { RetryableError } from 'workflow'
 
+import { encodeGetItemsRequest } from '~/steam/get-items-request'
 import type { SteamTag, StoreItem } from '~/steam/types'
 
 export interface AppIdPage {
@@ -13,8 +14,9 @@ export interface StoreItemsResult {
   failedIds: number[]
 }
 
-// GetItems accepts ~250 ids before the GET URL gets too long; stay below it.
-const storeItemsBatchSize = 200
+// An id below 2^28 takes 7 protobuf bytes, so 700 ids keep the GetItems URL
+// near 7 KB, under Steam's ~8 KB limit.
+const storeItemsBatchSize = 700
 // A hung Steam call must not hold a step open indefinitely.
 const requestTimeoutMs = 30_000
 
@@ -24,6 +26,16 @@ function rateLimitRetryAfterMs(): number {
 
   return configured > 0 ? configured : 60_000
 }
+
+function rateLimitBackoffMs(): number {
+  // Tests shorten the wait; production starts at 5 s and doubles.
+  const configured = Number(process.env.STEAM_RATE_LIMIT_BACKOFF_MS)
+
+  return configured > 0 ? configured : 5_000
+}
+
+// Waits of 5, 10 and 20 s before the step gives up and retries in a minute.
+const rateLimitBackoffAttempts = 3
 
 export async function fetchAppIdPage(
   apiKey: string,
@@ -65,28 +77,13 @@ export async function fetchStoreItems(
   for (let start = 0; start < appIds.length; start += storeItemsBatchSize) {
     const batch = appIds.slice(start, start + storeItemsBatchSize)
 
-    const input = {
-      ids: batch.map((appid) => ({ appid })),
-      context: { language: 'english', country_code: 'US' },
-      data_request: {
-        include_basic_info: true,
-        include_release: true,
-        include_reviews: true,
-        include_screenshots: true,
-        include_tag_count: 20
-      }
-    }
-
     try {
-      const data = await getJson<{ response: { store_items?: StoreItem[] } }>(
-        `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?input_json=${encodeURIComponent(
-          JSON.stringify(input)
-        )}`
-      )
+      const data = await getItemsWithBackoff(batch)
 
       items.push(...(data.response.store_items ?? []))
     } catch (error) {
-      // A rate limit fails the whole step so the runtime retries it later.
+      // A rate limit that outlasts the backoff fails the whole step so the
+      // runtime retries it later.
       if (RetryableError.is(error)) {
         throw error
       }
@@ -102,6 +99,32 @@ export async function fetchStoreItems(
   }
 
   return { items, failedIds }
+}
+
+async function getItemsWithBackoff(
+  appIds: number[]
+): Promise<{ response: { store_items?: StoreItem[] } }> {
+  const params = new URLSearchParams({
+    input_protobuf_encoded: encodeGetItemsRequest(appIds),
+    format: 'json'
+  })
+  const url = `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?${params}`
+
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await getJson(url)
+    } catch (error) {
+      // Retrying just this batch keeps the batches already fetched, which a
+      // step retry would throw away and fetch again.
+      if (!RetryableError.is(error) || attempt >= rateLimitBackoffAttempts) {
+        throw error
+      }
+
+      await new Promise((resolve) =>
+        setTimeout(resolve, rateLimitBackoffMs() * 2 ** attempt)
+      )
+    }
+  }
 }
 
 export async function fetchTagList(): Promise<SteamTag[]> {

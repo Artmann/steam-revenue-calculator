@@ -92,7 +92,7 @@ Unit tests under `app/revenue/` cover the math — keep them green if you touch 
 
 Steam game data lives in MongoDB.
 
-- The `scrapeGames` workflow (`workflows/scrape-games.ts`) refreshes the whole catalog. Vercel Cron starts it daily at 04:00 UTC through `GET /api/workflows/scrape`, and you can start it by hand with `curl -X POST -H "x-scrape-key: $SCRAPE_KEY" https://<host>/api/workflows/scrape`. It syncs tags, lists every game with `IStoreService/GetAppList`, scrapes them 1,000 at a time with `IStoreBrowseService/GetItems`, retries failed ids once, flags games Steam no longer lists (`delistedAt`, data kept), and recomputes tag stats. Watch the steps in the Vercel Workflows dashboard; each run's summary is stored in the `scrapeRuns` collection.
+- The `scrapeGames` workflow (`workflows/scrape-games.ts`) refreshes the whole catalog. Vercel Cron starts it daily at 04:00 UTC through `GET /api/workflows/scrape`, and you can start it by hand with `curl -X POST -H "x-scrape-key: $SCRAPE_KEY" https://<host>/api/workflows/scrape`. It syncs tags, lists every game with `IStoreService/GetAppList`, scrapes them 4,200 per step with `IStoreBrowseService/GetItems` (700 ids per request, sent as protobuf to fit the URL limit), retries failed ids once, flags games Steam no longer lists (`delistedAt`, data kept), and recomputes tag stats. Watch the steps in the Vercel Workflows dashboard; each run's summary is stored in the `scrapeRuns` collection.
 - `pnpm scrape:local [limit]` runs the same steps against your local MongoDB (see the comment at the top of `scripts/scrape-local.ts`).
 
 Indexes on the `games` collection are created lazily by `ensureIndexes()` in [`app/db/index.ts`](app/db/index.ts) on the first request after a cold start.

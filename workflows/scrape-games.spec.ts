@@ -4,6 +4,7 @@ import { start } from 'workflow/api'
 
 import { getCollection, resetDatabaseConnection } from '~/db'
 import { findRun } from '~/scrape/run-record'
+import { decodeGetItemsAppIds } from '~/steam/get-items-request'
 import type { StoreItem } from '~/steam/types'
 
 import { scrapeGames } from './scrape-games'
@@ -82,11 +83,9 @@ function installFakeSteam(fake: FakeSteam) {
     if (url.includes('GetItems')) {
       calls.getItems += 1
 
-      const ids = (
-        JSON.parse(decodeURIComponent(url.split('input_json=')[1])) as {
-          ids: { appid: number }[]
-        }
-      ).ids.map(({ appid }) => appid)
+      const ids = decodeGetItemsAppIds(
+        new URL(url).searchParams.get('input_protobuf_encoded') ?? ''
+      )
       const status = fake.getItemsStatus?.(ids)
 
       if (status) {
@@ -127,6 +126,7 @@ beforeAll(() => {
   process.env.DB_DATABASE = `test-${randomUUID()}`
   process.env.STEAM_API_KEY = 'test-steam-key'
   process.env.STEAM_RATE_LIMIT_RETRY_AFTER_MS = '10'
+  process.env.STEAM_RATE_LIMIT_BACKOFF_MS = '1'
 })
 
 afterAll(async () => {
@@ -147,7 +147,7 @@ afterEach(() => {
 
 describe('scrapeGames workflow', () => {
   it('scrapes every chunk, computes stats and records a succeeded run.', async () => {
-    installFakeSteam({ appIds: range(1, 2500) })
+    installFakeSteam({ appIds: range(1, 9000) })
 
     const { run, result, record } = await runToCompletion()
 
@@ -155,17 +155,17 @@ describe('scrapeGames workflow', () => {
     expect(record).toMatchObject({
       trigger: 'manual',
       status: 'succeeded',
-      listed: 2500,
+      listed: 9000,
       delisted: { count: 0 },
-      stats: { games: 2500, tags: 1 }
+      stats: { games: 9000, tags: 1 }
     })
     expect(Object.keys(record?.chunks ?? {})).toEqual(['0', '1', '2'])
     expect(record?.retry).toBeUndefined()
 
     const games = await getCollection('games')
 
-    expect(await games.countDocuments({})).toBe(2500)
-    expect(await games.countDocuments({ listedAt: record?.startedAt.getTime() })).toBe(2500)
+    expect(await games.countDocuments({})).toBe(9000)
+    expect(await games.countDocuments({ listedAt: record?.startedAt.getTime() })).toBe(9000)
     expect(await (await getCollection('tags')).findOne({ tagId: 19 })).toMatchObject({
       slug: 'action'
     })
@@ -175,7 +175,7 @@ describe('scrapeGames workflow', () => {
     let failed = false
 
     installFakeSteam({
-      appIds: range(1, 300),
+      appIds: range(1, 800),
       getItemsStatus: (ids) => {
         if (!failed && ids.includes(id(1))) {
           failed = true
@@ -187,26 +187,26 @@ describe('scrapeGames workflow', () => {
 
     const { record } = await runToCompletion()
 
-    expect(record?.chunks?.['0'].failedIds).toEqual(range(1, 200))
-    expect(record?.retry).toEqual({ attempted: 200, saved: 200, stillFailed: [] })
-    expect(await (await getCollection('games')).countDocuments({})).toBe(300)
+    expect(record?.chunks?.['0'].failedIds).toEqual(range(1, 700))
+    expect(record?.retry).toEqual({ attempted: 700, saved: 700, stillFailed: [] })
+    expect(await (await getCollection('games')).countDocuments({})).toBe(800)
   })
 
   it('keeps going when a chunk exhausts its retries and records the ids.', async () => {
     installFakeSteam({
-      appIds: range(1, 1100),
+      appIds: range(1, 4300),
       getItemsStatus: (ids) => (ids.includes(id(1)) ? 429 : undefined)
     })
 
     const { record } = await runToCompletion()
 
     expect(record?.status).toBe('succeeded')
-    expect(record?.chunks?.['0']).toEqual({ saved: 0, failedIds: range(1, 1000) })
+    expect(record?.chunks?.['0']).toEqual({ saved: 0, failedIds: range(1, 4200) })
     expect(record?.chunks?.['1'].saved).toBe(100)
     expect(record?.retry).toEqual({
-      attempted: 1000,
+      attempted: 4200,
       saved: 0,
-      stillFailed: range(1, 1000)
+      stillFailed: range(1, 4200)
     })
   })
 
