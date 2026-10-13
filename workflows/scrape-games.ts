@@ -16,7 +16,8 @@ import {
   syncTagsStep
 } from './scrape-games-steps'
 
-const chunkSize = 1000
+// Six GetItems batches of 700 ids.
+const chunkSize = 4200
 
 export type ScrapeGamesResult =
   | { skipped: true; activeRunId: string }

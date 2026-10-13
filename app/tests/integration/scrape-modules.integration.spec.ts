@@ -5,6 +5,7 @@ import { getCollection, resetDatabaseConnection } from '~/db'
 import { listAppIds } from '~/scrape/list-app-ids'
 import { scrapeIds } from '~/scrape/scrape-ids'
 import { syncTags } from '~/scrape/sync-tags'
+import { decodeGetItemsAppIds } from '~/steam/get-items-request'
 import type { StoreItem } from '~/steam/types'
 
 beforeAll(() => {
@@ -53,11 +54,7 @@ function storeItem(appId: number, withReviews = true): StoreItem {
 }
 
 function requestedIds(url: string): number[] {
-  const input = JSON.parse(decodeURIComponent(url.split('input_json=')[1])) as {
-    ids: { appid: number }[]
-  }
-
-  return input.ids.map(({ appid }) => appid)
+  return decodeGetItemsAppIds(new URL(url).searchParams.get('input_protobuf_encoded') ?? '')
 }
 
 describe('syncTags (real MongoDB)', () => {
@@ -182,9 +179,9 @@ describe('scrapeIds (real MongoDB)', () => {
       })
     })
 
-    const ids = [...Array.from({ length: 200 }, (_, index) => index + 1), 999]
+    const ids = [...Array.from({ length: 700 }, (_, index) => index + 1), 999]
 
-    expect(await scrapeIds(ids, 77)).toEqual({ saved: 200, failedIds: [999] })
+    expect(await scrapeIds(ids, 77)).toEqual({ saved: 700, failedIds: [999] })
 
     const games = await getCollection('games')
     const first = await games.findOne({ gameId: 1 })
