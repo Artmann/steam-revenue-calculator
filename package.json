@@ -37,6 +37,7 @@
     "doctor": "react-doctor . --no-score --blocking warning --yes",
     "seed:local": "tsx scripts/seed-local.ts",
     "scrape:local": "tsx scripts/scrape-local.ts",
+    "stats": "node --env-file-if-exists=.env --import tsx scripts/stats/index.ts",
     "parity:capture": "tsx scripts/parity.ts capture",
     "parity:compare": "tsx scripts/parity.ts compare",
     "workflow:web": "workflow web"
@@ -79,6 +80,7 @@
     "jsdom": "^30.1.2",
     "mongodb-memory-server": "^11.3.0",
     "react-doctor": "^0.9.18",
+    "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.3.3",
     "tsx": "^4",
     "typescript": "^5.9.3",

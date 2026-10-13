@@ -1,0 +1,101 @@
+
+# What 147,000 Steam Games Taught Us About Pricing Your Indie Game
+
+You've heard the advice. "$19.99 is the sweet spot." "Don't price under $10 or you look cheap." "Indies top out at $25." These claims get repeated in every Discord and subreddit until they start to feel like law.
+
+So we looked at the numbers. Every game currently in our database — **147,345 of them** — and asked: does the price-matters folk wisdom actually hold up?
+
+Short answer: mostly no. The truth is weirder and more useful.
+
+## The uncomfortable first chart
+
+Before we talk about pricing, there's a number you need to sit with: **125,474 of the 147,345 games in our database have effectively zero recorded revenue.** That's 85.2%.
+
+Steam's API only reports review counts above a certain threshold — roughly 100 reviews. Everything below that shows up as zero. And 85% of games on Steam never cross that line. They launch, the algorithm doesn't grab them, the reviews never accumulate, and they quietly disappear.
+
+That's not a data limitation. That's the data.
+
+So for the rest of this post, when we talk about revenue patterns, we're talking about the **21,871 "earners"** — the 14.8% that cleared 100 reviews and actually have measurable revenue. Everyone else is the long tail of Steam, and the long tail is mostly silence.
+
+## The big reveal: higher prices earn more, almost all the way up
+
+Here's what we found when we bucketed earners by price and looked at median gross revenue:
+
+| Price bucket | Earners | Share of bucket | Median revenue | Mean revenue |
+|---|---:|---:|---:|---:|
+| $0.01 – $0.99 | 1,313 | 6.6% | $3,821 | $23,502 |
+| $1.00 – $2.99 | 2,518 | 7.4% | $13,334 | $241,151 |
+| $3.00 – $4.99 | 3,042 | 10.6% | $25,299 | $542,314 |
+| $5.00 – $9.99 | 5,629 | 16.7% | $54,629 | $1,262,364 |
+| $10.00 – $14.99 | 3,394 | 26.0% | $105,641 | $2,343,354 |
+| $15.00 – $19.99 | 3,004 | 34.3% | $224,131 | $5,996,420 |
+| $20.00 – $24.99 | 847 | 29.9% | $470,312 | $7,805,300 |
+| $25.00 – $29.99 | 885 | 37.4% | $1,082,879 | $12,973,668 |
+| $30.00 – $39.99 | 656 | 36.4% | $736,616 | $27,876,294 |
+| $40.00 – $59.99 | 498 | 35.9% | $3,730,778 | $59,965,143 |
+| $60.00 – $99.99 | 80 | 19.3% | $1,092,663 | $34,551,390 |
+
+Notice what's missing: a clear peak. The median climbs at every step up to $25–$29, dips at $30–$39, then hits its highest point at $40–$59. There's no "sweet spot" where revenue tops out and falls off, at least not below $60. The median earner at $40–$60 pulls in **roughly 280 times** what the median earner at $1–3 makes, and nearly a thousand times the median under $1.
+
+And look at the "share of bucket" column — the percentage of games in that price range that actually become earners. At $1–3 it's 7%. At $15–20 it's 34%, and it stays in the 30–37% range all the way to $60. Pricing higher doesn't just mean each earner makes more — it means you're also **more than 4x as likely to become an earner in the first place**.
+
+The mean column tells another story: it's far above the median in every bucket. A few huge hits pull the averages up, so the median is the number to plan around.
+
+## The $100 cliff is real, though
+
+Above $60 something breaks. The $60–$99 bucket drops to a 19% earner rate, and above $100 only **5 games out of 399** ever cross the reporting floor.
+
+A 1.3% earner rate means almost nothing priced above $100 finds an audience on Steam. If you're pricing a normal game, $99 is effectively the ceiling, and most genres hit their limit well before that.
+
+## Genre changes the rules
+
+The "higher price = more revenue" pattern holds overall, but it bends differently per genre. Here's each top genre's price bucket with the highest earner median (we skipped buckets with fewer than 10 earners, since those swing wildly):
+
+| Genre | Strongest bucket | Earners | Earner rate | Earner median |
+|---|---|---:|---:|---:|
+| Action | $40 – $59 | 256 | 46.1% | $9,722,699 |
+| Simulation | $60 – $99 | 25 | 71.4% | $3,380,697 |
+| RPG | $25 – $29 | 40 | 44.9% | $2,019,467 |
+| Indie | $25 – $29 | 70 | 27.5% | $1,480,726 |
+| Casual | $20 – $24 | 42 | 24.0% | $1,043,133 |
+| Adventure | $40 – $59 | 40 | 31.0% | $814,664 |
+
+Genre here is the first genre listed on the game's Steam page. A few things jump out:
+
+**Action has the highest ceiling.** It has the most earners in every price bucket, and from $30 up it has the highest medians in the whole dataset: $3.4M at $30–$39 and $9.7M at $40–$59.
+
+**RPG and Simulation reward high prices the most.** RPG's earner rate goes from 45% at $25–$29 to 49% at $30–$39 and **74% at $40–$59**. Simulation hits **55% at $40–$59** and 71% at $60–$99. These audiences expect higher prices. Below $20, both genres sit under 20%.
+
+**Casual has the lowest ceiling.** Its earner rate tops out around 25–30% between $15 and $39, the lowest peak of any top genre. Above $40 almost nothing gets through: 6 earners at $40–$59 and 1 above that.
+
+**Indie-first games fade above $30.** The earner rate holds around 24–32% from $10 to $29, then drops to 23% at $30–$39 and 5% at $40–$59.
+
+**Adventure goes higher than you'd think.** The earner rate sits at 45–49% from $15 all the way to $39, and the median keeps climbing to $815k at $40–$59. There's no $20 ceiling for narrative games in this data.
+
+## So where's the "sweet spot"?
+
+There isn't one. There's a **matching problem** — which price matches your genre and your game's depth:
+
+- **Casual, short-session games:** $10–$20. Earner rates and medians climb up to here. Above $40, almost no casual game gets through.
+- **Narrative / adventure / point-and-click:** $15–$40. Adventure earner rates stay near 45–49% across that whole range.
+- **Indie with real replay value:** $15–$30. Indie-first games do well up to $30 and fall off after it.
+- **Deep RPG / simulation:** $25–$60. RPG earner rates run from 45% to 74% here, and simulation passes 55% at $40–$59.
+- **Ambitious action / AA scope:** $40–$60. The medians here are huge, but so is the expected polish.
+- **Above $60:** only for simulation, where 25 of 35 games at $60–$99 cleared the floor. Overall, the earner rate at $60–$99 falls to 19%.
+
+## The honest caveats
+
+A couple of things to keep in mind before you take any of this to the bank:
+
+1. **We use the Boxleiter method** — gross revenue is estimated from review count, review-to-sale multiplier, and price. It's a credible estimate but not a direct sales figure. [GameDiscover's writeup](https://newsletter.gamediscover.co/p/steam-sales-estimates-why-game-popularity) explains the methodology.
+2. **The 100-review floor is real.** Below it, games look identical to Steam's API, and to us. So "85% make nothing" really means "85% don't cross the reporting floor" — a handful of those games are probably quietly successful. Most aren't.
+3. **Small samples at the top end.** Some genre buckets have only a few dozen earners, so one or two hits can move the median a lot. Treat the genre numbers as direction, not precision.
+4. **Correlation, not causation.** Higher-priced games earn more partly because confident developers price higher. A bad game at $30 won't suddenly become a good game. But if you've built a good game, pricing it right matters — and "right" is usually higher than first-time devs guess.
+
+## Try it on your own game
+
+Want to see what these numbers look like for a specific price, review count, and genre? That's exactly what [our Steam Revenue Calculator](/) is for. Plug in your variables and see the full breakdown — gross revenue, Steam's cut, VAT, discounts, refunds, and what actually lands in your account.
+
+If you missed it, our earlier post [The Real Talk on Steam's Cut](/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated) walks through how Steam's 30%, regional pricing, and VAT carve up that gross number before it reaches you.
+
+Pricing your game is scary. But most indies we talk to are priced too low, not too high. If your game is good — price it like it's good.
