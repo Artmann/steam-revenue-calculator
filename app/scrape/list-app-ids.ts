@@ -36,6 +36,8 @@ export async function listAppIds(
   const games = await getCollection('games')
 
   for (const slice of chunk(appIds, updateSliceSize)) {
+    // Sequential on purpose: keeps one large write in flight at a time.
+    // react-doctor-disable-next-line react-doctor/async-await-in-loop
     await games.updateMany(
       { gameId: { $in: slice } },
       { $set: { listedAt: runStartedAt }, $unset: { delistedAt: '' } }

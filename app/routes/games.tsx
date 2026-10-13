@@ -12,7 +12,7 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '~/components/ui/pagination'
-import { type GameDetails, formatCurrency } from '~/games'
+import { type GameDetails, formatCurrency, formatNumber } from '~/games'
 import { GameService } from '~/services/game-service.server'
 
 interface GameWithRevenue extends GameDetails {
@@ -109,7 +109,7 @@ export default function GamesRoute(): ReactElement {
           <div className="eyebrow">League table</div>
           <h1 className="font-display leading-[1.02]">Steam games by revenue</h1>
           <p className="text-lg text-paper-muted max-w-xl">
-            {new Intl.NumberFormat('en-US').format(totalCount)} titles, ranked
+            {formatNumber(totalCount)} titles, ranked
             by estimated gross revenue from the{' '}
             <em className="text-accent not-italic">Boxleiter</em> method. Click
             a row for the full breakdown.
