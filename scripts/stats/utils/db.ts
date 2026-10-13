@@ -1,6 +1,7 @@
 import { MongoClient, type Collection } from 'mongodb'
 
-let client: MongoClient | undefined
+// Shared as a promise so concurrent first calls don't open separate clients.
+let client: Promise<MongoClient> | undefined
 
 export async function getCollection(
   collectionName: string
@@ -9,15 +10,16 @@ export async function getCollection(
   const maxPoolSize = parseInt(process.env.DB_POOL_SIZE ?? '10', 10)
   const databaseName = process.env.DB_DATABASE ?? ''
 
-  client = client ?? (await MongoClient.connect(url, { maxPoolSize }))
+  client = client ?? MongoClient.connect(url, { maxPoolSize })
 
-  return client.db(databaseName).collection(collectionName)
+  return (await client).db(databaseName).collection(collectionName)
 }
 
 export async function closeDb(): Promise<void> {
   if (!client) {
     return
   }
-  await client.close()
+  const connected = client
   client = undefined
+  await (await connected).close()
 }
