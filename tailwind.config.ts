@@ -42,8 +42,8 @@ const config = {
           'system-ui',
           'sans-serif'
         ],
-        display: ['Fraunces', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
-        serif: ['Fraunces', 'Georgia', 'Cambria', 'Times New Roman', 'serif']
+        display: ['"Source Serif 4"', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
+        serif: ['"Source Serif 4"', 'Georgia', 'Cambria', 'Times New Roman', 'serif']
       },
       fontSize: {
         'display-xl': [
