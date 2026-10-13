@@ -46,9 +46,9 @@ async function main(): Promise<void> {
 }
 
 function printUsage(): void {
-  console.log('Usage: yarn stats <query-name> [<query-name> ...]')
-  console.log('       yarn stats --all')
-  console.log('       yarn stats --list')
+  console.log('Usage: pnpm stats <query-name> [<query-name> ...]')
+  console.log('       pnpm stats --all')
+  console.log('       pnpm stats --list')
 }
 
 function printList(): void {

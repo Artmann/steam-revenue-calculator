@@ -28,6 +28,28 @@ export function quantile(values: number[], q: number): number {
   return sorted[base] + rest * (next - sorted[base])
 }
 
+export interface ShareAbove {
+  thousand: number
+  tenThousand: number
+  hundredThousand: number
+  million: number
+}
+
+// Same thresholds as the tag pages' "How revenue is spread" section.
+export function shareAbove(values: number[]): ShareAbove {
+  const share = (threshold: number): number =>
+    values.length === 0
+      ? 0
+      : values.filter((value) => value >= threshold).length / values.length
+
+  return {
+    thousand: share(1_000),
+    tenThousand: share(10_000),
+    hundredThousand: share(100_000),
+    million: share(1_000_000)
+  }
+}
+
 export interface Summary {
   count: number
   mean: number
