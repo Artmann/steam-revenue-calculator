@@ -7,11 +7,10 @@ import {
 
 import { cn } from "~/lib/utils"
 import type { ButtonProps} from "~/components/ui/button";
-import { buttonVariants } from "~/components/ui/button"
+import { buttonVariants } from "~/components/ui/button-variants"
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
   <nav
-    role="navigation"
     aria-label="pagination"
     className={cn("mx-auto flex w-full justify-center", className)}
     {...props}

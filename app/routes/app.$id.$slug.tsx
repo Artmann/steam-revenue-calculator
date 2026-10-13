@@ -5,7 +5,7 @@ import slugify from 'slugify'
 
 import { Page } from '~/components/page'
 import type { GameDetails } from '~/games'
-import { formatCurrency } from '~/games'
+import { formatCurrency, formatNumber } from '~/games'
 import { getTagIndex, type TagIndexEntry } from '~/market/market-service.server'
 import { Game } from '~/models/game'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
@@ -173,9 +173,7 @@ export default function AppRoute(): ReactElement {
                 <div className="space-y-1.5">
                   <div className="eyebrow">Reviews</div>
                   <div className="font-display text-xl tabular-nums">
-                    {new Intl.NumberFormat('en-US').format(
-                      game.numberOfReviews
-                    )}
+                    {formatNumber(game.numberOfReviews)}
                   </div>
                 </div>
                 {game.metacritic?.score && (

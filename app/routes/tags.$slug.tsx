@@ -4,7 +4,7 @@ import type { ReactElement } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 
 import { Page } from '~/components/page'
-import { buttonVariants } from '~/components/ui/button'
+import { buttonVariants } from '~/components/ui/button-variants'
 import {
   Pagination,
   PaginationContent,
@@ -478,8 +478,10 @@ function TopGamesPagination({
           </Link>
         </PaginationItem>
 
-        {pageWindow(page, pageCount).map((item, index) => (
-          <PaginationItem key={index}>
+        {pageWindow(page, pageCount).map((item, index, items) => (
+          <PaginationItem
+            key={item ?? `ellipsis-after-${items[index - 1]}`}
+          >
             {item === null ? (
               <PaginationEllipsis className="text-paper-dim" />
             ) : (

@@ -24,10 +24,25 @@ export function createGameSlug(name: string): string {
   })
 }
 
+const currencyFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+})
+
+const roundedCurrencyFormat = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2
+})
+
+const numberFormat = new Intl.NumberFormat('en-US')
+
 export const formatCurrency = (amount: number, rounded: boolean = false) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: rounded ? 0 : 2,
-    maximumFractionDigits: 2
-  }).format(rounded ? Math.round(amount) : amount)
+  rounded
+    ? roundedCurrencyFormat.format(Math.round(amount))
+    : currencyFormat.format(amount)
+
+export const formatNumber = (value: number) => numberFormat.format(value)

@@ -17,6 +17,8 @@ export async function loadMarketGames(
 ): Promise<MarketGame[]> {
   const collection = await getCollection('games')
 
+  // This is MongoDB's Collection.find, which returns a cursor, not Array.find.
+  // react-doctor-disable-next-line react-doctor/no-array-find-result-member-access-without-guard
   const documents = (await collection
     .find(query)
     .project(MARKET_GAME_PROJECTION)
@@ -32,6 +34,8 @@ export async function loadTopGames(
 ): Promise<TopGame[]> {
   const collection = await getCollection('games')
 
+  // This is MongoDB's Collection.find, which returns a cursor, not Array.find.
+  // react-doctor-disable-next-line react-doctor/no-array-find-result-member-access-without-guard
   const documents = (await collection
     .find(query)
     .sort({ grossRevenue: -1, gameId: 1 })

@@ -81,6 +81,9 @@ async function scrapeInChunks(
 
   for (let index = 0; index < chunks.length; index++) {
     try {
+      // Sequential on purpose: chunks share Steam's rate limit, and running
+      // them one at a time is what keeps the scrape under it.
+      // react-doctor-disable-next-line react-doctor/async-await-in-loop
       await scrapeChunkStep(runId, field, index, chunks[index], runStartedAt)
     } catch {
       // The step has used up its retries. Record its ids and keep going, so

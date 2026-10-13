@@ -33,7 +33,7 @@ export function parseMarketFilters(
     )
   ]
 
-  const withTagIds: number[] = []
+  const withTagIds = new Set<number>()
   const unknownTags: string[] = []
 
   for (const slug of slugs) {
@@ -41,12 +41,19 @@ export function parseMarketFilters(
 
     if (tagId === undefined) {
       unknownTags.push(slug)
-    } else if (tagId !== ownTagId && !withTagIds.includes(tagId)) {
-      withTagIds.push(tagId)
+    } else if (tagId !== ownTagId) {
+      withTagIds.add(tagId)
     }
   }
 
-  return { minPrice, maxPrice, since, until, withTagIds, unknownTags }
+  return {
+    minPrice,
+    maxPrice,
+    since,
+    until,
+    withTagIds: [...withTagIds],
+    unknownTags
+  }
 }
 
 export function isFiltered(filters: MarketFilters): boolean {
