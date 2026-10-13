@@ -26,7 +26,7 @@ export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: blogStyles },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap'
+    href: 'https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap'
   },
   { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
   { rel: 'icon', type: 'image/png', href: '/favicon-32x32.png', sizes: '32x32' },

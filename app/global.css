@@ -40,12 +40,11 @@
   h4,
   h5,
   h6 {
-    font-family: Fraunces, Georgia, Cambria, 'Times New Roman', serif;
+    font-family: 'Source Serif 4', Georgia, Cambria, 'Times New Roman', serif;
     font-weight: 500;
     line-height: 1.08;
     letter-spacing: -0.01em;
     font-feature-settings: 'ss01';
-    font-variation-settings: 'opsz' 96, 'SOFT' 30;
   }
 
   h1 {
@@ -71,7 +70,7 @@
 }
 
 /* Hero figures — prioritise legibility at large sizes.
-   Set in the body grotesque (not Fraunces) because the serif's fine strokes
+   Set in the body grotesque (not the display serif) because the serif's fine strokes
    muddy under sub-pixel rendering; tabular lining numerals + heavy weight
    keep the figure scannable. */
 .figures-display {

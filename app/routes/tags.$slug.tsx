@@ -177,6 +177,27 @@ export default function TagRoute(): ReactElement {
           </p>
         )}
 
+        <Section title="Top games">
+          <ol className="divide-y divide-rule">
+            {stats.topGames.map((game, index) => (
+              <li key={game.gameId}>
+                <Link
+                  className="grid grid-cols-[2.5rem_1fr_auto] gap-4 py-2 hover:text-accent"
+                  to={`/app/${game.gameId}/${game.slug}`}
+                >
+                  <span className="text-paper-muted tabular-nums">
+                    {index + 1}
+                  </span>
+                  <span className="truncate">{game.name}</span>
+                  <span className="tabular-nums">
+                    {formatCompactCurrency(game.grossRevenue)}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </Section>
+
         {enoughGames ? (
           <>
             <Section title="How revenue is spread">
@@ -187,6 +208,18 @@ export default function TagRoute(): ReactElement {
                   display: count.toLocaleString('en-US')
                 }))}
                 testId="distribution"
+              />
+            </Section>
+
+            <Section title="How games are priced">
+              <BarList
+                rows={stats.priceBands.map(({ label, count }) => ({
+                  label,
+                  value: count,
+                  display: count.toLocaleString('en-US'),
+                  note: formatPercent(count / stats.gameCount)
+                }))}
+                testId="price-distribution"
               />
             </Section>
 
@@ -219,27 +252,6 @@ export default function TagRoute(): ReactElement {
               : `Not enough games match these filters for reliable statistics. Showing the ${stats.gameCount} that do.`}
           </p>
         )}
-
-        <Section title="Top games">
-          <ol className="divide-y divide-rule">
-            {stats.topGames.map((game, index) => (
-              <li key={game.gameId}>
-                <Link
-                  className="grid grid-cols-[2.5rem_1fr_auto] gap-4 py-2 hover:text-accent"
-                  to={`/app/${game.gameId}/${game.slug}`}
-                >
-                  <span className="text-paper-muted tabular-nums">
-                    {index + 1}
-                  </span>
-                  <span className="truncate">{game.name}</span>
-                  <span className="tabular-nums">
-                    {formatCompactCurrency(game.grossRevenue)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </Section>
 
         {stats.gameCount > 0 && (
           <div className="grid gap-12 md:grid-cols-2">

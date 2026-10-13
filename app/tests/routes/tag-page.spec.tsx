@@ -71,6 +71,7 @@ describe('TagRoute', () => {
       '/tags/deckbuilder'
     )
     expect(screen.getByTestId('distribution')).toBeInTheDocument()
+    expect(screen.getByTestId('price-distribution')).toBeInTheDocument()
   })
 
   it('hides the statistics for small filtered samples but keeps the game list.', () => {
@@ -80,6 +81,7 @@ describe('TagRoute', () => {
 
     expect(screen.getByText(/not enough games/i)).toBeInTheDocument()
     expect(screen.queryByTestId('distribution')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('price-distribution')).not.toBeInTheDocument()
     expect(screen.getByText('Roguelike 3')).toBeInTheDocument()
   })
 
