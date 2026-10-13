@@ -1,5 +1,7 @@
 import { MongoClient, type Collection, type Db } from 'mongodb'
 
+import { gamesSitemapIndex } from '~/sitemap/xml'
+
 let client: MongoClient | undefined
 let indexes: Promise<void> | undefined
 
@@ -37,6 +39,7 @@ async function ensureIndexes(db: Db): Promise<void> {
     games.createIndex({ releaseYear: 1 }),
     games.createIndex({ basePrice: 1 }),
     games.createIndex({ listedAt: 1 }),
+    games.createIndex(gamesSitemapIndex),
     tags.createIndex({ tagId: 1 }, { unique: true }),
     tags.createIndex({ slug: 1 }, { unique: true }),
     scrapeRuns.createIndex({ startedAt: -1 })

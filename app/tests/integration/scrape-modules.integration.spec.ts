@@ -188,6 +188,12 @@ describe('scrapeIds (real MongoDB)', () => {
 
     expect(first).toMatchObject({ listedAt: 77, percentPositive: 90 })
 
+    await games.updateOne({ gameId: 1 }, { $set: { contentUpdatedAt: 5 } })
+    await scrapeIds([1], 78)
+
+    // Same content: the change time stays put.
+    expect((await games.findOne({ gameId: 1 }))?.contentUpdatedAt).toBe(5)
+
     withReviews = false
 
     await scrapeIds([1], 78)
@@ -197,5 +203,6 @@ describe('scrapeIds (real MongoDB)', () => {
     expect(await games.countDocuments({ gameId: 1 })).toBe(1)
     expect(rescraped?.listedAt).toBe(78)
     expect(rescraped).not.toHaveProperty('percentPositive')
+    expect(rescraped?.contentUpdatedAt).toBeGreaterThan(5)
   })
 })

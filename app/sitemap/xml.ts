@@ -1,7 +1,10 @@
 import { SITE_URL } from '~/market/constants'
 
-// Search engines accept at most 50,000 URLs per sitemap.
-export const gamesPerSitemap = 40_000
+// Search engines accept up to 50,000 URLs per sitemap, but smaller files
+// render fast enough that crawlers never time out on them.
+export const gamesPerSitemap = 10_000
+
+export const gamesSitemapIndex = { gameId: 1, slug: 1, contentUpdatedAt: 1 }
 
 export const sitemapHeaders: Record<string, string> = {
   'Content-Type': 'application/xml; charset=UTF-8',
@@ -24,13 +27,12 @@ export function sitemapPageCount(gameCount: number): number {
   return Math.max(1, Math.ceil(gameCount / gamesPerSitemap))
 }
 
-export function renderSitemapIndex(paths: string[], lastmod: string): string {
+export function renderSitemapIndex(paths: string[]): string {
   const entries = paths
     .map(
       (path) => `
 <sitemap>
   <loc>${escapeXml(`${SITE_URL}${path}`)}</loc>
-  <lastmod>${lastmod}</lastmod>
 </sitemap>`
     )
     .join('')
@@ -41,16 +43,25 @@ export function renderSitemapIndex(paths: string[], lastmod: string): string {
 `
 }
 
-export function renderUrlSet(
-  entries: { path: string; priority: string }[],
-  lastmod: string
-): string {
+export interface SitemapEntry {
+  path: string
+  priority: string
+  // Only when the content really changed then; a lastmod that is always "now"
+  // teaches crawlers to ignore it.
+  lastmod?: Date | number
+}
+
+export function renderUrlSet(entries: SitemapEntry[]): string {
   const urls = entries
     .map(
-      ({ path, priority }) => `
+      ({ path, priority, lastmod }) => `
 <url>
-  <loc>${escapeXml(`${SITE_URL}${path}`)}</loc>
-  <lastmod>${lastmod}</lastmod>
+  <loc>${escapeXml(`${SITE_URL}${path}`)}</loc>${
+    lastmod === undefined
+      ? ''
+      : `
+  <lastmod>${new Date(lastmod).toISOString()}</lastmod>`
+  }
   <priority>${priority}</priority>
 </url>`
     )
