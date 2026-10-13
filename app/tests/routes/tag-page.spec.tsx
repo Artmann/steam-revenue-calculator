@@ -29,11 +29,12 @@ function games(count: number): MarketGame[] {
 }
 
 function loaderData(overrides: Partial<LoaderData> = {}): LoaderData {
-  const stats = computeMarketStats(games(12))
+  const stats = overrides.stats ?? computeMarketStats(games(12))
 
   return {
     tag: { name: 'Roguelike', slug: 'roguelike' },
     stats,
+    topGames: { games: stats.topGames, page: 1, pageCount: 1 },
     baseline: computeMarketStats(games(40)),
     statsUpdatedAt: '2026-10-12T00:00:00.000Z',
     isFiltered: false,
@@ -47,11 +48,11 @@ function loaderData(overrides: Partial<LoaderData> = {}): LoaderData {
   }
 }
 
-function renderWith(data: LoaderData) {
+function renderWith(data: LoaderData, url = '/tags/roguelike') {
   vi.mocked(useLoaderData).mockReturnValue(data as never)
 
   render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[url]}>
       <TagRoute />
     </MemoryRouter>
   )
@@ -139,5 +140,50 @@ describe('TagRoute', () => {
 
     expect(data.get('price')).toBe('10-20')
     expect(data.getAll('with')).toEqual(['deckbuilder', 'cards', 'indie'])
+  })
+
+  it('pages through the top games and keeps the filters in the links.', () => {
+    const stats = computeMarketStats(games(120))
+
+    renderWith(
+      loaderData({
+        stats,
+        isFiltered: true,
+        topGames: {
+          games: [{ gameId: 7, name: 'Page Three Game', slug: 'p3', grossRevenue: 70_000 }],
+          page: 3,
+          pageCount: 5
+        }
+      }),
+      '/tags/roguelike?since=2020&page=3'
+    )
+
+    expect(screen.getByTestId('top-games-range')).toHaveTextContent(/51.51 of 120/)
+    expect(screen.getByText('51')).toBeInTheDocument()
+    expect(screen.getByText('Page Three Game')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /next page/i })).toHaveAttribute(
+      'href',
+      '/tags/roguelike?since=2020&page=4'
+    )
+    expect(screen.getByRole('link', { name: /previous page/i })).toHaveAttribute(
+      'href',
+      '/tags/roguelike?since=2020&page=2'
+    )
+    expect(screen.getByRole('link', { name: '1' })).toHaveAttribute(
+      'href',
+      '/tags/roguelike?since=2020'
+    )
+    expect(screen.getByRole('link', { name: '3' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+  })
+
+  it('hides the pagination when every game fits on one page.', () => {
+    renderWith(loaderData())
+
+    expect(
+      screen.queryByRole('link', { name: /next page/i })
+    ).not.toBeInTheDocument()
   })
 })

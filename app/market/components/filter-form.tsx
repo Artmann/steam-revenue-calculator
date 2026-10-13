@@ -1,5 +1,7 @@
 import { useState, type ReactElement } from 'react'
 
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -27,9 +29,6 @@ const priceOptions = [
   ['20-30', '$20–30'],
   ['30-', '$30+']
 ]
-
-const fieldClassName =
-  'bg-transparent border-b border-rule-strong py-1 text-paper focus:outline-hidden focus:border-accent'
 
 export function FilterForm({
   action,
@@ -91,8 +90,8 @@ export function FilterForm({
 
       <label className="flex flex-col gap-1">
         <span className="eyebrow">Released from</span>
-        <input
-          className={`${fieldClassName} w-20`}
+        <Input
+          className="w-20"
           defaultValue={values.since}
           max={2100}
           min={2003}
@@ -104,8 +103,8 @@ export function FilterForm({
 
       <label className="flex flex-col gap-1">
         <span className="eyebrow">Released until</span>
-        <input
-          className={`${fieldClassName} w-20`}
+        <Input
+          className="w-20"
           defaultValue={values.until}
           max={2100}
           min={2003}
@@ -154,12 +153,13 @@ export function FilterForm({
         />
       ))}
 
-      <button
-        className="text-accent hover:text-accent-strong underline underline-offset-4"
+      <Button
+        className="h-auto px-0 py-1 underline"
         type="submit"
+        variant="link"
       >
         Apply
-      </button>
+      </Button>
       <a
         className="text-paper-muted hover:text-paper"
         href={action}

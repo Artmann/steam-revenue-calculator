@@ -4,7 +4,12 @@ import {
   toMarketGame,
   type MarketGameDocument
 } from '~/market/market-game'
-import type { MarketGame, MarketStats, TagFrequencies } from '~/market/stats'
+import type {
+  MarketGame,
+  MarketStats,
+  TagFrequencies,
+  TopGame
+} from '~/market/stats'
 import type { TagSummary } from '~/market/tag-summaries'
 
 export async function loadMarketGames(
@@ -18,6 +23,29 @@ export async function loadMarketGames(
     .toArray()) as MarketGameDocument[]
 
   return documents.map(toMarketGame)
+}
+
+export async function loadTopGames(
+  query: Record<string, unknown>,
+  page: number,
+  pageSize: number
+): Promise<TopGame[]> {
+  const collection = await getCollection('games')
+
+  const documents = (await collection
+    .find(query)
+    .sort({ grossRevenue: -1, gameId: 1 })
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .project({ _id: 0, gameId: 1, slug: 1, grossRevenue: 1, 'details.name': 1 })
+    .toArray()) as MarketGameDocument[]
+
+  return documents.map(({ gameId, slug, grossRevenue, details }) => ({
+    gameId,
+    name: details?.name ?? '',
+    slug,
+    grossRevenue
+  }))
 }
 
 export interface TagRecord {
