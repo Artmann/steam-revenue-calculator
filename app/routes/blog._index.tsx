@@ -15,9 +15,9 @@ export default function BlogRoute(): ReactElement {
       <div className="space-y-6">
         <Link
           className="block hover:underline"
-          to="/blog/what-147000-steam-games-taught-us-about-pricing-your-indie-game"
+          to="/blog/what-112000-steam-games-taught-us-about-pricing-your-indie-game"
         >
-          What 147,000 Steam Games Taught Us About Pricing Your Indie Game
+          What 112,000 Steam Games Taught Us About Pricing Your Indie Game
         </Link>
 
         <div className="h-px bg-slate-300 w-full" />

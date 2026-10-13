@@ -1,0 +1,167 @@
+import { BarList } from '../market/components/bar-list'
+
+export const meta = () => {
+  const title = 'What 112,000 Steam Games Taught Us About Pricing Your Indie Game'
+  const description =
+    'We looked at revenue estimates for 112,000 paid Steam games. Games priced at $15 and up are far more likely to reach $10K, and each tag has its own price ceiling.'
+  const url =
+    'https://steam-revenue-calculator.com/blog/what-112000-steam-games-taught-us-about-pricing-your-indie-game'
+
+  return [
+    { title },
+    { property: 'og:title', content: title },
+    { name: 'description', content: description },
+    { property: 'og:description', content: description },
+    { property: 'og:url', content: url },
+    { tagName: 'link', rel: 'canonical', href: url }
+  ]
+}
+
+# What 112,000 Steam Games Taught Us About Pricing Your Indie Game
+
+You've heard the advice. "$19.99 is the sweet spot." "Don't price under $10 or you look cheap." "Indies top out at $25." It gets repeated in every Discord and subreddit until it starts to sound like a rule.
+
+So we checked it against the data. We looked at **112,727 paid games** currently on Steam and asked how price relates to what a game earns. Most of this post focuses on the **86,366 released since 2020**, because that's the market you're launching into.
+
+The short version: most games are priced in the range where almost nothing earns money, and every tag has its own ceiling.
+
+## First, what a typical Steam game makes
+
+Before we get to pricing, here's the baseline for games released since 2020:
+
+- The **median game makes about $800** in gross revenue over its lifetime.
+- **46%** reach $1,000.
+- **21%** reach $10,000.
+- **7.7%** reach $100,000.
+- **3.1%** reach $1,000,000.
+
+The average is about $844,000, more than a thousand times the median. A small number of hits pull the average up, so the median is the number to plan around.
+
+The review counts tell the same story. Across all 112,000 games, 11% have no reviews at all, and another 35% have between 1 and 9.
+
+## Price and revenue go up together, to a point
+
+Here's every game released since 2020, grouped by base price (the price before any discount):
+
+<div className="table-scroll">
+
+| Price | Games | Median revenue | Reach $10K | Reach $100K | Median reviews |
+|---|---:|---:|---:|---:|---:|
+| $0.01 – $0.99 | 8,517 | $79 | 1.1% | 0.2% | 4 |
+| $1.00 – $2.99 | 15,875 | $179 | 3.1% | 0.7% | 4 |
+| $3.00 – $4.99 | 18,780 | $479 | 7.0% | 1.1% | 5 |
+| $5.00 – $9.99 | 23,035 | $1,438 | 19.7% | 4.0% | 9 |
+| $10.00 – $14.99 | 9,443 | $6,895 | 44.0% | 13.0% | 26 |
+| $15.00 – $19.99 | 5,712 | $25,587 | 62.4% | 31.0% | 67 |
+| $20.00 – $24.99 | 1,593 | $63,475 | 71.4% | 44.4% | 132 |
+| $25.00 – $29.99 | 1,299 | $99,567 | 73.5% | 50.0% | 167 |
+| $30.00 – $39.99 | 974 | $241,708 | 80.2% | 58.6% | 340 |
+| $40.00 – $59.99 | 743 | $350,342 | 71.3% | 58.7% | 314 |
+| $60.00 – $99.99 | 221 | $17,998 | 61.1% | 34.8% | 12 |
+| $100.00+ | 174 | $37,199 | 60.3% | 1.7% | 9 |
+
+</div>
+
+This is the share of games in each price range that reach $10,000:
+
+<div className="chart">
+  <BarList
+    rows={[
+      { label: 'Under $1', value: 1.1, display: '1%', note: '8,517 games' },
+      { label: '$1–3', value: 3.1, display: '3%', note: '15,875 games' },
+      { label: '$3–5', value: 7.0, display: '7%', note: '18,780 games' },
+      { label: '$5–10', value: 19.7, display: '20%', note: '23,035 games' },
+      { label: '$10–15', value: 44.0, display: '44%', note: '9,443 games' },
+      { label: '$15–20', value: 62.4, display: '62%', note: '5,712 games' },
+      { label: '$20–25', value: 71.4, display: '71%', note: '1,593 games' },
+      { label: '$25–30', value: 73.5, display: '74%', note: '1,299 games' },
+      { label: '$30–40', value: 80.2, display: '80%', note: '974 games' },
+      { label: '$40–60', value: 71.3, display: '71%', note: '743 games' },
+      { label: '$60–100', value: 61.1, display: '61%', note: '221 games' }
+    ]}
+  />
+  <p className="chart-caption">Share of games released since 2020 that reach $10K in estimated gross revenue, by base price.</p>
+</div>
+
+Two things stand out.
+
+**Most games are priced where the odds are worst.** 77% of games released since 2020 cost under $10. Fewer than 1 in 10 of those reach $10,000. At $15 and up, two out of three do.
+
+**The odds keep improving up to about $40.** The share reaching $10,000 climbs at every step up to $30–$39, where it peaks at 80%. Median revenue keeps rising to $40–$59.
+
+Look at the median reviews column as well. Higher-priced games don't just earn more per sale. They also get more reviews, which means more players. The median game at $30–$39 has 340 reviews, against 9 for the median game at $5–$9.99. Players aren't avoiding the games priced there.
+
+## Above $60, the pattern breaks
+
+The $60–$99 and $100+ ranges look strange. Many games there reach $10,000, but the median game has only 9–12 reviews. Our revenue estimate multiplies review count by price, so at $100 even a handful of reviews adds up to a five-figure estimate. These ranges also hold few games. We wouldn't read much into them, except that very few games priced above $60 find a real audience.
+
+## Each tag has its own ceiling
+
+The overall pattern holds for every tag we looked at, but the best price range moves. For each tag, here's the price range with the best odds of reaching $10,000. We only counted ranges with at least 20 games released since 2020, and we left out $100+. A game counts toward every tag on its Steam page, so the rows overlap.
+
+<div className="table-scroll">
+
+| Tag | Best price range | Games | Reach $10K there | Median revenue there | Reach $10K at any price | |
+|---|---|---:|---:|---:|---:|---|
+| Action | $30 – $39 | 409 | 86% | $607,048 | 20% | [View](/tags/action?price=30-40&since=2020) |
+| Adventure | $30 – $39 | 487 | 83% | $256,897 | 25% | [View](/tags/adventure?price=30-40&since=2020) |
+| RPG | $40 – $59 | 255 | 85% | $1,927,414 | 32% | [View](/tags/rpg?price=40-60&since=2020) |
+| Simulation | $25 – $29 | 405 | 81% | $227,924 | 28% | [View](/tags/simulation?price=25-30&since=2020) |
+| Strategy | $25 – $29 | 293 | 81% | $208,730 | 22% | [View](/tags/strategy?price=25-30&since=2020) |
+| Horror | $30 – $39 | 80 | 93% | $4,359,950 | 23% | [View](/tags/horror?price=30-40&since=2020) |
+| Survival | $30 – $39 | 82 | 90% | $4,791,842 | 23% | [View](/tags/survival?price=30-40&since=2020) |
+| City Builder | $25 – $29 | 60 | 95% | $1,607,584 | 40% | [View](/tags/city-builder?price=25-30&since=2020) |
+| Colony Sim | $25 – $29 | 41 | 98% | $1,846,953 | 42% | [View](/tags/colony-sim?price=25-30&since=2020) |
+| Roguelike | $30 – $39 | 31 | 84% | $377,347 | 25% | [View](/tags/roguelike?price=30-40&since=2020) |
+| Roguelite | $25 – $29 | 46 | 91% | $430,473 | 27% | [View](/tags/roguelite?price=25-30&since=2020) |
+| Metroidvania | $25 – $29 | 40 | 93% | $320,893 | 37% | [View](/tags/metroidvania?price=25-30&since=2020) |
+| Cozy | $20 – $24 | 43 | 88% | $385,805 | 30% | [View](/tags/cozy?price=20-25&since=2020) |
+| Deckbuilding | $15 – $19 | 214 | 78% | $47,374 | 30% | [View](/tags/deckbuilding?price=15-20&since=2020) |
+| Visual Novel | $40 – $59 | 75 | 84% | $93,483 | 31% | [View](/tags/visual-novel?price=40-60&since=2020) |
+| Casual | $30 – $39 | 285 | 70% | $70,382 | 16% | [View](/tags/casual?price=30-40&since=2020) |
+| Puzzle | $30 – $39 | 108 | 80% | $89,578 | 15% | [View](/tags/puzzle?price=30-40&since=2020) |
+| Platformer | $25 – $29 | 111 | 76% | $106,165 | 15% | [View](/tags/platformer?price=25-30&since=2020) |
+
+</div>
+
+Each "View" link opens that tag's market page filtered to the same price range and release years. There you can see the top games, the price spread and the related tags behind each row.
+
+The tags fall into a few groups.
+
+**Big games that can charge $30–$60.** Action, RPG, Horror and Survival keep paying off at the top of the range. RPG games at $40–$59 have an 85% chance of reaching $10,000 and a median of $1.9M. Horror and Survival at $30–$39 have medians above $4M, from about 80 games each. City Builder and Colony Sim do best at $25–$29 and still hold up above that: City Builder at $40–$59 has an 89% chance and a $2.9M median, from 28 games.
+
+**Steady performers from $25 up.** Adventure, Simulation and Strategy have 75–83% odds anywhere from $25 to $60. Their medians are lower than the first group's, between roughly $100,000 and $900,000.
+
+**Genres where $15–$30 is the market.** Roguelike, Roguelite, Deckbuilding, Metroidvania and Cozy games do very well in this range. A Roguelite at $25–$29 has a 91% chance of reaching $10,000. Very few of these games are priced above $30, so we can't tell you whether a higher price would work. Few developers in these genres have tried it.
+
+**Lower ceilings: Casual, Puzzle and Platformer.** These tags do fine up to $30–$40, then fall off. At $40–$59, only 36–42% of them reach $10,000, and the median Casual game there makes about $1,100. If your game is in one of these tags, $40 is too much.
+
+**Visual Novel: good odds, smaller wins.** Visual novels priced at $30–$60 reach $10,000 more than 80% of the time, but the median stays under $100,000 even at the top of the range.
+
+## So what should you charge?
+
+There isn't one sweet spot. There's a price that fits your tag and the size of your game:
+
+- **Casual, puzzle and platformer games:** $10–$30. Above $40, the odds drop sharply.
+- **Roguelikes, roguelites, deckbuilders, metroidvanias and cozy games:** $15–$30. This is where these genres sell.
+- **Adventure, simulation and strategy:** $20–$40, depending on scope.
+- **Deep RPGs, survival, horror and city or colony builders:** $25–$60. These audiences pay for depth.
+- **Above $60:** almost never, unless you're in a niche that already prices there.
+
+Whatever your tag, the data points away from the bottom of the market. Under $10 is where most games sit, and it's where the fewest of them earn anything.
+
+## Caveats
+
+Keep these in mind before you take the numbers to the bank:
+
+1. **These are estimates.** We estimate gross revenue from the review count, a multiplier of 20–59 sales per review (depending on the review count), and the base price. This is the Boxleiter method, and [GameDiscoverCo's write-up](https://newsletter.gamediscover.co/p/steam-sales-estimates-why-game-popularity) explains where the multipliers come from.
+2. **Price is part of the formula.** At the same review count, a $30 game gets three times the revenue estimate of a $10 game. That's why we also show median reviews, which the formula doesn't touch. Higher-priced games have more reviews, so the pattern isn't only a side effect of the math.
+3. **These are gross figures.** Steam's 30% cut, VAT, regional pricing, discounts and refunds all come off the top. Our earlier post on [Steam's cut](/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated) walks through how much.
+4. **Small samples at the top end.** Some tag rows have only 30–80 games, so one hit can move the median a lot. Treat those rows as a direction, not a precise figure.
+5. **Correlation, not causation.** Bigger, more polished games tend to cost more and also tend to sell more. Raising the price of a small game won't turn it into a big one. But if your game is good, the data says it's probably priced too low, not too high.
+
+The data covers paid games with at least one tag on the Steam store as of October 2026.
+
+## Try it with your own numbers
+
+Want to see what a specific price and review count adds up to? Use [the Steam Revenue Calculator](/) to get the full breakdown, from gross revenue to what reaches your account. To dig into your own genre, start from [the tag index](/tags) and filter by price and release year.

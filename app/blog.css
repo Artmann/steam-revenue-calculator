@@ -26,3 +26,76 @@
 .blog p {
   margin-top: 1rem;
 }
+
+.blog a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.blog a:hover {
+  color: var(--accent-strong);
+}
+
+.blog ul,
+.blog ol {
+  margin-top: 1rem;
+  padding-left: 1.5rem;
+}
+
+.blog ul {
+  list-style: disc;
+}
+
+.blog ol {
+  list-style: decimal;
+}
+
+.blog li {
+  margin-top: 0.5rem;
+}
+
+.blog .table-scroll {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.blog table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  width: 100%;
+}
+
+.blog th,
+.blog td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
+}
+
+.blog th {
+  border-bottom-color: var(--rule-strong);
+  color: var(--paper-muted);
+  font-weight: 500;
+}
+
+.blog th:first-child,
+.blog td:first-child {
+  padding-left: 0;
+}
+
+.blog th:last-child,
+.blog td:last-child {
+  padding-right: 0;
+}
+
+.blog .chart {
+  margin-top: 1.5rem;
+}
+
+.blog .chart-caption {
+  color: var(--paper-dim);
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+}
