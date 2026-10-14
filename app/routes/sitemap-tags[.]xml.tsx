@@ -13,6 +13,7 @@ const staticPaths = [
   '/games',
   '/privacy',
   '/tags',
+  '/wishlist-calculator',
   '/blog/the-real-talk-on-steams-cut-what-your-game-actually-makes-and-why-its-complicated',
   '/blog/what-112000-steam-games-taught-us-about-pricing-your-indie-game'
 ]

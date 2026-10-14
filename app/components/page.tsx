@@ -20,6 +20,12 @@ export function Page({ children }: PageProps): ReactElement {
         <div className="flex gap-6 text-sm">
           <Link
             className="text-paper-muted hover:text-paper"
+            to="/wishlist-calculator"
+          >
+            Wishlists
+          </Link>
+          <Link
+            className="text-paper-muted hover:text-paper"
             to="/games"
           >
             Games
@@ -62,6 +68,12 @@ export function Page({ children }: PageProps): ReactElement {
             </div>
           </div>
           <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-paper-muted">
+            <Link
+              className="hover:text-paper"
+              to="/wishlist-calculator"
+            >
+              Wishlist calculator
+            </Link>
             <Link
               className="hover:text-paper"
               to="/games"
