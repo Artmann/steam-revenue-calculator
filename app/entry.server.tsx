@@ -1,10 +1,16 @@
 import { PassThrough } from 'node:stream'
 
-import type { AppLoadContext, EntryContext } from 'react-router'
+import type {
+  AppLoadContext,
+  EntryContext,
+  HandleDataRequestFunction
+} from 'react-router'
 import { createReadableStreamFromReadable } from '@react-router/node'
 import { ServerRouter } from 'react-router'
 import { isbot } from 'isbot'
 import { renderToPipeableStream } from 'react-dom/server'
+
+import { applyNotFoundCaching } from '~/http/not-found-caching'
 
 const ABORT_DELAY = 5_000
 
@@ -30,6 +36,12 @@ export default function handleRequest(
       )
 }
 
+export const handleDataRequest: HandleDataRequestFunction = (response) => {
+  applyNotFoundCaching(response.status, response.headers)
+
+  return response
+}
+
 function handleBotRequest(
   request: Request,
   responseStatusCode: number,
@@ -49,6 +61,7 @@ function handleBotRequest(
           const body = new PassThrough()
 
           responseHeaders.set('Content-Type', 'text/html')
+          applyNotFoundCaching(responseStatusCode, responseHeaders)
 
           resolve(
             new Response(createReadableStreamFromReadable(body), {
@@ -97,6 +110,7 @@ function handleBrowserRequest(
           const body = new PassThrough()
 
           responseHeaders.set('Content-Type', 'text/html')
+          applyNotFoundCaching(responseStatusCode, responseHeaders)
 
           resolve(
             new Response(createReadableStreamFromReadable(body), {
