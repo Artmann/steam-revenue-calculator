@@ -32,7 +32,7 @@ describe('getCollection (real MongoDB)', () => {
     expect(tagIndexes).toEqual(expect.arrayContaining(['tagId_1', 'slug_1']))
   })
 
-  it('still serves when an existing non-unique gameId index conflicts.', async () => {
+  it('converts an existing non-unique gameId index to unique.', async () => {
     await resetDatabaseConnection()
     process.env.DB_DATABASE = `test-${randomUUID()}`
 
@@ -46,9 +46,31 @@ describe('getCollection (real MongoDB)', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const games = await getCollection('games')
 
-    await games.insertOne({ gameId: 1 })
+    const gameIdIndex = (await games.indexes()).find(({ name }) => name === 'gameId_1')
 
-    expect(await games.countDocuments()).toBe(1)
+    expect(gameIdIndex?.unique).toEqual(true)
+    expect(consoleError).not.toHaveBeenCalled()
+
+    consoleError.mockRestore()
+  })
+
+  it('still serves when duplicate game ids block the unique index.', async () => {
+    await resetDatabaseConnection()
+    process.env.DB_DATABASE = `test-${randomUUID()}`
+
+    const { MongoClient } = await import('mongodb')
+    const raw = new MongoClient(inject('mongoUri'))
+
+    await raw.connect()
+    const rawGames = raw.db(process.env.DB_DATABASE).collection('games')
+    await rawGames.createIndex({ gameId: 1 })
+    await rawGames.insertMany([{ gameId: 1 }, { gameId: 1 }])
+    await raw.close()
+
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const games = await getCollection('games')
+
+    expect(await games.countDocuments()).toEqual(2)
     expect(consoleError).toHaveBeenCalledWith('Failed to create index:', expect.any(String))
 
     consoleError.mockRestore()

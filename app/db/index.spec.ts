@@ -1,6 +1,7 @@
 import { beforeEach, describe, it, expect, vi } from 'vitest'
 
-const { createIndex, dropIndex, constructed } = vi.hoisted(() => ({
+const { command, createIndex, dropIndex, constructed } = vi.hoisted(() => ({
+  command: vi.fn(),
   constructed: vi.fn(),
   createIndex: vi.fn(),
   dropIndex: vi.fn()
@@ -18,7 +19,8 @@ vi.mock('mongodb', () => ({
 
     db() {
       return {
-        collection: (name: string) => ({ name, createIndex, dropIndex })
+        collection: (name: string) => ({ name, createIndex, dropIndex }),
+        command
       }
     }
 
@@ -34,12 +36,43 @@ beforeEach(async () => {
 })
 
 describe('getCollection', () => {
-  it('returns the collection even when an index conflicts with an existing one.', async () => {
+  it('converts a conflicting non-unique gameId index to unique in place.', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
+    command.mockResolvedValue({ ok: 1 })
     createIndex.mockImplementation(async (keys: Record<string, number>) => {
-      if ('gameId' in keys) {
+      if (Object.keys(keys).join() === 'gameId') {
+        throw Object.assign(new Error('An existing index has the same name'), {
+          code: 86,
+          codeName: 'IndexKeySpecsConflict'
+        })
+      }
+    })
+
+    await getCollection('games')
+
+    expect(command.mock.calls).toEqual([
+      [
+        {
+          collMod: 'games',
+          index: { keyPattern: { gameId: 1 }, prepareUnique: true }
+        }
+      ],
+      [{ collMod: 'games', index: { keyPattern: { gameId: 1 }, unique: true } }]
+    ])
+    expect(consoleError).not.toHaveBeenCalled()
+
+    consoleError.mockRestore()
+  })
+
+  it('returns the collection even when an index cannot be created.', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
+    command.mockRejectedValue(new Error('Cannot convert the index to unique'))
+    createIndex.mockImplementation(async (keys: Record<string, number>) => {
+      if (Object.keys(keys).join() === 'gameId') {
         throw Object.assign(new Error('An existing index has the same name'), {
           code: 86,
           codeName: 'IndexKeySpecsConflict'
@@ -53,7 +86,7 @@ describe('getCollection', () => {
     expect(createIndex).toHaveBeenCalledTimes(11)
     expect(consoleError).toHaveBeenCalledWith(
       'Failed to create index:',
-      'An existing index has the same name'
+      'Cannot convert the index to unique'
     )
 
     consoleError.mockRestore()
