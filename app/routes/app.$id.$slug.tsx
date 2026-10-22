@@ -5,7 +5,7 @@ import slugify from 'slugify'
 
 import { Page } from '~/components/page'
 import type { GameDetails } from '~/games'
-import { formatCurrency, formatNumber } from '~/games'
+import { formatCurrency, formatNumber, normalizeGameDetails } from '~/games'
 import { getTagIndex, type TagIndexEntry } from '~/market/market-service.server'
 import { Game } from '~/models/game'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
@@ -47,7 +47,7 @@ export const loader: LoaderFunction = async ({
   const tagsById = new Map(tagIndex.map((tag) => [tag.tagId, tag]))
 
   return {
-    game: game.details,
+    game: normalizeGameDetails(game.details, gameId),
     tags: (game.tagIds ?? []).flatMap((tagId) => {
       const tag = tagsById.get(tagId)
 
@@ -58,6 +58,7 @@ export const loader: LoaderFunction = async ({
 
 export const meta: MetaFunction = ({ data: loaderData }) => {
   const data = loaderData as LoaderData
+  const screenshot = data.game.screenshots[0]
 
   return [
     {
@@ -71,10 +72,7 @@ export const meta: MetaFunction = ({ data: loaderData }) => {
       name: 'description',
       content: `${data.game.name} on Steam — estimated revenue, sales data, and financial breakdown. See gross revenue, net revenue, and review-based calculations for this game.`
     },
-    {
-      property: 'og:image',
-      content: data.game.screenshots[0]
-    },
+    ...(screenshot ? [{ property: 'og:image', content: screenshot }] : []),
     {
       property: 'og:description',
       content: `${data.game.name} on Steam — estimated revenue, sales data, and financial breakdown. See gross revenue, net revenue, and review-based calculations for this game.`
@@ -94,13 +92,17 @@ export const meta: MetaFunction = ({ data: loaderData }) => {
         ? `https://steam-revenue-calculator.com/app/${data.game.id}/${slugify(data.game.name, { lower: true })}`
         : 'https://steam-revenue-calculator.com/games'
     },
-    {
-      tagName: 'link',
-      rel: 'preload',
-      href: data.game.screenshots[0],
-      as: 'image',
-      fetchpriority: 'high'
-    }
+    ...(screenshot
+      ? [
+          {
+            tagName: 'link',
+            rel: 'preload',
+            href: screenshot,
+            as: 'image',
+            fetchpriority: 'high'
+          }
+        ]
+      : [])
   ]
 }
 
@@ -109,6 +111,8 @@ export default function AppRoute(): ReactElement {
 
   const grossRevenue = calculateRevenue(game.numberOfReviews, game.price / 100)
   const breakdown = revenueBreakdown(grossRevenue)
+  const companies = [...new Set([...game.developers, ...game.publishers])]
+  const screenshot = game.screenshots[0]
 
   return (
     <Page>
@@ -126,19 +130,21 @@ export default function AppRoute(): ReactElement {
           <div className="md:flex-1 max-w-lg">
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-4">
-                <img
-                  alt={game.name}
-                  className="w-full h-auto aspect-video shadow-lg block"
-                  width={616}
-                  height={347}
-                  src={game.screenshots[0]}
-                />
-                <div className="text-paper-muted text-sm">
-                  <span className="eyebrow mr-2">By</span>
-                  {[...new Set([...game.developers, ...game.publishers])].join(
-                    ', '
-                  )}
-                </div>
+                {screenshot && (
+                  <img
+                    alt={game.name}
+                    className="w-full h-auto aspect-video shadow-lg block"
+                    width={616}
+                    height={347}
+                    src={screenshot}
+                  />
+                )}
+                {companies.length > 0 && (
+                  <div className="text-paper-muted text-sm">
+                    <span className="eyebrow mr-2">By</span>
+                    {companies.join(', ')}
+                  </div>
+                )}
                 {tags.length > 0 && (
                   <ul
                     className="flex flex-wrap gap-x-4 gap-y-1 text-sm"

@@ -18,6 +18,27 @@ export interface GameDetails {
   screenshots: string[]
 }
 
+// Older game records can have null or missing fields, so fill in safe
+// defaults before the game page renders them.
+export function normalizeGameDetails(
+  details: Partial<GameDetails>,
+  gameId: number
+): GameDetails {
+  return {
+    id: details.id ?? gameId,
+    categories: details.categories ?? [],
+    description: details.description ?? '',
+    developers: details.developers ?? [],
+    genres: details.genres ?? [],
+    metacritic: details.metacritic ?? {},
+    name: details.name ?? '',
+    numberOfReviews: details.numberOfReviews ?? 0,
+    publishers: details.publishers ?? [],
+    price: details.price ?? 0,
+    screenshots: details.screenshots ?? []
+  }
+}
+
 export function createGameSlug(name: string): string {
   return slugify(name, {
     lower: true
