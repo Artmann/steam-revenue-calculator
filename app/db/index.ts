@@ -5,6 +5,28 @@ import { gamesSitemapIndex } from '~/sitemap/xml'
 let client: MongoClient | undefined
 let indexes: Promise<void> | undefined
 
+const indexKeySpecsConflict = 86
+
+// Production has a non-unique gameId_1 from before the unique option was
+// added. Convert it in place rather than dropping it, so game lookups never
+// lose their index. MongoDB refuses the conversion if duplicates exist.
+async function ensureUniqueGameIdIndex(db: Db): Promise<void> {
+  try {
+    await db.collection('games').createIndex({ gameId: 1 }, { unique: true })
+  } catch (error: any) {
+    if (error?.code !== indexKeySpecsConflict) {
+      throw error
+    }
+
+    for (const option of ['prepareUnique', 'unique']) {
+      await db.command({
+        collMod: 'games',
+        index: { keyPattern: { gameId: 1 }, [option]: true }
+      })
+    }
+  }
+}
+
 async function ensureIndexes(db: Db): Promise<void> {
   const games = db.collection('games')
   const tags = db.collection('tags')
@@ -28,12 +50,11 @@ async function ensureIndexes(db: Db): Promise<void> {
     }
   }
 
-  // Best effort: an index that conflicts with an existing one (e.g. a
-  // non-unique gameId_1 created before the unique option was added) must
-  // not fail the request that happened to trigger this.
+  // Best effort: an index that conflicts with an existing one must not fail
+  // the request that happened to trigger this.
   const results = await Promise.allSettled([
     games.createIndex({ grossRevenue: -1 }),
-    games.createIndex({ gameId: 1 }, { unique: true }),
+    ensureUniqueGameIdIndex(db),
     games.createIndex({ tagIds: 1 }),
     games.createIndex({ tagIds: 1, grossRevenue: -1, gameId: 1 }),
     games.createIndex({ releaseYear: 1 }),
