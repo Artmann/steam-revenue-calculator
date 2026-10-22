@@ -38,12 +38,13 @@ const config = {
       fontFamily: {
         sans: [
           '"Instrument Sans"',
+          '"Instrument Sans Fallback"',
           'ui-sans-serif',
           'system-ui',
           'sans-serif'
         ],
-        display: ['"Source Serif 4"', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
-        serif: ['"Source Serif 4"', 'Georgia', 'Cambria', 'Times New Roman', 'serif']
+        display: ['"Source Serif 4"', '"Source Serif 4 Fallback"', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
+        serif: ['"Source Serif 4"', '"Source Serif 4 Fallback"', 'Georgia', 'Cambria', 'Times New Roman', 'serif']
       },
       fontSize: {
         'display-xl': [

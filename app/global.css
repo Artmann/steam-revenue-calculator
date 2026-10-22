@@ -28,7 +28,7 @@
   body {
     background-color: var(--ink);
     color: var(--paper);
-    font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Instrument Sans', 'Instrument Sans Fallback', ui-sans-serif, system-ui, sans-serif;
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.55;
@@ -44,7 +44,7 @@
   h4,
   h5,
   h6 {
-    font-family: 'Source Serif 4', Georgia, Cambria, 'Times New Roman', serif;
+    font-family: 'Source Serif 4', 'Source Serif 4 Fallback', Georgia, Cambria, 'Times New Roman', serif;
     font-weight: 500;
     line-height: 1.08;
     letter-spacing: -0.01em;
@@ -78,7 +78,7 @@
    muddy under sub-pixel rendering; tabular lining numerals + heavy weight
    keep the figure scannable. */
 .figures-display {
-  font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Instrument Sans', 'Instrument Sans Fallback', ui-sans-serif, system-ui, sans-serif;
   font-variant-numeric: tabular-nums lining-nums slashed-zero;
   font-feature-settings: 'tnum', 'lnum', 'zero';
   font-weight: 600;
@@ -89,7 +89,7 @@
 
 /* Editorial small-caps style for labels, caption headers, and overlines */
 .eyebrow {
-  font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Instrument Sans', 'Instrument Sans Fallback', ui-sans-serif, system-ui, sans-serif;
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.14em;
