@@ -7,27 +7,37 @@ import {
   Scripts,
   ScrollRestoration
 } from 'react-router'
+import instrumentSans from '@fontsource-variable/instrument-sans/files/instrument-sans-latin-wght-normal.woff2?url'
+import sourceSerif4 from '@fontsource-variable/source-serif-4/files/source-serif-4-latin-opsz-normal.woff2?url'
 import tailwind from './tailwind.css?url'
+import fonts from './fonts.css?url'
 import styles from './global.css?url'
 import blogStyles from './blog.css?url'
 
 export const links: LinksFunction = () => [
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  // Every page uses both upright Latin fonts above the fold, so fetch them
+  // alongside the CSS instead of after it.
   {
-    rel: 'preconnect',
-    href: 'https://fonts.gstatic.com',
+    rel: 'preload',
+    href: instrumentSans,
+    as: 'font',
+    type: 'font/woff2',
+    crossOrigin: 'anonymous'
+  },
+  {
+    rel: 'preload',
+    href: sourceSerif4,
+    as: 'font',
+    type: 'font/woff2',
     crossOrigin: 'anonymous'
   },
   { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com' },
   { rel: 'dns-prefetch', href: 'https://pagead2.googlesyndication.com' },
   { rel: 'dns-prefetch', href: 'https://cdn.akamai.steamstatic.com' },
+  { rel: 'stylesheet', href: fonts },
   { rel: 'stylesheet', href: tailwind },
   { rel: 'stylesheet', href: styles },
   { rel: 'stylesheet', href: blogStyles },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap'
-  },
   { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
   { rel: 'icon', type: 'image/png', href: '/favicon-32x32.png', sizes: '32x32' },
   { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
