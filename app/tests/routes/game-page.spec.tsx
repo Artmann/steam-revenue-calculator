@@ -91,4 +91,20 @@ describe('GameRoute', () => {
 
     expect(screen.queryByText('Metacritic')).not.toBeInTheDocument()
   })
+
+  it('hides the screenshot and company line when they are missing.', () => {
+    vi.mocked(useLoaderData).mockReturnValue({
+      game: { ...rust, developers: [], publishers: [] },
+      tags: []
+    } as never)
+
+    render(
+      <MemoryRouter>
+        <GameRoute />
+      </MemoryRouter>
+    )
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    expect(screen.queryByText('By')).not.toBeInTheDocument()
+  })
 })
