@@ -29,11 +29,14 @@ describe('HomePageRoute', () => {
     await userEvent.clear(screen.getByLabelText('Reviews'))
     await userEvent.type(screen.getByLabelText('Reviews'), '2300')
 
-    await userEvent.clear(screen.getByLabelText('Price'))
-    await userEvent.type(screen.getByLabelText('Price'), '6.99')
+    await userEvent.clear(screen.getByLabelText('Price (USD)'))
+    await userEvent.type(screen.getByLabelText('Price (USD)'), '6.99')
 
     expect(screen.getByTestId('gross-revenue')).toHaveTextContent('$578,772')
 
     expect(screen.getByTestId('net-revenue')).toHaveTextContent('$170,737.74')
+
+    expect(screen.getByText('2,300 reviews')).toBeInTheDocument()
+    expect(screen.getByText('$6.99')).toBeInTheDocument()
   })
 })

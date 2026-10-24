@@ -3,8 +3,15 @@ import type { ReactElement, ReactNode } from 'react'
 
 import { useState } from 'react'
 
-import { InlineInput } from '~/components/inline-input'
+import { CalculatorField, Figure } from '~/components/calculator-field'
 import { Page } from '~/components/page'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '~/components/ui/select'
 import { formatCurrency, formatNumber } from '~/games'
 import {
   earlyAccessFactor,
@@ -52,10 +59,11 @@ export default function WishlistCalculatorRoute(): ReactElement {
   const [price, setPrice] = useState('14.99')
   const [earlyAccess, setEarlyAccess] = useState(false)
 
-  const wishlistCount = parseInt(wishlists, 10) || 0
+  const wishlistCount = Math.max(0, parseInt(wishlists, 10) || 0)
+  const priceValue = Math.max(0, parseFloat(price) || 0)
   const estimates = estimateSales({
     earlyAccess,
-    price: parseFloat(price) || 0,
+    price: priceValue,
     wishlists: wishlistCount
   })
   const year = estimates[estimates.length - 1]
@@ -69,36 +77,51 @@ export default function WishlistCalculatorRoute(): ReactElement {
             How many copies will your wishlists <em className="text-accent">sell</em>?
           </h1>
           <p className="text-lg md:text-xl text-paper leading-relaxed md:leading-7 max-w-xl">
-            You launch with{' '}
-            <InlineInput
+            You launch with <Figure>{formatNumber(wishlistCount)} wishlists</Figure> at a
+            price of <Figure>{formatCurrency(priceValue)}</Figure> as{' '}
+            <Figure>{earlyAccess ? 'an Early Access game' : 'a full release'}</Figure>. Based
+            on how other Steam games converted their wishlists, this is the
+            range of sales you can expect.
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 max-w-lg">
+            <CalculatorField
               id="wishlists"
               label="Wishlists at launch"
               value={wishlists}
               onChange={setWishlists}
-              suffix=" wishlists"
-              width="5rem"
-            />{' '}
-            at a price of{' '}
-            <InlineInput
+              inputMode="numeric"
+            />
+            <CalculatorField
               id="price"
-              label="Price"
+              label="Price (USD)"
               value={price}
               onChange={setPrice}
-              prefix="$"
-              width="4.25rem"
-              step="0.01"
-            />{' '}
-            as{' '}
-            <button
-              aria-pressed={earlyAccess}
-              className="border-b border-dashed border-rule-strong px-0.5 text-accent font-medium hover:border-accent focus:border-solid focus:border-accent focus:outline-hidden"
-              onClick={() => setEarlyAccess(!earlyAccess)}
-              type="button"
-            >
-              {earlyAccess ? 'an Early Access game' : 'a full release'}
-            </button>. Based on how other Steam games converted their wishlists, this
-            is the range of sales you can expect.
-          </p>
+              inputMode="decimal"
+            />
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="release-type"
+                className="eyebrow"
+              >
+                Release type
+              </label>
+              <Select
+                value={earlyAccess ? 'early-access' : 'full'}
+                onValueChange={(value) => setEarlyAccess(value === 'early-access')}
+              >
+                <SelectTrigger
+                  id="release-type"
+                  className="text-lg"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="full">Full release</SelectItem>
+                  <SelectItem value="early-access">Early Access</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </header>
 
         <aside className="md:col-span-5 md:border-l md:border-rule md:pl-10 flex flex-col gap-6">
