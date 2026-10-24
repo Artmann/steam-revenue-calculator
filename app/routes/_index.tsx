@@ -4,9 +4,9 @@ import { Link, useLoaderData } from 'react-router'
 import { useState } from 'react'
 import slugify from 'slugify'
 
-import { InlineInput } from '~/components/inline-input'
+import { CalculatorField, Figure } from '~/components/calculator-field'
 import { Page } from '~/components/page'
-import type { GameDetails } from '~/games'
+import { formatCurrency, formatNumber, type GameDetails } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 import { GameService } from '~/services/game-service.server'
@@ -63,10 +63,9 @@ export default function HomePageRoute() {
   const [numberOfReviews, setNumberOfReviews] = useState('1540')
   const [price, setPrice] = useState('14.99')
 
-  const grossRevenue = calculateRevenue(
-    parseInt(numberOfReviews, 10) || 0,
-    parseFloat(price) || 0
-  )
+  const reviewCount = Math.max(0, parseInt(numberOfReviews, 10) || 0)
+  const priceValue = Math.max(0, parseFloat(price) || 0)
+  const grossRevenue = calculateRevenue(reviewCount, priceValue)
 
   return (
     <Page>
@@ -80,27 +79,14 @@ export default function HomePageRoute() {
             <em className="text-accent">actually</em> earn?
           </h1>
           <p className="text-lg md:text-xl text-paper leading-relaxed md:leading-7 max-w-xl">
-            The <InlineInput
-              id="number-of-reviews"
-              label="Reviews"
-              value={numberOfReviews}
-              onChange={setNumberOfReviews}
-              suffix=" reviews"
-              width="4.5rem"
-            /> a Steam game has accumulated are a rough proxy for its number
-            of owners. Multiply by a price of{' '}
-            <InlineInput
-              id="price"
-              label="Price"
-              value={price}
-              onChange={setPrice}
-              prefix="$"
-              width="4.25rem"
-              step="0.01"
-            />
-            {' '}and adjust for regional pricing, launch discounts, refunds,
-            VAT, and Steam's 30% cut — what remains is what the developer
-            actually banks. The method is called{' '}
+            The{' '}
+            <Figure>{formatNumber(reviewCount)} reviews</Figure> a
+            Steam game has accumulated are a rough proxy for its number of
+            owners. Multiply by a price of{' '}
+            <Figure>{formatCurrency(priceValue)}</Figure>{' '}
+            and adjust for regional pricing, launch discounts, refunds, VAT,
+            and Steam's 30% cut — what remains is what the developer actually
+            banks. The method is called{' '}
             <a
               className="text-accent underline underline-offset-4 hover:decoration-accent"
               href="https://greyaliengames.com/blog/how-to-estimate-how-many-sales-a-steam-game-has-made"
@@ -109,6 +95,22 @@ export default function HomePageRoute() {
             </a>
             ; treat the output as an order-of-magnitude guide, not an audit.
           </p>
+          <div className="grid grid-cols-2 gap-6 max-w-sm">
+            <CalculatorField
+              id="number-of-reviews"
+              label="Reviews"
+              value={numberOfReviews}
+              onChange={setNumberOfReviews}
+              inputMode="numeric"
+            />
+            <CalculatorField
+              id="price"
+              label="Price (USD)"
+              value={price}
+              onChange={setPrice}
+              inputMode="decimal"
+            />
+          </div>
         </header>
 
         <aside className="md:col-span-5 md:border-l md:border-rule md:pl-10">
