@@ -6,7 +6,7 @@
 //
 // limit caps how many app ids are scraped (default 2000, 0 = all). Delisting
 // only runs for a full scrape, since a partial one would flag everything else.
-import { resetDatabaseConnection } from '~/db'
+import { ensureDatabaseIndexes, resetDatabaseConnection } from '~/db'
 import { computeAndSaveStats } from '~/market/compute-and-save-stats.server'
 import { chunk } from '~/scrape/chunk'
 import { listAppIds } from '~/scrape/list-app-ids'
@@ -41,6 +41,8 @@ if (!Number.isInteger(limit) || limit < 0) {
 
 async function main(): Promise<void> {
   const runStartedAt = Date.now()
+
+  await ensureDatabaseIndexes()
 
   console.log(`Synced ${await syncTags()} tags.`)
 

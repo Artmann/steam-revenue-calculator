@@ -3,9 +3,9 @@ import { MongoClient, type Collection, type Db } from 'mongodb'
 import { gamesSitemapIndex } from '~/sitemap/xml'
 
 let client: MongoClient | undefined
-let indexes: Promise<void> | undefined
 
 const indexKeySpecsConflict = 86
+const databaseWaitLimit = 3_000
 
 // Production has a non-unique gameId_1 from before the unique option was
 // added. Convert it in place rather than dropping it, so game lookups never
@@ -51,7 +51,7 @@ async function ensureIndexes(db: Db): Promise<void> {
   }
 
   // Best effort: an index that conflicts with an existing one must not fail
-  // the request that happened to trigger this.
+  // the scrape that runs this.
   const results = await Promise.allSettled([
     games.createIndex({ grossRevenue: -1 }),
     ensureUniqueGameIdIndex(db),
@@ -75,13 +75,21 @@ async function ensureIndexes(db: Db): Promise<void> {
 
 async function getDatabase(): Promise<Db> {
   const url = process.env.DB_URL ?? 'mongodb://127.0.0.1:27017/'
-  const maxPoolSize = parseInt(process.env.DB_POOL_SIZE ?? '10', 10)
+  const maxPoolSize = parseInt(process.env.DB_POOL_SIZE ?? '5', 10)
   const databaseName = process.env.DB_DATABASE ?? ''
 
   // Assign synchronously so concurrent first callers share one client; the
   // driver de-duplicates concurrent connect() calls on the same instance.
   if (!client) {
-    client = new MongoClient(url, { maxPoolSize })
+    // Requests must fail fast when the database struggles: the function is
+    // billed for every second it waits. There is no socket timeout because the
+    // scraper's bulk operations legitimately run for a long time.
+    client = new MongoClient(url, {
+      maxPoolSize,
+      connectTimeoutMS: databaseWaitLimit,
+      serverSelectionTimeoutMS: databaseWaitLimit,
+      waitQueueTimeoutMS: databaseWaitLimit
+    })
   }
 
   const current = client
@@ -96,18 +104,13 @@ async function getDatabase(): Promise<Db> {
     throw error
   }
 
-  const db = current.db(databaseName)
+  return current.db(databaseName)
+}
 
-  // Share one attempt between concurrent callers; forget it on failure so
-  // the next request retries.
-  indexes ??= ensureIndexes(db).catch((error) => {
-    indexes = undefined
-    throw error
-  })
-
-  await indexes
-
-  return db
+// Runs from the scraper, never from a request: it takes several round trips,
+// and a cold start under load must not spend them.
+export async function ensureDatabaseIndexes(): Promise<void> {
+  await ensureIndexes(await getDatabase())
 }
 
 export async function getCollection(collectionName: string): Promise<Collection> {
@@ -120,7 +123,6 @@ export async function resetDatabaseConnection(): Promise<void> {
   const current = client
 
   client = undefined
-  indexes = undefined
 
   await current?.close()
 }

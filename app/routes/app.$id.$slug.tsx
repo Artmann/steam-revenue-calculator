@@ -7,7 +7,7 @@ import { Page } from '~/components/page'
 import type { GameDetails } from '~/games'
 import { formatCurrency, formatNumber, normalizeGameDetails } from '~/games'
 import { getTagIndex, type TagIndexEntry } from '~/market/market-service.server'
-import { Game } from '~/models/game'
+import { GameService } from '~/services/game-service.server'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 
@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({
 }): Promise<LoaderData | Response> => {
   const gameId = parseInt(params.id as string, 10)
 
-  const game = await Game.findBy('gameId', gameId)
+  const game = await new GameService().findGame(gameId)
 
   if (!game) {
     throw new Response(null, {

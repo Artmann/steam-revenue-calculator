@@ -12,15 +12,20 @@ import type {
 } from '~/market/stats'
 import type { TagSummary } from '~/market/tag-summaries'
 
+// Stops a query in MongoDB too, unlike giving up on it in the function. Pages
+// use this; the scraper's stats run needs as long as it takes.
+export const pageQueryLimitMs = 6_000
+
 export async function loadMarketGames(
-  query: Record<string, unknown>
+  query: Record<string, unknown>,
+  maxTimeMS?: number
 ): Promise<MarketGame[]> {
   const collection = await getCollection('games')
 
   // This is MongoDB's Collection.find, which returns a cursor, not Array.find.
   // react-doctor-disable-next-line react-doctor/no-array-find-result-member-access-without-guard
   const documents = (await collection
-    .find(query)
+    .find(query, { maxTimeMS })
     .project(MARKET_GAME_PROJECTION)
     .toArray()) as MarketGameDocument[]
 

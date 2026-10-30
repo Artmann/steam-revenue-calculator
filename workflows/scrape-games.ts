@@ -6,6 +6,7 @@ import type { ChunkField, ScrapeTrigger } from '~/scrape/run-record'
 import {
   collectFailedIdsStep,
   computeStatsStep,
+  ensureIndexesStep,
   finishRunStep,
   listAppIdsStep,
   markDelistedStep,
@@ -42,6 +43,7 @@ export async function scrapeGames(input: {
 
   try {
     await startRunStep(runId, input.trigger, runStartedAt)
+    await ensureIndexesStep()
     await syncTagsStep()
 
     const appIds = await listAppIdsStep(runId, runStartedAt)

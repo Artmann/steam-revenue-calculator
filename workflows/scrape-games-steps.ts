@@ -1,5 +1,6 @@
 import { FatalError } from 'workflow'
 
+import { ensureDatabaseIndexes } from '~/db'
 import { computeAndSaveStats } from '~/market/compute-and-save-stats.server'
 import { listAppIds } from '~/scrape/list-app-ids'
 import { markDelisted } from '~/scrape/mark-delisted'
@@ -36,6 +37,12 @@ export async function startRunStep(
   'use step'
 
   await startRun(runId, trigger, startedAt)
+}
+
+export async function ensureIndexesStep(): Promise<void> {
+  'use step'
+
+  await ensureDatabaseIndexes()
 }
 
 export async function syncTagsStep(): Promise<number> {

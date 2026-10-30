@@ -1,5 +1,7 @@
 import { createRequestHandler } from 'react-router'
 
+import { markedUnavailable, withDeadline } from '~/http/unavailable'
+
 const handler = createRequestHandler(
   () => import('virtual:react-router/server-build'),
   import.meta.env.MODE
@@ -18,5 +20,10 @@ function withCharset(response: Response): Response {
 }
 
 export default {
-  fetch: async (request: Request) => withCharset(await handler(request))
+  fetch: async (request: Request) =>
+    withCharset(
+      await withDeadline(async () =>
+        markedUnavailable(request, await handler(request))
+      )
+    )
 }

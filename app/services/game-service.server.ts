@@ -1,11 +1,24 @@
 import { getCollection } from '~/db'
 import type { GameDetails } from '~/games';
 
+interface GameRecord {
+  details?: GameDetails
+  tagIds?: number[]
+}
+
 let cachedGameCount: number | null = null
 
 export class GameService {
+  async findGame(gameId: number): Promise<GameRecord | null> {
+    const collection = await getCollection('games')
+
+    return collection.findOne<GameRecord>(
+      { gameId },
+      { projection: { _id: 0, details: 1, tagIds: 1 } }
+    )
+  }
+
   async listGames(page: number, pageSize: number): Promise<(GameDetails & { grossRevenue: number })[]> {
-    // Use a raw db query because Esix doesn't support skip.
     const collection = await getCollection('games')
 
     const skip = Math.max(page - 1, 0) * pageSize

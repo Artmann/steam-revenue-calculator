@@ -1,5 +1,6 @@
 {
   "framework": null,
+  "fluid": true,
   "buildCommand": "pnpm build",
   "headers": [
     {
