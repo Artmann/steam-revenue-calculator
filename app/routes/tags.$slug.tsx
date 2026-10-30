@@ -35,7 +35,8 @@ import {
   getTagBySlug,
   getTagIndex,
   loadMarketGames,
-  loadTopGames
+  loadTopGames,
+  pageQueryLimitMs
 } from '~/market/market-service.server'
 import {
   computeMarketStats,
@@ -83,7 +84,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
 
   const stats = filtered
     ? computeMarketStats(
-        await loadMarketGames(query),
+        await loadMarketGames(query, pageQueryLimitMs),
         baseline?.tagFrequencies,
         [tag.tagId, ...filters.withTagIds]
       )

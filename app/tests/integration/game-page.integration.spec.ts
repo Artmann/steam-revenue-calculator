@@ -14,8 +14,8 @@ afterAll(async () => {
   await resetDatabaseConnection()
 })
 
-describe('game page loader (real MongoDB, esix)', () => {
-  it('returns the game details found by esix and its tags.', async () => {
+describe('game page loader (real MongoDB)', () => {
+  it('returns the game details and its tags.', async () => {
     const games = await getCollection('games')
     const tags = await getCollection('tags')
 
@@ -106,7 +106,7 @@ describe('game page loader (real MongoDB, esix)', () => {
   })
 })
 
-describe('game id redirect loader (real MongoDB, esix)', () => {
+describe('game id redirect loader (real MongoDB)', () => {
   it('redirects a slug-less game url to the game page.', async () => {
     const games = await getCollection('games')
 

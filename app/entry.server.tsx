@@ -12,6 +12,7 @@ import { isbot } from 'isbot'
 import { renderToPipeableStream } from 'react-dom/server'
 
 import { logServerError } from '~/http/log-server-error'
+import { markIfUnavailable } from '~/http/unavailable'
 import { applyNotFoundCaching } from '~/http/not-found-caching'
 
 const ABORT_DELAY = 5_000
@@ -45,6 +46,7 @@ export const handleDataRequest: HandleDataRequestFunction = (response) => {
 }
 
 export const handleError: HandleErrorFunction = (error, { request }) => {
+  markIfUnavailable(error, request)
   logServerError(error, request)
 }
 

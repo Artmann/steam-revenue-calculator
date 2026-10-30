@@ -1,7 +1,11 @@
 import { randomUUID } from 'node:crypto'
 import { afterAll, beforeAll, describe, expect, inject, it, vi } from 'vitest'
 
-import { getCollection, resetDatabaseConnection } from '~/db'
+import {
+  ensureDatabaseIndexes,
+  getCollection,
+  resetDatabaseConnection
+} from '~/db'
 
 beforeAll(() => {
   process.env.DB_URL = inject('mongoUri')
@@ -12,8 +16,10 @@ afterAll(async () => {
   await resetDatabaseConnection()
 })
 
-describe('getCollection (real MongoDB)', () => {
+describe('ensureDatabaseIndexes (real MongoDB)', () => {
   it('creates the expected indexes on a fresh database.', async () => {
+    await ensureDatabaseIndexes()
+
     const games = await getCollection('games')
     const tags = await getCollection('tags')
 
@@ -44,8 +50,9 @@ describe('getCollection (real MongoDB)', () => {
     await raw.close()
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const games = await getCollection('games')
+    await ensureDatabaseIndexes()
 
+    const games = await getCollection('games')
     const gameIdIndex = (await games.indexes()).find(({ name }) => name === 'gameId_1')
 
     expect(gameIdIndex?.unique).toEqual(true)
@@ -54,7 +61,7 @@ describe('getCollection (real MongoDB)', () => {
     consoleError.mockRestore()
   })
 
-  it('still serves when duplicate game ids block the unique index.', async () => {
+  it('finishes when duplicate game ids block the unique index.', async () => {
     await resetDatabaseConnection()
     process.env.DB_DATABASE = `test-${randomUUID()}`
 
@@ -68,6 +75,8 @@ describe('getCollection (real MongoDB)', () => {
     await raw.close()
 
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    await ensureDatabaseIndexes()
+
     const games = await getCollection('games')
 
     expect(await games.countDocuments()).toEqual(2)

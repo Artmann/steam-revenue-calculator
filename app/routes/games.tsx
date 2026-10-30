@@ -65,23 +65,16 @@ export const loader: LoaderFunction = async ({
   request
 }): Promise<LoaderData> => {
   const pageSize = 48
+  const params = new URL(request.url).searchParams
 
-  try {
-    const params = new URL(request.url).searchParams
+  const page = Math.max(parseInt(params.get('page') ?? '1', 10) || 1, 1)
+  const gameService = new GameService()
+  const totalCount = await gameService.getGameCount()
+  const pageCount = Math.ceil(totalCount / pageSize)
 
-    const page = parseInt(params.get('page') ?? '1', 10)
-    const gameService = new GameService()
-    const totalCount = await gameService.getGameCount()
-    const pageCount = Math.ceil(totalCount / pageSize)
+  const games = await gameService.listGames(page, pageSize)
 
-    const games = await gameService.listGames(page, pageSize)
-
-    return { games, page, pageCount, totalCount }
-  } catch (error) {
-    console.error(error)
-
-    return { games: [], page: 1, pageCount: 1, totalCount: 0 }
-  }
+  return { games, page, pageCount, totalCount }
 }
 
 export default function GamesRoute(): ReactElement {

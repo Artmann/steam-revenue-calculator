@@ -38,6 +38,8 @@ export default defineConfig({
     reactRouter(),
     nitro({
       serverDir: './server',
+      // Backstop for server/ssr.ts, which answers first at eight seconds.
+      vercel: { functions: { maxDuration: 10 } },
       // React Router always reads its client manifest from `build/client`, so
       // the client assets land there. Locally the server goes to `build/server`.
       // On Vercel the preset keeps its `.vercel/output` defaults (config.json,

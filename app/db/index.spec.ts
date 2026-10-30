@@ -28,14 +28,18 @@ vi.mock('mongodb', () => ({
   }
 }))
 
-import { getCollection, resetDatabaseConnection } from '~/db'
+import {
+  ensureDatabaseIndexes,
+  getCollection,
+  resetDatabaseConnection
+} from '~/db'
 
 beforeEach(async () => {
   await resetDatabaseConnection()
   vi.clearAllMocks()
 })
 
-describe('getCollection', () => {
+describe('ensureDatabaseIndexes', () => {
   it('converts a conflicting non-unique gameId index to unique in place.', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -50,7 +54,7 @@ describe('getCollection', () => {
       }
     })
 
-    await getCollection('games')
+    await ensureDatabaseIndexes()
 
     expect(command.mock.calls).toEqual([
       [
@@ -66,7 +70,7 @@ describe('getCollection', () => {
     consoleError.mockRestore()
   })
 
-  it('returns the collection even when an index cannot be created.', async () => {
+  it('finishes even when an index cannot be created.', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
@@ -80,9 +84,8 @@ describe('getCollection', () => {
       }
     })
 
-    const collection = await getCollection('games')
+    await ensureDatabaseIndexes()
 
-    expect((collection as any).name).toBe('games')
     expect(createIndex).toHaveBeenCalledTimes(11)
     expect(consoleError).toHaveBeenCalledWith(
       'Failed to create index:',
@@ -92,24 +95,15 @@ describe('getCollection', () => {
     consoleError.mockRestore()
   })
 
-  it('retries index creation after a failed attempt.', async () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
-    dropIndex.mockRejectedValueOnce(new Error('network blip'))
-    dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
-    createIndex.mockResolvedValue('ok')
+  it('fails when the database rejects the attempt.', async () => {
+    dropIndex.mockRejectedValue(new Error('network blip'))
 
-    await expect(getCollection('games')).rejects.toThrow('network blip')
-    await getCollection('games')
-
-    expect(createIndex).toHaveBeenCalledTimes(11)
-
-    consoleError.mockRestore()
+    await expect(ensureDatabaseIndexes()).rejects.toThrow('network blip')
   })
+})
 
-  it('shares one client and one index attempt between concurrent first calls.', async () => {
-    dropIndex.mockRejectedValue({ code: 27, codeName: 'IndexNotFound' })
-    createIndex.mockResolvedValue('ok')
-
+describe('getCollection', () => {
+  it('shares one client between concurrent first calls.', async () => {
     await Promise.all([
       getCollection('games'),
       getCollection('tags'),
@@ -117,7 +111,12 @@ describe('getCollection', () => {
     ])
 
     expect(constructed).toHaveBeenCalledTimes(1)
-    expect(dropIndex).toHaveBeenCalledTimes(1)
-    expect(createIndex).toHaveBeenCalledTimes(11)
+  })
+
+  it('leaves index creation to the scraper.', async () => {
+    await getCollection('games')
+
+    expect(dropIndex).not.toHaveBeenCalled()
+    expect(createIndex).not.toHaveBeenCalled()
   })
 })

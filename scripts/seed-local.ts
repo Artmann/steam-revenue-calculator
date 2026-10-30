@@ -1,4 +1,4 @@
-import { getCollection } from '~/db'
+import { ensureDatabaseIndexes, getCollection } from '~/db'
 import { computeAllTagStats } from '~/market/compute-all'
 import { loadMarketGames } from '~/market/market-service.server'
 import { createTagSlugs } from '~/market/tag-slugs'
@@ -68,6 +68,8 @@ const games: ScrapedGame[] = names.map(([gameId, name], index) => {
 })
 
 async function main(): Promise<void> {
+  await ensureDatabaseIndexes()
+
   const gamesCollection = await getCollection('games')
   const tagsCollection = await getCollection('tags')
   const marketStats = await getCollection('marketStats')

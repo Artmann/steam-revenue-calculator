@@ -1,7 +1,11 @@
 import { randomUUID } from 'node:crypto'
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest'
 
-import { getCollection, resetDatabaseConnection } from '~/db'
+import {
+  ensureDatabaseIndexes,
+  getCollection,
+  resetDatabaseConnection
+} from '~/db'
 import { loader as gamesSitemapLoader } from '~/routes/sitemap-games.$page'
 import { loader as indexLoader } from '~/routes/sitemap[.]xml'
 import { gamesSitemapIndex } from '~/sitemap/xml'
@@ -10,6 +14,7 @@ beforeAll(async () => {
   process.env.DB_URL = inject('mongoUri')
   process.env.DB_DATABASE = `test-${randomUUID()}`
 
+  await ensureDatabaseIndexes()
   await (await getCollection('games')).insertMany([
     { gameId: 20, slug: 'second', contentUpdatedAt: Date.UTC(2026, 9, 12) },
     { gameId: 10, slug: 'first' },

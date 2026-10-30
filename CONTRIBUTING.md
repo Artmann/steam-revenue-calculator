@@ -4,7 +4,7 @@
 
 - [React Router 7](https://reactrouter.com/) (Vite) served by [Nitro](https://nitro.build/), on Node 22+
 - [Vercel Workflow SDK](https://workflow-sdk.dev/) for durable background work (`workflows/`, `server/routes/`)
-- [MongoDB](https://www.mongodb.com/) via the [`esix`](https://www.npmjs.com/package/esix) ORM
+- [MongoDB](https://www.mongodb.com/) via the official Node.js driver
 - [Tailwind CSS 4](https://tailwindcss.com/) (configured via `@config` in `app/tailwind.css`, still using `tailwind.config.ts`) + a few [shadcn/ui](https://ui.shadcn.com/) primitives
 - [Vitest](https://vitest.dev/) + Testing Library, with [mongodb-memory-server](https://github.com/typegoose/mongodb-memory-server) for integration tests
 - Deployed on [Vercel](https://vercel.com/)
@@ -33,7 +33,7 @@ Copy `.env.template` to `.env.local` and fill in local values only.
 |---|---|---|
 | `DB_URL` | MongoDB connection string | `mongodb://127.0.0.1:27017/` |
 | `DB_DATABASE` | Database name | `steam_revenue` |
-| `DB_POOL_SIZE` | Connection pool size (optional, defaults to 10). esix reads `DB_MAX_POOL_SIZE` and falls back to `DB_POOL_SIZE` | `10` |
+| `DB_POOL_SIZE` | Connection pool size (optional, defaults to 5) | `5` |
 | `SCRAPE_KEY` | Shared secret for starting the scrape workflow by hand (`POST /api/workflows/scrape` with an `x-scrape-key` header) | any long random string |
 | `CRON_SECRET` | Secret Vercel Cron sends as `Authorization: Bearer …` when it starts the daily scrape | any long random string |
 | `STEAM_API_KEY` | Steam Web API key, needed by the scrape workflow | your Steam Web API key |
@@ -65,7 +65,6 @@ app/
   components/    shared UI + shadcn primitives
   db/            MongoDB client + index setup
   games/         slug helpers, GameDetails type
-  models/        esix models (Game)
   revenue/       calculateRevenue(), revenueBreakdown()
   routes/        React Router route modules (flat-routes file convention; app/routes.ts)
   scrape/        scrape steps: tag sync, app listing, chunk scraping, delisting, run record
