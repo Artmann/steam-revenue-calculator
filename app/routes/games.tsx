@@ -13,6 +13,8 @@ import {
   PaginationPrevious
 } from '~/components/ui/pagination'
 import { type GameDetails, formatCurrency, formatNumber } from '~/games'
+import { CANONICAL_CACHE_CONTROL } from '~/market/constants'
+import { countListPages, parseListPage } from '~/market/list-pages'
 import { GameService } from '~/services/game-service.server'
 
 interface GameWithRevenue extends GameDetails {
@@ -55,9 +57,11 @@ export const meta: MetaFunction = () => {
   ]
 }
 
+// The ranking only changes with the daily scrape, so the CDN can keep it as
+// long as the tag and game pages.
 export const headers: HeadersFunction = () => {
   return {
-    'Cache-Control': 'public, max-age=300, s-maxage=3600'
+    'Cache-Control': CANONICAL_CACHE_CONTROL
   }
 }
 
@@ -67,10 +71,14 @@ export const loader: LoaderFunction = async ({
   const pageSize = 48
   const params = new URL(request.url).searchParams
 
-  const page = Math.max(parseInt(params.get('page') ?? '1', 10) || 1, 1)
   const gameService = new GameService()
   const totalCount = await gameService.getGameCount()
-  const pageCount = Math.ceil(totalCount / pageSize)
+  const pageCount = countListPages(totalCount, pageSize)
+  const page = parseListPage(params.get('page'), pageCount)
+
+  if (page === null) {
+    throw new Response(null, { status: 404, statusText: 'Page Not Found.' })
+  }
 
   const games = await gameService.listGames(page, pageSize)
 
@@ -81,7 +89,7 @@ export default function GamesRoute(): ReactElement {
   const { games, page, pageCount, totalCount } = useLoaderData<LoaderData>()
 
   const previousPageNumber = Math.max(page - 1, 1)
-  const nextPageNumber = page + 1
+  const nextPageNumber = Math.min(page + 1, pageCount)
   const pageSize = 48
   const startRank = (page - 1) * pageSize + 1
 
