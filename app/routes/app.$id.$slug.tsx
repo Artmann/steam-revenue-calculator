@@ -4,15 +4,15 @@ import type { ReactElement } from 'react'
 import slugify from 'slugify'
 
 import { Page } from '~/components/page'
-import type { GameDetails } from '~/games'
-import { formatCurrency, formatNumber, normalizeGameDetails } from '~/games'
+import type { GamePageDetails } from '~/games'
+import { formatCurrency, formatNumber, toGamePageDetails } from '~/games'
 import { getTagIndex, type TagIndexEntry } from '~/market/market-service.server'
 import { GameService } from '~/services/game-service.server'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
 import { RevenueBreakdownTable } from '~/revenue/revenue-breakdown-table'
 
 interface LoaderData {
-  game: GameDetails
+  game: GamePageDetails
   tags: TagIndexEntry[]
 }
 
@@ -27,7 +27,7 @@ export const loader: LoaderFunction = async ({
 }): Promise<LoaderData | Response> => {
   const gameId = parseInt(params.id as string, 10)
 
-  const game = await new GameService().findGame(gameId)
+  const game = await new GameService().findGamePage(gameId)
 
   if (!game) {
     throw new Response(null, {
@@ -47,7 +47,7 @@ export const loader: LoaderFunction = async ({
   const tagsById = new Map(tagIndex.map((tag) => [tag.tagId, tag]))
 
   return {
-    game: normalizeGameDetails(game.details, gameId),
+    game: toGamePageDetails(game.details, gameId),
     tags: (game.tagIds ?? []).flatMap((tagId) => {
       const tag = tagsById.get(tagId)
 
@@ -58,7 +58,7 @@ export const loader: LoaderFunction = async ({
 
 export const meta: MetaFunction = ({ data: loaderData }) => {
   const data = loaderData as LoaderData
-  const screenshot = data.game.screenshots[0]
+  const screenshot = data.game.screenshot
 
   return [
     {
@@ -112,7 +112,7 @@ export default function AppRoute(): ReactElement {
   const grossRevenue = calculateRevenue(game.numberOfReviews, game.price / 100)
   const breakdown = revenueBreakdown(grossRevenue)
   const companies = [...new Set([...game.developers, ...game.publishers])]
-  const screenshot = game.screenshots[0]
+  const screenshot = game.screenshot
 
   return (
     <Page>

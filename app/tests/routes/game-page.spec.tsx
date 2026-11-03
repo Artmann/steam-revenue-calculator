@@ -17,10 +17,8 @@ describe('GameRoute', () => {
     vi.mocked(useLoaderData).mockReturnValue({
       game: {
         id: 1,
-        categories: [],
         description: 'A game about rugs and pumpkins.',
         developers: ['Facepunch Studios'],
-        genres: [],
         metacritic: {
           score: 74,
           url: ''
@@ -29,7 +27,7 @@ describe('GameRoute', () => {
         numberOfReviews: 32,
         publishers: ['Facepunch Studios'],
         price: 3999,
-        screenshots: []
+        screenshot: null
       }
     } as never)
 
@@ -49,16 +47,14 @@ describe('GameRoute', () => {
 
   const rust = {
     id: 1,
-    categories: [],
     description: 'A game about rugs and pumpkins.',
     developers: ['Facepunch Studios'],
-    genres: [],
     metacritic: {},
     name: 'Rust',
     numberOfReviews: 32,
     publishers: ['Facepunch Studios'],
     price: 3999,
-    screenshots: []
+    screenshot: null
   }
 
   it('links tags that have a market page and lists the rest as text.', () => {
