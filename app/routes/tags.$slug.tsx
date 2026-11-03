@@ -30,6 +30,7 @@ import {
   formatDate,
   formatPercent
 } from '~/market/format'
+import { countListPages, parseListPage } from '~/market/list-pages'
 import {
   getBaseline,
   getTagBySlug,
@@ -90,11 +91,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
       )
     : tag.stats
 
-  const pageCount = Math.max(1, Math.ceil(stats.gameCount / topGamesPageSize))
-  const page = Math.min(
-    Math.max(parseInt(searchParams.get('page') ?? '1', 10) || 1, 1),
-    pageCount
-  )
+  const pageCount = countListPages(stats.gameCount, topGamesPageSize)
+  const page = parseListPage(searchParams.get('page'), pageCount)
+
+  if (page === null) {
+    throw new Response(null, { status: 404, statusText: 'Page Not Found.' })
+  }
 
   const tagsById = new Map(tagIndex.map((entry) => [entry.tagId, entry]))
 
