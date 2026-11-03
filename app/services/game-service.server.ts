@@ -9,13 +9,39 @@ interface GameRecord {
 let cachedGameCount: number | null = null
 
 export class GameService {
-  async findGame(gameId: number): Promise<GameRecord | null> {
+  // Game pages are most of production traffic, so read only what the page
+  // renders: one screenshot, and no categories or genres.
+  async findGamePage(gameId: number): Promise<GameRecord | null> {
     const collection = await getCollection('games')
 
     return collection.findOne<GameRecord>(
       { gameId },
-      { projection: { _id: 0, details: 1, tagIds: 1 } }
+      {
+        projection: {
+          _id: 0,
+          tagIds: 1,
+          'details.id': 1,
+          'details.name': 1,
+          'details.description': 1,
+          'details.developers': 1,
+          'details.publishers': 1,
+          'details.metacritic': 1,
+          'details.price': 1,
+          'details.numberOfReviews': 1,
+          'details.screenshots': { $slice: 1 }
+        }
+      }
     )
+  }
+
+  async findGameName(gameId: number): Promise<string | null> {
+    const collection = await getCollection('games')
+    const game = await collection.findOne<GameRecord>(
+      { gameId },
+      { projection: { _id: 0, 'details.name': 1 } }
+    )
+
+    return game?.details?.name ?? null
   }
 
   async listGames(page: number, pageSize: number): Promise<(GameDetails & { grossRevenue: number })[]> {

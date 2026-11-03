@@ -1,6 +1,7 @@
 {
   "framework": null,
   "fluid": true,
+  "regions": ["fra1"],
   "buildCommand": "pnpm build",
   "headers": [
     {

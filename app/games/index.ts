@@ -18,24 +18,31 @@ export interface GameDetails {
   screenshots: string[]
 }
 
+// What the game page renders. It shows one screenshot and no categories or
+// genres, so the loader leaves those out of the HTML's hydration payload.
+export type GamePageDetails = Omit<
+  GameDetails,
+  'categories' | 'genres' | 'screenshots'
+> & {
+  screenshot: string | null
+}
+
 // Older game records can have null or missing fields, so fill in safe
 // defaults before the game page renders them.
-export function normalizeGameDetails(
+export function toGamePageDetails(
   details: Partial<GameDetails>,
   gameId: number
-): GameDetails {
+): GamePageDetails {
   return {
     id: details.id ?? gameId,
-    categories: details.categories ?? [],
     description: details.description ?? '',
     developers: details.developers ?? [],
-    genres: details.genres ?? [],
     metacritic: details.metacritic ?? {},
     name: details.name ?? '',
     numberOfReviews: details.numberOfReviews ?? 0,
     publishers: details.publishers ?? [],
     price: details.price ?? 0,
-    screenshots: details.screenshots ?? []
+    screenshot: details.screenshots?.[0] ?? null
   }
 }
 

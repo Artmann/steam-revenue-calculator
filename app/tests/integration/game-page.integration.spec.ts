@@ -92,16 +92,57 @@ describe('game page loader (real MongoDB)', () => {
 
     expect(result.game).toEqual({
       id: 11,
-      categories: [],
       description: '',
       developers: [],
-      genres: [],
       metacritic: {},
       name: 'Duelyst II Playtest',
       numberOfReviews: 0,
       publishers: [],
       price: 0,
-      screenshots: []
+      screenshot: null
+    })
+  })
+
+  it('sends only the first screenshot and none of the unused fields.', async () => {
+    const games = await getCollection('games')
+
+    await games.insertOne({
+      _id: 'game-13' as any,
+      gameId: 13,
+      slug: 'valheim',
+      grossRevenue: 0,
+      tagIds: [],
+      details: {
+        id: 13,
+        name: 'Valheim',
+        categories: ['Single-player', 'Online Co-op'],
+        description: 'Vikings.',
+        developers: ['Iron Gate'],
+        genres: ['Survival'],
+        metacritic: { score: 80, url: 'https://example.com/valheim' },
+        numberOfReviews: 476445,
+        publishers: ['Coffee Stain'],
+        price: 2999,
+        screenshots: ['https://example.com/1.jpg', 'https://example.com/2.jpg']
+      }
+    })
+
+    const result = (await loader({
+      request: new Request('http://localhost/app/13/valheim'),
+      params: { id: '13', slug: 'valheim' },
+      context: {}
+    } as any)) as any
+
+    expect(result.game).toEqual({
+      id: 13,
+      description: 'Vikings.',
+      developers: ['Iron Gate'],
+      metacritic: { score: 80, url: 'https://example.com/valheim' },
+      name: 'Valheim',
+      numberOfReviews: 476445,
+      publishers: ['Coffee Stain'],
+      price: 2999,
+      screenshot: 'https://example.com/1.jpg'
     })
   })
 })

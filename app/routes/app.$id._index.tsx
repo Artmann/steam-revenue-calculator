@@ -8,18 +8,18 @@ import { GameService } from '~/services/game-service.server'
 export const loader: LoaderFunction = async ({ params }) => {
   const gameId = parseInt(params.id as string, 10)
 
-  const game = Number.isNaN(gameId)
+  const name = Number.isNaN(gameId)
     ? null
-    : await new GameService().findGame(gameId)
+    : await new GameService().findGameName(gameId)
 
-  if (!game?.details?.name) {
+  if (!name) {
     throw new Response(null, {
       status: 404,
       statusText: 'Game Not Found.'
     })
   }
 
-  return redirect(`/app/${gameId}/${createGameSlug(game.details.name)}`, {
+  return redirect(`/app/${gameId}/${createGameSlug(name)}`, {
     status: 301,
     headers: {
       'Cache-Control': 'public, max-age=3600, s-maxage=86400'
