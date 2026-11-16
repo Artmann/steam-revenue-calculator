@@ -3,9 +3,8 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {
-    alias: { '~': path.resolve(__dirname, 'app') }
+    alias: { '~': path.resolve(import.meta.dirname, 'app') }
   },
-  esbuild: { jsx: 'automatic' },
   test: {
     environment: 'node',
     globalSetup: ['./vitest.global-setup.ts'],

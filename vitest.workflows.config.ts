@@ -8,7 +8,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   plugins: [workflow()],
   resolve: {
-    alias: { '~': path.resolve(__dirname, 'app') }
+    alias: { '~': path.resolve(import.meta.dirname, 'app') }
   },
   test: {
     environment: 'node',

@@ -56,7 +56,7 @@ export const loader: LoaderFunction = async ({
   }
 }
 
-export const meta: MetaFunction = ({ data: loaderData }) => {
+export const meta: MetaFunction = ({ loaderData }) => {
   const data = loaderData as LoaderData
   const screenshot = data.game.screenshot
 

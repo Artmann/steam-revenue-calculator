@@ -138,7 +138,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   })
 }
 
-export const meta: MetaFunction = ({ data }) => {
+export const meta: MetaFunction = ({ loaderData: data }) => {
   if (!data) {
     return [{ title: 'Tag not found — Steam Revenue Calculator' }]
   }

@@ -1,0 +1,2 @@
+patchedDependencies:
+  '@workflow/nitro@5.0.9': patches/@workflow__nitro@5.0.9.patch

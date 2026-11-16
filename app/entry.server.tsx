@@ -1,7 +1,6 @@
 import { PassThrough } from 'node:stream'
 
 import type {
-  AppLoadContext,
   EntryContext,
   HandleDataRequestFunction,
   HandleErrorFunction
@@ -21,8 +20,7 @@ export default function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
-  reactRouterContext: EntryContext,
-  loadContext: AppLoadContext
+  reactRouterContext: EntryContext
 ) {
   return isbot(request.headers.get('user-agent') ?? '')
     ? handleBotRequest(

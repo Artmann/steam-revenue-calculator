@@ -1,0 +1,48 @@
+diff --git a/dist/index.js b/dist/index.js
+index 21babedc673ba6fc5e211b2d77125f4c8f5ba9a8..4124e1b22dc60a3270118e8689a23dba5e15d304 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -84,7 +84,11 @@ export default {
+         const nitroBuildDir = `${nitro.options.buildDir.replace(/[\\/]+$/, '')}/`;
+         // Add transform plugin at the BEGINNING to run before other transforms
+         // (especially before class property transforms that rename classes like _ClassName)
+-        nitro.hooks.hook('rollup:before', (_nitro, config) => {
++        nitro.hooks.hook('build:config', (_nitro, buildConfig) => {
++            const config = buildConfig.rollup ?? buildConfig.rolldown;
++            if (!config) {
++                return;
++            }
+             config.plugins.unshift(workflowTransformPlugin({
+                 // Nitro build artifacts have already been transformed.
+                 // Re-processing them can duplicate class registration.
+@@ -159,7 +163,11 @@ export default {
+         // which would bundle ALL dependencies and cause TDZ errors from
+         // circular imports in packages like vue-bundle-renderer/h3.
+         if (nitro.options.dev) {
+-            nitro.hooks.hook('rollup:before', (_nitro, config) => {
++            nitro.hooks.hook('build:config', (_nitro, buildConfig) => {
++                const config = buildConfig.rollup ?? buildConfig.rolldown;
++                if (!config) {
++                    return;
++                }
+                 config.plugins.unshift({
+                     name: 'workflow:force-inline',
+                     // `order: 'pre'` is required: Nitro's `nitro:externals` plugin
+@@ -467,7 +475,7 @@ function addVirtualHandler(nitro, route, buildPath) {
+           currentImportPath = pathToFileURL(handlerPath).href + "?t=" + version;
+           ${preloadSteps[buildPath]}
+         }
+-        return (await import(currentImportPath)).POST;
++        return (await import(/* @vite-ignore */ currentImportPath)).POST;
+       }
+ 
+       export default fromWebHandler(async (request, context) => {
+@@ -492,7 +500,7 @@ function addVirtualHandler(nitro, route, buildPath) {
+           currentImportPath = pathToFileURL(handlerPath).href + "?t=" + version;
+           ${preloadSteps[buildPath]}
+         }
+-        return (await import(currentImportPath)).POST;
++        return (await import(/* @vite-ignore */ currentImportPath)).POST;
+       }
+ 
+       export default async ({ req }) => {

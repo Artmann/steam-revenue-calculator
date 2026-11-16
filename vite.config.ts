@@ -7,10 +7,9 @@ import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 import remarkGfm from 'remark-gfm'
 import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
 import { workflow } from 'workflow/vite'
 
-import reactRouterConfig from './react-router.config'
+import reactRouterConfig from './react-router.config.ts'
 
 const buildDirectory = reactRouterConfig.buildDirectory
 const clientDirectory = `${buildDirectory}/client`
@@ -63,9 +62,11 @@ export default defineConfig({
         }
       ]
     }),
-    workflow({ dirs: ['workflows'] }),
-    tsconfigPaths()
+    workflow({ dirs: ['workflows'] })
   ],
+  resolve: {
+    tsconfigPaths: true
+  },
   environments: {
     ssr: {
       build: {

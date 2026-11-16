@@ -15,11 +15,11 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "rootDirs": [".", "./.react-router/types"],
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"]
     },
 
+    "allowImportingTsExtensions": true,
     "noEmit": true
   }
 }
