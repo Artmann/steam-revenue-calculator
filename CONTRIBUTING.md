@@ -129,3 +129,4 @@ Notes:
 - [`server/ssr.ts`](server/ssr.ts) is the Nitro entry that serves React Router. On Vercel, Nitro's Vercel preset produces `.vercel/output`.
 - The Workflow SDK needs "Automatically expose System Environment Variables" enabled in the Vercel project settings.
 - Route loaders set their own `Cache-Control` headers; edit the `headers` export on a route to tune caching.
+- Game pages (`/app/**`) are cached with ISR (`routeRules` in [`vite.config.ts`](vite.config.ts)) for a day, and query strings other than `_routes` are ignored. Each deployment starts with an empty ISR cache, so every production deploy makes crawlers re-render the game pages. Batch merges to `main` rather than deploying many times a day.
