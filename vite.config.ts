@@ -39,6 +39,20 @@ export default defineConfig({
       serverDir: './server',
       // Backstop for server/ssr.ts, which answers first at eight seconds.
       vercel: { functions: { maxDuration: 10 } },
+      routeRules: {
+        // Crawlers fetch each of the ~112k game pages about once. The CDN
+        // cache is per region and drops rarely read pages, so most of those
+        // requests ran the function. ISR keeps one durable copy for all
+        // regions, so a game renders at most once a day per deployment.
+        '/app/**': {
+          isr: {
+            expiration: 86400,
+            // Ignore junk query strings (utm tags, cache busters). Keep
+            // `_routes`, which React Router can add to .data requests.
+            allowQuery: ['_routes']
+          }
+        }
+      },
       // React Router always reads its client manifest from `build/client`, so
       // the client assets land there. Locally the server goes to `build/server`.
       // On Vercel the preset keeps its `.vercel/output` defaults (config.json,
