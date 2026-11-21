@@ -98,6 +98,11 @@
   color: var(--paper-muted);
 }
 
+/* Give the reserved space back when AdSense has no ad for a slot. */
+.ad-unit:has(ins[data-ad-status='unfilled']) {
+  display: none;
+}
+
 ::selection {
   background-color: var(--accent);
   color: var(--ink);

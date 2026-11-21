@@ -5,6 +5,7 @@ import { useState } from 'react'
 import slugify from 'slugify'
 
 import { CalculatorField, Figure } from '~/components/calculator-field'
+import { AdUnit } from '~/components/ad-unit'
 import { Page } from '~/components/page'
 import { formatCurrency, formatNumber, type GameDetails } from '~/games'
 import { calculateRevenue, revenueBreakdown } from '~/revenue'
@@ -117,6 +118,8 @@ export default function HomePageRoute() {
           <RevenueBreakdownTable breakdown={revenueBreakdown(grossRevenue)} />
         </aside>
       </div>
+
+      <AdUnit placement="general" />
 
       <div className="pt-10 border-t border-rule">
         <div className="flex items-baseline justify-between gap-6 mb-10">

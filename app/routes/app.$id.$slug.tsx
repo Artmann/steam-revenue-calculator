@@ -3,6 +3,7 @@ import { Link, useLoaderData } from 'react-router'
 import type { ReactElement } from 'react'
 import slugify from 'slugify'
 
+import { AdUnit } from '~/components/ad-unit'
 import { Page } from '~/components/page'
 import type { GamePageDetails } from '~/games'
 import { formatCurrency, formatNumber, toGamePageDetails } from '~/games'
@@ -126,6 +127,8 @@ export default function AppRoute(): ReactElement {
           </h1>
         </div>
 
+        <AdUnit placement="gameTop" />
+
         <div className="flex flex-col gap-8 md:flex-row md:gap-16">
           <div className="md:flex-1 max-w-lg">
             <div className="flex flex-col gap-8">
@@ -206,6 +209,8 @@ export default function AppRoute(): ReactElement {
                   View on Steam →
                 </Link>
               </div>
+
+              <AdUnit placement="gameMid" />
 
               <div className="mt-4">
                 <h2 className="mb-2 text-xl">

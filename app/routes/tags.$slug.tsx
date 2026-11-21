@@ -3,6 +3,7 @@ import { Link, useLoaderData, useLocation } from 'react-router'
 import type { ReactElement } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 
+import { AdUnit } from '~/components/ad-unit'
 import { Page } from '~/components/page'
 import { buttonVariants } from '~/components/ui/button-variants'
 import {
@@ -205,6 +206,8 @@ export default function TagRoute(): ReactElement {
             Ignored unknown tags: {data.unknownTags.join(', ')}
           </p>
         )}
+
+        <AdUnit placement="general" />
 
         {stats.gameCount > 0 && (
           <TopGames

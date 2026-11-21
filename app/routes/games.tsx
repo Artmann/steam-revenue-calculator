@@ -3,6 +3,7 @@ import { Link, useLoaderData } from 'react-router'
 import { useRef, type ReactElement, useEffect, useMemo } from 'react'
 import slugify from 'slugify'
 
+import { AdUnit } from '~/components/ad-unit'
 import { Page } from '~/components/page'
 import {
   Pagination,
@@ -135,6 +136,8 @@ export default function GamesRoute(): ReactElement {
             ))}
           </div>
         </section>
+
+        <AdUnit placement="general" />
 
         <div className="pt-4">
           <Pagination>
