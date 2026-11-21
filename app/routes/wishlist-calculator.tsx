@@ -4,6 +4,7 @@ import type { ReactElement, ReactNode } from 'react'
 import { useState } from 'react'
 
 import { CalculatorField, Figure } from '~/components/calculator-field'
+import { AdUnit } from '~/components/ad-unit'
 import { Page } from '~/components/page'
 import {
   Select,
@@ -196,6 +197,8 @@ export default function WishlistCalculatorRoute(): ReactElement {
           wishlists={wishlistCount}
         />
       </section>
+
+      <AdUnit placement="general" />
 
       <section className="pt-10 border-t border-rule flex flex-col gap-10">
         <h2 className="font-display text-3xl md:text-4xl">What the research says</h2>

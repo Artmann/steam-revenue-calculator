@@ -2,6 +2,7 @@ import type { HeadersFunction, LoaderFunction, MetaFunction } from 'react-router
 import { Link, useLoaderData } from 'react-router'
 import type { ReactElement } from 'react'
 
+import { AdUnit } from '~/components/ad-unit'
 import { Page } from '~/components/page'
 import { CANONICAL_CACHE_CONTROL, SITE_URL } from '~/market/constants'
 import { formatCompactCurrency, formatPercent } from '~/market/format'
@@ -72,6 +73,8 @@ export default function TagsIndexRoute(): ReactElement {
             the full breakdown.
           </p>
         </header>
+
+        <AdUnit placement="general" />
 
         <section>
           <div className="grid grid-cols-[1fr_5rem_6rem_6rem] gap-4 eyebrow pb-3 border-b border-rule-strong">

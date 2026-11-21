@@ -2,6 +2,7 @@ import type { HeadersFunction, MetaFunction } from 'react-router'
 import { Outlet } from 'react-router'
 import type { ReactElement } from 'react'
 
+import { AdUnit } from '~/components/ad-unit'
 import { Page } from '~/components/page'
 
 export const headers: HeadersFunction = () => {
@@ -44,6 +45,10 @@ export default function BlogRoute(): ReactElement {
     <Page>
       <div className="w-full blog max-w-3xl">
         <Outlet />
+        <AdUnit
+          className="mt-12"
+          placement="general"
+        />
       </div>
     </Page>
   )
